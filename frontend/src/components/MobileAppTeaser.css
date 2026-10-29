@@ -57,353 +57,206 @@
   line-height: 1.6;
 }
 
-/* Caja de Acceso Anticipado */
-.px-app__early-box {
+/* ─── Tarjeta de Descarga Oficial ─── */
+.px-app__download-card {
   background-color: #F6FAF8;
   border: 1.5px solid #D6E4DC;
   border-radius: var(--radius-lg);
-  padding: clamp(24px, 3vw, 32px);
+  padding: clamp(28px, 3.5vw, 36px);
+  box-shadow: 0 12px 32px rgba(0, 77, 54, 0.05);
 }
 
-.px-app__early-header {
+.px-app__download-header {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
   gap: 12px;
-  margin-bottom: 18px;
+  margin-bottom: 16px;
 }
 
-.px-app__early-benefit {
+.px-app__download-version {
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 800;
+  color: var(--jade-dark);
+}
+
+.px-app__download-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--text-title);
+  margin-bottom: 8px;
+  letter-spacing: -0.01em;
+}
+
+.px-app__download-desc {
+  font-size: 0.92rem;
+  color: var(--text-body);
+  line-height: 1.6;
+  margin-bottom: 24px;
+}
+
+/* Botones de Tienda / Descarga Directa */
+.px-app__download-buttons {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.px-app__store-btn {
+  flex: 1;
+  min-width: 170px;
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  font-size: 0.86rem;
-  font-weight: 700;
-  color: var(--jade-deepest);
-}
-
-.px-app__early-benefit i {
-  color: var(--jade-dark);
-  font-size: 1rem;
-}
-
-.px-app__form {
-  display: flex;
-  gap: 12px;
-}
-
-.px-app__input {
-  flex: 1;
-  padding: 13px 18px;
-  font-size: 0.95rem;
-  font-family: inherit;
-  color: var(--text-title);
-  background-color: #FFFFFF;
-  border: 1.5px solid #D6E4DC;
+  gap: 14px;
+  padding: 12px 20px;
   border-radius: var(--radius-md);
-  outline: none;
+  text-decoration: none;
   transition: all var(--trans-fast);
+  box-sizing: border-box;
 }
 
-.px-app__input:focus {
-  border-color: var(--jade-primary);
-  box-shadow: 0 0 0 3px rgba(0, 168, 120, 0.15);
+.px-app__store-btn i {
+  font-size: 1.8rem;
+  flex-shrink: 0;
 }
 
-.px-app__submit-btn {
-  padding: 13px 22px;
-}
-
-.px-app__subscribed-msg {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 18px;
-  background-color: var(--jade-mint);
-  border: 1px solid var(--jade-primary);
-  border-radius: var(--radius-md);
-  color: var(--jade-deepest);
-  font-size: 0.92rem;
-  font-weight: 700;
-}
-
-/* ─── Mockup iPhone 16 ─── */
-.px-app__phone-col {
-  display: flex;
-  justify-content: center;
-}
-
-.phone-mockup {
-  position: relative;
-  width: 100%;
-  max-width: 320px;
-  filter: drop-shadow(0 24px 48px rgba(0, 77, 54, 0.14));
-}
-
-.phone-mockup__bezel {
-  background-color: #1A1A1A;
-  border: 4px solid #2B2B2B;
-  border-radius: 44px;
-  padding: 12px;
-  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.15);
-  position: relative;
-}
-
-.phone-mockup__island {
-  position: absolute;
-  top: 18px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 88px;
-  height: 22px;
-  background-color: #000000;
-  border-radius: 20px;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  padding-right: 8px;
-}
-
-.phone-mockup__camera {
-  width: 9px;
-  height: 9px;
-  border-radius: 50%;
-  background-color: #101B2B;
-}
-
-.phone-mockup__screen {
-  background-color: #FFFFFF;
-  border-radius: 34px;
-  overflow: hidden;
+.px-app__store-text {
   display: flex;
   flex-direction: column;
-  padding-top: 36px;
-  border: 1px solid #D6E4DC;
 }
 
-.phone-app__header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 10px 16px;
-  border-bottom: 1px solid #E2EDE7;
-}
-
-.phone-app__brand {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-family: 'Montserrat', sans-serif;
-  font-size: 0.82rem;
-  font-weight: 900;
-  color: var(--jade-deepest);
-}
-
-.phone-app__brand i {
-  color: var(--jade-primary);
-}
-
-.phone-app__live-badge {
+.px-app__store-sub {
   font-family: var(--font-mono);
-  font-size: 0.65rem;
+  font-size: 0.64rem;
   font-weight: 800;
-  padding: 3px 8px;
-  border-radius: var(--radius-pill);
-  background-color: var(--jade-mint);
-  border: 1px solid var(--jade-primary);
-  color: var(--jade-deepest);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 
-/* Mapa Simulado */
-.phone-app__map {
-  position: relative;
-  height: 190px;
-  background-color: #F0F6F3;
-  overflow: hidden;
+.px-app__store-name {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 1rem;
+  font-weight: 800;
+  line-height: 1.1;
 }
 
-.phone-app__map-grid {
-  position: absolute;
-  inset: 0;
-  background-image: 
-    linear-gradient(rgba(0, 168, 120, 0.08) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0, 168, 120, 0.08) 1px, transparent 1px);
-  background-size: 24px 24px;
-}
-
-.phone-app__route-svg {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-
-.phone-app__pin {
-  position: absolute;
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
+/* Estilo Play Store: Fondo Oscuro Titanio */
+.px-app__store-btn--play {
   background-color: #0A1B14;
   color: #FFFFFF;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.85rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  border: 1.5px solid #0A1B14;
 }
 
-.phone-app__truck {
-  position: absolute;
-  width: 38px;
-  height: 38px;
-  border-radius: 50%;
+.px-app__store-btn--play i {
+  color: #00D294;
+}
+
+.px-app__store-btn--play .px-app__store-sub {
+  color: #A3F5DC;
+}
+
+.px-app__store-btn--play:hover {
+  background-color: #004D36;
+  border-color: #00A878;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 77, 54, 0.2);
+}
+
+/* Estilo Descarga Directa: Jade Sólido */
+.px-app__store-btn--direct {
   background-color: var(--jade-primary);
   color: #FFFFFF;
+  border: 1.5px solid var(--jade-primary);
+}
+
+.px-app__store-btn--direct i {
+  color: #FFFFFF;
+}
+
+.px-app__store-btn--direct .px-app__store-sub {
+  color: #E4F5EE;
+}
+
+.px-app__store-btn--direct:hover {
+  background-color: var(--jade-dark);
+  border-color: var(--jade-dark);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 168, 120, 0.25);
+}
+
+/* Insignias de Seguridad */
+.px-app__download-badges {
   display: flex;
   align-items: center;
-  justify-content: center;
-  font-size: 1.05rem;
-  box-shadow: 0 4px 14px rgba(0, 168, 120, 0.4);
-}
-
-.phone-app__truck-pulse {
-  position: absolute;
-  inset: -4px;
-  border-radius: 50%;
-  border: 2px solid var(--jade-primary);
-  animation: pulseTruck 2s infinite ease-out;
-}
-
-@keyframes pulseTruck {
-  0%   { transform: scale(0.9); opacity: 1; }
-  100% { transform: scale(1.6); opacity: 0; }
-}
-
-/* Tarjeta de Estado del Pedido */
-.phone-app__status-card {
-  padding: 16px;
-  background-color: #FFFFFF;
-  border-top: 1px solid #E2EDE7;
-}
-
-.phone-app__status-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 12px;
-}
-
-.phone-app__status-title {
-  display: block;
-  font-size: 0.88rem;
-  font-weight: 800;
-  color: var(--text-title);
-}
-
-.phone-app__status-time {
+  gap: 20px;
+  flex-wrap: wrap;
+  padding-top: 14px;
+  border-top: 1px solid #D6E4DC;
+  font-family: var(--font-mono);
   font-size: 0.74rem;
   font-weight: 700;
-  color: var(--jade-dark);
-}
-
-.phone-app__price-pill {
-  font-family: var(--font-mono);
-  font-size: 0.82rem;
-  font-weight: 800;
-  color: var(--jade-deepest);
-  background-color: var(--jade-mint);
-  padding: 3px 8px;
-  border-radius: var(--radius-sm);
-}
-
-.phone-app__driver-row {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 10px 12px;
-  background-color: #F6FAF8;
-  border-radius: var(--radius-md);
-  margin-bottom: 12px;
-}
-
-.phone-app__driver-avatar {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background-color: #D6E4DC;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   color: var(--text-muted);
+}
+
+.px-app__download-badges span {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.px-app__download-badges i {
+  color: var(--jade-primary);
   font-size: 0.9rem;
 }
 
-.phone-app__driver-info {
-  flex: 1;
+/* ─── Columna Derecha: Modelo 3D con Three.js ─── */
+.px-app__phone-col {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.px-app__3d-container {
+  width: 100%;
+  max-width: 380px;
   display: flex;
   flex-direction: column;
-}
-
-.phone-app__driver-name {
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--text-title);
-}
-
-.phone-app__driver-plate {
-  font-size: 0.68rem;
-  color: var(--text-muted);
-}
-
-.phone-app__call-btn {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background-color: var(--jade-primary);
-  color: #FFFFFF;
-  display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.8rem;
-  text-decoration: none;
+  position: relative;
 }
 
-.phone-app__metric-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 8px;
-}
-
-.phone-app__metric {
-  background-color: #F0F7F3;
-  padding: 6px 10px;
-  border-radius: var(--radius-sm);
-  display: flex;
-  flex-direction: column;
-}
-
-.phone-app__metric-label {
+.px-app__3d-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
   font-family: var(--font-mono);
-  font-size: 0.6rem;
+  font-size: 0.72rem;
   font-weight: 700;
-  color: var(--text-muted);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--jade-deepest);
+  background-color: var(--jade-mint);
+  border: 1px solid var(--jade-primary);
+  padding: 5px 14px;
+  border-radius: var(--radius-pill);
+  margin-top: 10px;
+  pointer-events: none;
 }
 
-.phone-app__metric-val {
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
-  font-weight: 800;
-  color: var(--jade-deepest);
+.px-app__3d-hint i {
+  color: var(--jade-primary);
+  font-size: 0.85rem;
 }
 
 @media (max-width: 900px) {
   .px-app__layout {
     grid-template-columns: 1fr;
   }
-  .px-app__form {
+  .px-app__download-buttons {
     flex-direction: column;
   }
 }
-

@@ -2,10 +2,6 @@ import { Link } from 'react-router-dom'
 import './Footer.css'
 
 export default function Footer() {
-  const scrollToTop = () => {
-    window.scrollTo({ top: 0, behavior: 'smooth' })
-  }
-
   return (
     <footer className="px-footer-ref">
       {/* ─── ZONA SUPERIOR: 3 COLUMNAS INSTITUCIONALES ─── */}
@@ -44,7 +40,7 @@ export default function Footer() {
           <div className="px-footer-ref__col-center">
             <Link to="/" className="px-footer-ref__emblem-link" title="SYSGAS Puno Energía Pura">
               <img
-                src="/images/logos/sysgas_emblem.png"
+                src="/images/logos/sysgas_logo_monochrome_white.png"
                 alt="Emblema Oficial SYSGAS"
                 className="px-footer-ref__emblem-img"
               />
@@ -145,17 +141,6 @@ export default function Footer() {
               <i className="bi bi-whatsapp" />
             </a>
           </div>
-
-          {/* Botón Flotante para Volver Arriba */}
-          <button
-            type="button"
-            className="px-footer-ref__scroll-top"
-            onClick={scrollToTop}
-            title="Volver al inicio"
-            aria-label="Volver al inicio"
-          >
-            <i className="bi bi-chevron-up" />
-          </button>
         </div>
       </div>
     </footer>

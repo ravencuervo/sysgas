@@ -126,7 +126,7 @@
   max-width: 175px;
   height: auto;
   object-fit: contain;
-  filter: drop-shadow(0 10px 24px rgba(0, 210, 148, 0.3));
+  filter: none !important;
 }
 
 .px-footer-ref__motto {
@@ -138,7 +138,7 @@
   letter-spacing: 0.02em;
   margin-top: 18px;
   margin-bottom: 0;
-  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+  text-shadow: none !important;
 }
 
 /* Columna Derecha: Contacto + Redes Sociales */
@@ -223,7 +223,7 @@
   position: relative;
 }
 
-/* Texto Animado SYSGAS que Aparece y Desaparece (Efecto Respiración / Glow) */
+/* Texto Animado SYSGAS que Aparece y Desaparece (Limpio, Sin Sombras Ni Brillo Borroso) */
 .px-footer-ref__pulse-brand {
   margin-bottom: 18px;
   display: flex;
@@ -241,30 +241,21 @@
   user-select: none;
   cursor: default;
   display: inline-block;
-  animation: sysgasFadeGlow 4s ease-in-out infinite;
+  text-shadow: none !important;
+  filter: none !important;
+  animation: sysgasFade 3.5s ease-in-out infinite;
 }
 
-@keyframes sysgasFadeGlow {
-  0% {
-    opacity: 0.15;
-    color: #004D36;
-    text-shadow: 0 0 0px rgba(0, 210, 148, 0);
-    transform: scale(0.96);
+@keyframes sysgasFade {
+  0%, 100% {
+    opacity: 0.2;
+    color: #007A57;
+    transform: scale(0.97);
   }
   50% {
     opacity: 1;
     color: #00D294;
-    text-shadow: 
-      0 0 12px rgba(0, 210, 148, 0.8),
-      0 0 28px rgba(0, 168, 120, 0.6),
-      0 0 50px rgba(0, 168, 120, 0.3);
-    transform: scale(1.02);
-  }
-  100% {
-    opacity: 0.15;
-    color: #004D36;
-    text-shadow: 0 0 0px rgba(0, 210, 148, 0);
-    transform: scale(0.96);
+    transform: scale(1.01);
   }
 }
 
@@ -272,10 +263,7 @@
   animation-play-state: paused;
   opacity: 1;
   color: #00D294;
-  text-shadow: 
-    0 0 16px rgba(0, 210, 148, 0.9),
-    0 0 35px rgba(0, 168, 120, 0.7);
-  transform: scale(1.04);
+  text-shadow: none !important;
 }
 
 /* Líneas Legales Centrales */
@@ -328,34 +316,6 @@
   transform: translateY(-1px);
 }
 
-/* Botón Flotante para Volver Arriba */
-.px-footer-ref__scroll-top {
-  position: absolute;
-  right: 20px;
-  bottom: 0px;
-  width: 44px;
-  height: 44px;
-  border-radius: var(--radius-sm);
-  background-color: #06261A;
-  border: 1px solid #00A878;
-  color: #00D294;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  cursor: pointer;
-  transition: all var(--trans-fast);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
-}
-
-.px-footer-ref__scroll-top:hover {
-  background-color: #00A878;
-  color: #FFFFFF;
-  border-color: #00D294;
-  transform: translateY(-3px);
-  box-shadow: 0 8px 20px rgba(0, 168, 120, 0.4);
-}
-
 /* Responsive */
 @media (max-width: 992px) {
   .px-footer-ref__container {
@@ -378,10 +338,5 @@
 
   .px-footer-ref__social-circles {
     justify-content: center;
-  }
-
-  .px-footer-ref__scroll-top {
-    position: static;
-    margin-top: 20px;
   }
 }
