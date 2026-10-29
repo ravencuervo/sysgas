@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
+import EnterpriseTruck3D from './EnterpriseTruck3D.jsx'
 import './EnterpriseSection.css'
 
 export default function EnterpriseSection() {
@@ -21,7 +22,7 @@ export default function EnterpriseSection() {
           </div>
           <h2 className="section-title">Impulsa tu distribuidora de gas con la tecnología SYSGAS.</h2>
           <p className="section-desc">
-            El sistema operativo para empresas distribuidoras, envasadoras y flotas de GLP. Controla tus camiones en tiempo real, elimina pérdidas de cilindros con pasaporte QR y digitaliza el cobro en puerta.
+            El sistema operativo para empresas distribuidoras, envasadoras y flotas de GLP en Puno y el sur del país. Controla tus camiones en tiempo real, elimina pérdidas de cilindros con pasaporte QR y digitaliza el cobro en puerta.
           </p>
         </div>
 
@@ -76,21 +77,35 @@ export default function EnterpriseSection() {
           </div>
         </div>
 
-        {/* Calculadora Interactiva de Retorno de Inversión (ROI) */}
+        {/* Módulo de Afiliación & Calculadora Interactiva de Rentabilidad (ROI) con Modelo 3D */}
         <div className="px-enterprise__calculator reveal">
           <div className="px-enterprise__calc-left">
-            <span className="status-pill">
-              <span className="status-dot" />
-              CALCULADORA DE RENTABILIDAD
-            </span>
-            <h3 className="px-enterprise__calc-title">¿Cuánto puede ahorrar tu empresa al mes?</h3>
+            <div className="px-enterprise__calc-header-tag">
+              <span className="status-pill">
+                <span className="status-dot" />
+                AFILIACIÓN DISPONIBLE EN PUNO
+              </span>
+              <span className="px-enterprise__tag-extra">RED GLP 2026</span>
+            </div>
+
+            <h3 className="px-enterprise__calc-title">Solicita tu afiliación a nuestro servicio</h3>
             <p className="px-enterprise__calc-desc">
-              Desliza según el volumen mensual de balones que distribuye tu flota para estimar el ahorro directo en mermas, control de cilindros y combustible.
+              Conecta tu flota distribuidora al sistema inteligente de SYSGAS. Desliza según el volumen mensual de balones para estimar tu ahorro y rendimiento operativo.
             </p>
 
+            {/* Modelo 3D del Camión de Distribución SYSGAS */}
+            <div className="px-enterprise__truck-3d-box">
+              <EnterpriseTruck3D cylinderVolume={cylinderVolume} />
+              <div className="px-enterprise__3d-hint">
+                <i className="bi bi-arrow-repeat" />
+                <span>Gira el camión de flota en 3D</span>
+              </div>
+            </div>
+
+            {/* Slider de Volumen */}
             <div className="px-enterprise__slider-box">
               <div className="px-enterprise__slider-label">
-                <span>Volumen mensual distribuido:</span>
+                <span>Volumen mensual de tu flota:</span>
                 <strong className="px-enterprise__slider-val">{cylinderVolume.toLocaleString()} balones / mes</strong>
               </div>
               <input
@@ -101,11 +116,12 @@ export default function EnterpriseSection() {
                 value={cylinderVolume}
                 onChange={(e) => setCylinderVolume(Number(e.target.value))}
                 className="px-enterprise__range"
+                aria-label="Volumen mensual de balones distribuidos"
               />
               <div className="px-enterprise__slider-ticks">
-                <span>500</span>
-                <span>5,000</span>
-                <span>10,000+</span>
+                <span>500 balones</span>
+                <span>5,000 balones</span>
+                <span>10,000+ balones</span>
               </div>
             </div>
           </div>
@@ -128,18 +144,32 @@ export default function EnterpriseSection() {
                 </div>
               </div>
 
+              {/* Botones de Afiliación y Contacto B2B */}
               <div className="px-enterprise__cta-actions">
                 <a
-                  href={`https://wa.me/51987654321?text=${encodeURIComponent(
-                    `¡Hola SYSGAS Enterprise! Deseo solicitar una demostración del sistema para mi distribuidora de gas (${cylinderVolume} balones/mes).`
+                  href={`https://wa.me/51951667696?text=${encodeURIComponent(
+                    `¡Hola SYSGAS Puno! Deseo solicitar la afiliación de mi empresa distribuidora al servicio de telemetría y red de gas (Volumen estimado: ${cylinderVolume} balones/mes).`
                   )}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="btn btn-primary"
+                  className="btn btn-primary px-enterprise__btn-affiliate"
                 >
-                  <i className="bi bi-calendar-check-fill" />
+                  <i className="bi bi-shield-fill-check" />
+                  <span>Solicitar Afiliación al Servicio</span>
+                </a>
+
+                <a
+                  href={`https://wa.me/51951667696?text=${encodeURIComponent(
+                    `¡Hola SYSGAS! Solicito una demostración guiada del sistema para mi distribuidora (${cylinderVolume} balones/mes).`
+                  )}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="btn btn-secondary"
+                >
+                  <i className="bi bi-calendar-check" />
                   <span>Solicitar Demo Guiada</span>
                 </a>
+
                 <Link to="/login" className="btn btn-secondary">
                   <i className="bi bi-box-arrow-in-right" />
                   <span>Acceso LOGIN</span>
@@ -152,4 +182,3 @@ export default function EnterpriseSection() {
     </section>
   )
 }
-

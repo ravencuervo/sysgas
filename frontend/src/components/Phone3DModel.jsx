@@ -172,7 +172,7 @@ export default function Phone3DModel() {
 
       ctx.fillStyle = '#007A57'
       ctx.font = 'bold 20px "JetBrains Mono", monospace'
-      ctx.fillText('⏱ Llegada estimada: ~6 min', 32, 686)
+      ctx.fillText('Llegada estimada: ~6 min', 32, 686)
 
       ctx.fillStyle = '#004D36'
       ctx.beginPath()
@@ -239,7 +239,7 @@ export default function Phone3DModel() {
       ctx.fillStyle = '#FFFFFF'
       ctx.font = 'bold 20px Inter, sans-serif'
       ctx.textAlign = 'center'
-      ctx.fillText('📞 Coordinar con Repartidor en Ruta', screenWidth / 2, 975)
+      ctx.fillText('Coordinar con Repartidor en Ruta', screenWidth / 2, 975)
       ctx.textAlign = 'left'
 
       screenTexture.needsUpdate = true
@@ -445,3 +445,4 @@ export default function Phone3DModel() {
     />
   )
 }
+

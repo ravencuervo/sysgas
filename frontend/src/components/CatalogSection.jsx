@@ -1,9 +1,11 @@
+import CatalogCylinder3D from './CatalogCylinder3D.jsx'
 import './CatalogSection.css'
 
 const PRODUCTS = [
   {
     capacity: '5 kg',
     name: 'Balón Portátil',
+    dimensions: '38 cm alto × 23 cm ø',
     idealFor: 'Departamentos, campamentos, parrillas y espacios reducidos.',
     price: 'S/ 28.50',
     tara: '6.2 kg',
@@ -14,6 +16,7 @@ const PRODUCTS = [
   {
     capacity: '10 kg',
     name: 'Balón Familiar',
+    dimensions: '62 cm alto × 30 cm ø',
     idealFor: 'El más elegido para hogares familiares, cocinas y pequeños negocios.',
     price: 'S/ 48.00',
     tara: '11.5 kg',
@@ -24,6 +27,7 @@ const PRODUCTS = [
   {
     capacity: '45 kg',
     name: 'Balón Industrial',
+    dimensions: '132 cm alto × 38 cm ø',
     idealFor: 'Restaurantes, panaderías, hoteles y calderas de alta demanda.',
     price: 'S/ 185.00',
     tara: '38.0 kg',
@@ -53,11 +57,11 @@ export default function CatalogSection({ onSelectProduct }) {
           </div>
           <h2 className="section-title">Elige tu cilindro. Recíbelo en minutos.</h2>
           <p className="section-desc">
-            Cada balón incluye garantía de peso exacto, precinto inviolable y pasaporte QR escaneable desde tu celular.
+            Cada balón incluye garantía de peso exacto, precinto inviolable y pasaporte QR escaneable desde tu celular. Gira e inspecciona cada modelo en 3D con sus medidas oficiales.
           </p>
         </div>
 
-        {/* Grid de Productos Estilo Nike/Apple */}
+        {/* Grid de Productos Estilo Nike/Apple con Modelos 3D */}
         <div className="px-catalog__grid">
           {PRODUCTS.map((item, idx) => (
             <div
@@ -79,6 +83,23 @@ export default function CatalogSection({ onSelectProduct }) {
                 <div className="px-catalog__meta">
                   <span className="px-catalog__capacity">{item.capacity}</span>
                   <span className="px-catalog__name">{item.name}</span>
+                </div>
+              </div>
+
+              {/* Visor 3D Interactivo con Medidas Reales Calibradas */}
+              <div className="px-catalog__3d-box">
+                <div className="px-catalog__3d-canvas-wrap">
+                  <CatalogCylinder3D capacity={item.capacity} />
+                </div>
+                <div className="px-catalog__3d-footer">
+                  <span className="px-catalog__3d-dim" title={`Medidas oficiales: ${item.dimensions}`}>
+                    <i className="bi bi-rulers" />
+                    <span>{item.dimensions}</span>
+                  </span>
+                  <span className="px-catalog__3d-hint">
+                    <i className="bi bi-arrow-repeat" />
+                    <span>3D 360°</span>
+                  </span>
                 </div>
               </div>
 

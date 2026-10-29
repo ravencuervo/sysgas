@@ -79,6 +79,78 @@
   margin-top: 4px;
 }
 
+/* Visor 3D del Cilindro en la Card del Catálogo */
+.px-catalog__3d-box {
+  width: 100%;
+  position: relative;
+  background: radial-gradient(circle at 50% 35%, #FFFFFF 0%, #F1F7F4 100%);
+  border: 1.5px solid #D6E4DC;
+  border-radius: var(--radius-md);
+  margin-bottom: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: border-color var(--trans-fast), box-shadow var(--trans-fast);
+}
+
+.px-catalog__card:hover .px-catalog__3d-box {
+  border-color: #00A878;
+  box-shadow: 0 8px 24px rgba(0, 168, 120, 0.12);
+}
+
+.px-catalog__3d-canvas-wrap {
+  width: 100%;
+  height: 235px;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.px-catalog__3d-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  background-color: rgba(255, 255, 255, 0.95);
+  border-top: 1px solid #E2EDE7;
+  font-family: var(--font-mono);
+  font-size: 0.73rem;
+  font-weight: 700;
+}
+
+.px-catalog__3d-dim {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--text-title);
+  letter-spacing: -0.01em;
+}
+
+.px-catalog__3d-dim i {
+  color: var(--jade-primary);
+  font-size: 0.85rem;
+}
+
+.px-catalog__3d-hint {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--jade-dark);
+  background-color: var(--jade-mint);
+  border: 1px solid rgba(0, 168, 120, 0.3);
+  padding: 3px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.68rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.px-catalog__3d-hint i {
+  font-size: 0.75rem;
+  color: var(--jade-primary);
+}
+
 .px-catalog__price-box {
   margin-bottom: 16px;
   display: flex;
