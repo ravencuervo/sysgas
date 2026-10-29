@@ -1,0 +1,308 @@
+.login-page {
+  min-height: 100vh;
+  min-height: 100dvh;
+  background-color: #F6FAF8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  padding: 24px 16px;
+  box-sizing: border-box;
+}
+
+.login-page__main {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  justify-content: center;
+}
+
+.login-card {
+  width: 100%;
+  background-color: #FFFFFF;
+  border: 1.5px solid #D6E4DC;
+  border-radius: var(--radius-lg);
+  padding: clamp(32px, 5vw, 48px);
+  box-shadow: 0 16px 40px rgba(0, 77, 54, 0.06);
+}
+
+.login-card__header {
+  text-align: center;
+  margin-bottom: 28px;
+}
+
+/* Icon Box con Logo Oficial del Sistema SYSGAS */
+.login-card__icon-box {
+  width: 72px;
+  height: 72px;
+  border-radius: var(--radius-lg);
+  background-color: #FFFFFF;
+  border: 1.5px solid #D6E4DC;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  margin-bottom: 18px;
+  box-shadow: 0 4px 14px rgba(0, 77, 54, 0.08);
+  transition: all var(--trans-fast);
+  text-decoration: none;
+}
+
+.login-card__icon-box:hover {
+  border-color: var(--jade-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0, 168, 120, 0.15);
+}
+
+.login-card__logo-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.login-card__title {
+  font-size: 1.65rem;
+  font-weight: 900;
+  color: var(--text-title);
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+}
+
+.login-card__subtitle {
+  font-size: 0.92rem;
+  color: var(--text-muted);
+  line-height: 1.5;
+}
+
+/* Botón Demo 1 Clic */
+.login-card__demo-pill {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background-color: var(--jade-mint);
+  border: 1.5px dashed var(--jade-primary);
+  border-radius: var(--radius-pill);
+  padding: 10px 16px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  color: var(--jade-deepest);
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: all var(--trans-fast);
+}
+
+.login-card__demo-pill i {
+  color: var(--jade-primary);
+  font-size: 0.95rem;
+}
+
+.login-card__demo-pill:hover {
+  background-color: var(--jade-primary);
+  border-color: var(--jade-primary);
+  color: #FFFFFF;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 168, 120, 0.2);
+}
+
+.login-card__demo-pill:hover i {
+  color: #FFFFFF;
+}
+
+/* Selector de Rol: Empresa B2B vs Operador de Ruta */
+.login-card__role-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+  background-color: #E8F2EC;
+  padding: 6px;
+  border-radius: var(--radius-md);
+  margin-bottom: 28px;
+}
+
+.login-card__role-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  border: none;
+  background: transparent;
+  color: var(--text-body);
+  cursor: pointer;
+  transition: all var(--trans-fast);
+}
+
+.login-card__role-btn--active {
+  background-color: #FFFFFF;
+  color: var(--jade-deepest);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Formulario */
+.login-card__field {
+  margin-bottom: 20px;
+}
+
+.login-card__label-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.login-card__label {
+  display: block;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: var(--text-title);
+  margin-bottom: 8px;
+}
+
+.login-card__forgot-link {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--jade-dark);
+  text-decoration: none;
+}
+
+.login-card__forgot-link:hover {
+  text-decoration: underline;
+}
+
+.login-card__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.login-card__input-icon {
+  position: absolute;
+  left: 16px;
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.login-card__input {
+  width: 100%;
+  padding: 13px 44px 13px 44px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  color: var(--text-title);
+  background-color: #FFFFFF;
+  border: 1.5px solid #D6E4DC;
+  border-radius: var(--radius-md);
+  transition: all var(--trans-fast);
+  outline: none;
+}
+
+.login-card__input:focus {
+  border-color: var(--jade-primary);
+  box-shadow: 0 0 0 3px rgba(0, 168, 120, 0.15);
+}
+
+.login-card__toggle-pass {
+  position: absolute;
+  right: 14px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 1.1rem;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.login-card__toggle-pass:hover {
+  color: var(--jade-deepest);
+}
+
+.login-card__alert {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background-color: var(--jade-mint);
+  border: 1px solid var(--jade-primary);
+  border-radius: var(--radius-md);
+  font-size: 0.86rem;
+  color: var(--jade-deepest);
+  font-weight: 600;
+  margin-bottom: 20px;
+}
+
+.login-card__submit-btn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 15px 24px;
+  background-color: var(--jade-primary);
+  color: #FFFFFF;
+  font-size: 0.95rem;
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: all var(--trans-fast);
+}
+
+.login-card__submit-btn:hover:not(:disabled) {
+  background-color: var(--jade-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 20px rgba(0, 168, 120, 0.25);
+}
+
+.login-card__submit-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+/* Footer de la tarjeta */
+.login-card__footer {
+  margin-top: 28px;
+  padding-top: 20px;
+  border-top: 1px solid #E2EDE7;
+  text-align: center;
+  font-size: 0.86rem;
+  color: var(--text-muted);
+}
+
+.login-card__partner-link {
+  font-weight: 700;
+  color: var(--jade-dark);
+  text-decoration: none;
+}
+
+.login-card__partner-link:hover {
+  text-decoration: underline;
+}
+
+.login-card__back-home {
+  margin-top: 14px;
+}
+
+.login-card__back-home a {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-decoration: none;
+  transition: color var(--trans-fast);
+}
+
+.login-card__back-home a:hover {
+  color: var(--jade-deepest);
+}

@@ -1,0 +1,220 @@
+.px-enterprise {
+  position: relative;
+  border-bottom: var(--border-subtle);
+  padding-top: var(--section-py);
+  padding-bottom: var(--section-py);
+}
+
+.px-enterprise__header {
+  margin-bottom: clamp(40px, 5vw, 64px);
+}
+
+.px-enterprise__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(24px, 3vw, 36px);
+  margin-bottom: clamp(48px, 6vw, 72px);
+}
+
+.px-enterprise__card {
+  display: flex;
+  flex-direction: column;
+  padding: clamp(28px, 3.5vw, 40px);
+  background-color: #FFFFFF;
+}
+
+.px-enterprise__icon-box {
+  width: 56px;
+  height: 56px;
+  border-radius: var(--radius-md);
+  background-color: var(--jade-mint);
+  border: 1px solid var(--jade-primary);
+  color: var(--jade-dark);
+  font-size: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 24px;
+}
+
+.px-enterprise__card-title {
+  font-size: clamp(1.2rem, 1.8vw, 1.45rem);
+  font-weight: 800;
+  color: var(--text-title);
+  margin-bottom: 12px;
+}
+
+.px-enterprise__card-desc {
+  font-size: 0.95rem;
+  color: var(--text-body);
+  line-height: 1.65;
+  margin-bottom: 24px;
+}
+
+.px-enterprise__bullet-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 18px;
+  border-top: 1px solid #E2EDE7;
+}
+
+.px-enterprise__bullet-list li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: var(--text-title);
+}
+
+.px-enterprise__bullet-list i {
+  color: var(--jade-primary);
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+/* ─── Calculadora de Retorno de Inversión (ROI) ─── */
+.px-enterprise__calculator {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: clamp(32px, 4vw, 56px);
+  background-color: #FFFFFF;
+  border: 1.5px solid #D6E4DC;
+  border-radius: var(--radius-lg);
+  padding: clamp(32px, 4vw, 48px);
+  box-shadow: 0 16px 40px rgba(0, 77, 54, 0.06);
+}
+
+.px-enterprise__calc-title {
+  font-size: clamp(1.4rem, 2.2vw, 1.85rem);
+  font-weight: 900;
+  color: var(--text-title);
+  margin-top: 14px;
+  margin-bottom: 10px;
+}
+
+.px-enterprise__calc-desc {
+  font-size: 0.95rem;
+  color: var(--text-body);
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.px-enterprise__slider-box {
+  background-color: #F6FAF8;
+  border: 1px solid #D6E4DC;
+  border-radius: var(--radius-md);
+  padding: 20px 24px;
+}
+
+.px-enterprise__slider-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-title);
+  margin-bottom: 14px;
+}
+
+.px-enterprise__slider-val {
+  font-family: var(--font-mono);
+  font-size: 1.1rem;
+  color: var(--jade-dark);
+}
+
+.px-enterprise__range {
+  width: 100%;
+  accent-color: var(--jade-primary);
+  height: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.px-enterprise__slider-ticks {
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono);
+  font-size: 0.74rem;
+  color: var(--text-muted);
+  margin-top: 8px;
+}
+
+/* Caja de Resultados de Ahorro */
+.px-enterprise__savings-box {
+  background-color: var(--jade-deepest);
+  border-radius: var(--radius-md);
+  padding: clamp(28px, 3.5vw, 36px);
+  color: #FFFFFF;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.px-enterprise__savings-label {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  color: #A3F5DC;
+  margin-bottom: 8px;
+}
+
+.px-enterprise__savings-amount {
+  font-family: 'Montserrat', sans-serif;
+  font-size: clamp(2rem, 3.5vw, 2.8rem);
+  font-weight: 900;
+  color: #00D294;
+  line-height: 1;
+  margin-bottom: 20px;
+}
+
+.px-enterprise__savings-period {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.7);
+  margin-left: 6px;
+}
+
+.px-enterprise__savings-breakdown {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+  margin-bottom: 24px;
+}
+
+.px-enterprise__breakdown-item {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.85rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.px-enterprise__breakdown-item strong {
+  color: #FFFFFF;
+  font-family: var(--font-mono);
+}
+
+.px-enterprise__cta-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 992px) {
+  .px-enterprise__grid {
+    grid-template-columns: 1fr;
+  }
+  .px-enterprise__calculator {
+    grid-template-columns: 1fr;
+  }
+}
+

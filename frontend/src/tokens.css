@@ -1,0 +1,88 @@
+/* ══════════════════════════════════════════════════════════════════
+   DESIGN TOKENS — GasDespacho (Modo Blanco + Verde Jade Puro)
+   Paleta Jade Pura · Sin Gradientes · Sin Difuminados · Bloques Sólidos
+   ══════════════════════════════════════════════════════════════════ */
+:root {
+  /* ─── Paleta Verde Jade Pura (Teoría del Color 60-30-10) ─── */
+  --jade-primary:   #00A878;   /* Jade principal vibrante */
+  --jade-dark:      #007A57;   /* Jade profundo de contraste y hover */
+  --jade-deepest:   #004D36;   /* Jade bosque de alta densidad */
+  --jade-light:     #25A27A;   /* Jade medio para acentos y bordes */
+  --jade-mint:      #E4F5EE;   /* Fondo jade suave para badges y tags */
+  --jade-neon:      #00A878;   /* Indicador de emisión pura */
+
+  /* ─── Neutros Puros en Modo Claro / Blanco ─── */
+  --bg-white:       #FFFFFF;   /* Fondo blanco puro */
+  --bg-primary:     #F6FAF8;   /* Fondo alternativo suave jade-blanco */
+  --bg-card:        #FFFFFF;   /* Superficie de cards */
+  --bg-card-hover:  #F0F7F3;   /* Hover en cards */
+  --bg-surface:     #E8F2EC;   /* Superficie de tabs, inputs y cajas */
+  --bg-contrast:    #004D36;   /* Bloque de contraste jade profundo */
+
+  /* ─── Bordes Sólidos Puros (Sin Difuminar) ─── */
+  --border-muted:   1px solid #D6E4DC;
+  --border-subtle:  1px solid #E2EDE7;
+  --border-jade:    1px solid #00A878;
+  --border-jade-2:  2px solid #00A878;
+  --border-light:   1px solid #25A27A;
+
+  /* ─── Tipografía y Jerarquía en Fondo Blanco ─── */
+  --font-main: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --text-title:     #0A1B14;   /* Negro jade ultra profundo para títulos */
+  --text-body:      #2D4238;   /* Texto principal de alta legibilidad */
+  --text-muted:     #5D786D;   /* Texto secundario y etiquetas */
+  --text-white:     #FFFFFF;   /* Texto para fondos jade y botones */
+
+  /* ─── Acentos Funcionales ─── */
+  --color-amber:    #D97706;   /* Válvula / Alerta (Ámbar sólido) */
+  --color-danger:   #DC2626;   /* Peligro / Rechazo ISO */
+
+  /* ─── Medidas y Layout Responsivo (Espaciado Amplio Estilo Apple) ─── */
+  --section-py:     clamp(84px, 11vh, 140px);
+  --container-max:  1280px;
+  --radius-sm:      4px;
+  --radius-md:      8px;
+  --radius-lg:      12px;
+  --radius-pill:    999px;
+
+  /* ─── Transiciones ─── */
+  --trans-fast:     0.18s cubic-bezier(0.16, 1, 0.3, 1);
+  --trans-smooth:   0.32s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ─── Reset Estricto ─── */
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--bg-white);
+  color: var(--text-body);
+  line-height: 1.6;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── Scrollbar Sólido ─── */
+::-webkit-scrollbar {
+  width: 8px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--jade-light);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--jade-dark);
+}

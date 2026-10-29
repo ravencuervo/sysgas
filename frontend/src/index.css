@@ -1,0 +1,281 @@
+/* ══════════════════════════════════════════════════════════════════
+   INDEX.CSS — Estructura Global y Animaciones en Modo Blanco + Jade
+   ══════════════════════════════════════════════════════════════════ */
+
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: clamp(16px, 3vw, 32px);
+  padding-right: clamp(16px, 3vw, 32px);
+}
+
+/* ─── Secciones ─── */
+.section {
+  padding-top: var(--section-py);
+  padding-bottom: var(--section-py);
+  position: relative;
+}
+.section--white { background-color: var(--bg-white); }
+.section--alt   { background-color: var(--bg-primary); }
+.section--card  { background-color: var(--bg-card); }
+.section--dark  { background-color: var(--bg-white); } /* Redirigido a blanco */
+
+/* ─── Cabeceras Numéricas estilo PROGEX (01 Qué hacemos, etc.) ─── */
+.section-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: var(--font-mono);
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--jade-dark);
+  margin-bottom: 14px;
+}
+.section-tag__num {
+  display: inline-block;
+  padding: 3px 8px;
+  background-color: var(--jade-mint);
+  border: var(--border-jade);
+  border-radius: var(--radius-sm);
+  color: var(--jade-deepest);
+  font-weight: 800;
+}
+
+.section-title {
+  font-size: clamp(1.8rem, 3.4vw, 3rem);
+  font-weight: 900;
+  line-height: 1.18;
+  color: var(--text-title);
+  letter-spacing: -0.03em;
+  margin-bottom: 16px;
+}
+
+.section-desc {
+  font-size: clamp(0.95rem, 1.2vw, 1.15rem);
+  color: var(--text-body);
+  max-width: 680px;
+  line-height: 1.7;
+}
+
+/* ─── Botones con micro-interacciones ─── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 0.92rem;
+  font-weight: 700;
+  padding: 13px 26px;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  text-decoration: none;
+  transition: all var(--trans-fast);
+  border: 1px solid transparent;
+  white-space: nowrap;
+}
+.btn i {
+  transition: transform var(--trans-fast);
+}
+
+/* Primario: Jade Sólido Puro */
+.btn-primary {
+  background-color: var(--jade-primary);
+  color: var(--text-white);
+  border-color: var(--jade-primary);
+}
+.btn-primary:hover {
+  background-color: var(--jade-dark);
+  border-color: var(--jade-dark);
+  color: var(--text-white);
+}
+.btn-primary:hover i.bi-arrow-right {
+  transform: translateX(4px);
+}
+
+/* Secundario: Blanco con Borde Sólido */
+.btn-secondary {
+  background-color: var(--bg-white);
+  color: var(--text-title);
+  border: var(--border-muted);
+}
+.btn-secondary:hover {
+  background-color: var(--jade-mint);
+  border-color: var(--jade-primary);
+  color: var(--jade-deepest);
+}
+
+/* Botón Scanner */
+.btn-scanner {
+  background-color: var(--jade-mint);
+  color: var(--jade-deepest);
+  border: var(--border-jade);
+}
+.btn-scanner:hover {
+  background-color: var(--jade-primary);
+  color: var(--text-white);
+  border-color: var(--jade-primary);
+}
+
+/* Botón Dark / Contraste */
+.btn-dark {
+  background-color: var(--jade-deepest);
+  color: var(--text-white);
+  border: 1px solid var(--jade-deepest);
+}
+.btn-dark:hover {
+  background-color: var(--jade-dark);
+  border-color: var(--jade-dark);
+}
+
+/* ─── Status Indicator (Punto verde palpitante) ─── */
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  background-color: var(--jade-mint);
+  border: var(--border-muted);
+  border-radius: var(--radius-pill);
+  font-size: 0.74rem;
+  font-family: var(--font-mono);
+  font-weight: 700;
+  color: var(--jade-deepest);
+}
+.status-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: var(--jade-primary);
+  animation: pulseDot 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes pulseDot {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.35; transform: scale(0.85); }
+}
+
+/* ─── Marquee Banner Ticker (Sólido Jade / Blanco) ─── */
+.marquee-container {
+  overflow: hidden;
+  user-select: none;
+  background-color: var(--jade-deepest);
+  border-top: var(--border-jade);
+  border-bottom: var(--border-jade);
+  padding: 16px 0;
+  display: flex;
+}
+.marquee-track {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  gap: 40px;
+  animation: scrollMarquee 26s linear infinite;
+}
+.marquee-track:hover {
+  animation-play-state: paused;
+}
+.marquee-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 16px;
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-white);
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+.marquee-item i {
+  color: var(--jade-primary);
+  font-size: 1rem;
+}
+.marquee-bullet {
+  color: var(--jade-primary);
+  font-weight: 900;
+}
+@keyframes scrollMarquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-100%); }
+}
+
+/* ─── Cards Sólidas de Alta Definición ─── */
+.solid-card {
+  background-color: var(--bg-card);
+  border: var(--border-muted);
+  border-radius: var(--radius-lg);
+  padding: clamp(20px, 3vw, 36px);
+  transition: all var(--trans-smooth);
+  position: relative;
+}
+.solid-card:hover {
+  border-color: var(--jade-primary);
+  background-color: var(--bg-card-hover);
+  transform: translateY(-4px);
+}
+
+/* ─── Badges Sólidos ─── */
+.solid-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 4px 10px;
+  border-radius: var(--radius-sm);
+}
+.solid-badge--jade {
+  background-color: var(--jade-mint);
+  border: var(--border-jade);
+  color: var(--jade-deepest);
+}
+.solid-badge--amber {
+  background-color: #FEF3C7;
+  border: 1px solid var(--color-amber);
+  color: #B45309;
+}
+
+/* ─── Utilidades de Color ─── */
+.text-jade  { color: var(--jade-primary); }
+.text-dark  { color: var(--text-title); }
+.text-amber { color: var(--color-amber); }
+
+/* ══════════════════════════════════════════════════════════════════
+   TRANSICIONES Y ANIMACIONES ESTILO APPLE / NIKE
+   ══════════════════════════════════════════════════════════════════ */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.85s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.85s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-delay-1 { transition-delay: 0.1s; }
+.reveal-delay-2 { transition-delay: 0.2s; }
+.reveal-delay-3 { transition-delay: 0.3s; }
+.reveal-delay-4 { transition-delay: 0.4s; }
+
+/* Micro-interacciones suaves en hover */
+.card-hover-lift {
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.3s ease;
+}
+.card-hover-lift:hover {
+  transform: translateY(-6px) scale(1.01);
+  border-color: var(--jade-primary) !important;
+  box-shadow: 0 16px 36px rgba(0, 77, 54, 0.08);
+}
+

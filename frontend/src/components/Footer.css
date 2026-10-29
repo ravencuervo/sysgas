@@ -1,0 +1,387 @@
+/* ══════════════════════════════════════════════════════════════════
+   FOOTER INSTITUCIONAL SYSGAS · Estilo según Imagen de Referencia
+   ══════════════════════════════════════════════════════════════════ */
+
+.px-footer-ref {
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+
+/* ─── 1. ZONA SUPERIOR: 3 COLUMNAS INSTITUCIONALES ─── */
+.px-footer-ref__top {
+  background-color: #062118; /* Verde oscuro profundo institucional */
+  border-top: 2px solid #00A878;
+  padding: clamp(54px, 7vw, 84px) 0 clamp(44px, 5vw, 68px) 0;
+  color: #FFFFFF;
+}
+
+.px-footer-ref__container {
+  display: grid;
+  grid-template-columns: 1.25fr 1fr 1.15fr;
+  gap: clamp(32px, 4.5vw, 64px);
+  align-items: center;
+}
+
+/* Columna Izquierda: Texto + Sello */
+.px-footer-ref__col-left {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+}
+
+.px-footer-ref__desc {
+  font-size: 0.92rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.9);
+  text-align: justify;
+  margin: 0;
+}
+
+/* Sello Circular de Certificación Oficial */
+.px-footer-ref__seal-box {
+  display: flex;
+  align-items: center;
+}
+
+.px-footer-ref__seal-ring {
+  position: relative;
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  border: 1.5px dashed #00D294;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.px-footer-ref__seal-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  animation: rotateSeal 25s linear infinite;
+}
+
+@keyframes rotateSeal {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.px-footer-ref__seal-text {
+  fill: #A3F5DC;
+  font-family: var(--font-mono);
+  font-size: 8.5px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.px-footer-ref__seal-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 2;
+  text-align: center;
+}
+
+.px-footer-ref__seal-center i {
+  color: #00D294;
+  font-size: 1.5rem;
+  margin-bottom: 2px;
+}
+
+.px-footer-ref__seal-sub {
+  font-family: var(--font-mono);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  color: #FFFFFF;
+}
+
+/* Columna Central: Emblema Prominente + Slogan */
+.px-footer-ref__col-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.px-footer-ref__emblem-link {
+  display: inline-block;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.px-footer-ref__emblem-link:hover {
+  transform: scale(1.04);
+}
+
+.px-footer-ref__emblem-img {
+  width: 100%;
+  max-width: 175px;
+  height: auto;
+  object-fit: contain;
+  filter: drop-shadow(0 10px 24px rgba(0, 210, 148, 0.3));
+}
+
+.px-footer-ref__motto {
+  font-family: 'Montserrat', serif, sans-serif;
+  font-size: clamp(1rem, 1.35vw, 1.25rem);
+  font-style: italic;
+  font-weight: 700;
+  color: #FFFFFF;
+  letter-spacing: 0.02em;
+  margin-top: 18px;
+  margin-bottom: 0;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.4);
+}
+
+/* Columna Derecha: Contacto + Redes Sociales */
+.px-footer-ref__col-right {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.px-footer-ref__contact-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 0;
+  margin: 0;
+}
+
+.px-footer-ref__contact-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 0.94rem;
+  color: #FFFFFF;
+}
+
+.px-footer-ref__contact-item i {
+  color: #00D294;
+  font-size: 1.15rem;
+  width: 22px;
+  flex-shrink: 0;
+}
+
+.px-footer-ref__contact-item strong {
+  color: #A3F5DC;
+  margin-right: 4px;
+}
+
+/* Círculos de Redes Sociales Monocromáticos */
+.px-footer-ref__social-circles {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.px-footer-ref__social-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(0, 210, 148, 0.4);
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  text-decoration: none;
+  transition: all var(--trans-fast);
+}
+
+.px-footer-ref__social-btn:hover {
+  background-color: #00A878;
+  border-color: #00D294;
+  color: #FFFFFF;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 168, 120, 0.35);
+}
+
+/* ─── 2. ZONA INFERIOR: FRANJA CONTRASTE PROFUNDO ─── */
+.px-footer-ref__bottom {
+  background-color: #030C08; /* Tono ultra oscuro de contraste */
+  padding: 36px 0 28px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  position: relative;
+}
+
+.px-footer-ref__bottom-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+}
+
+/* Texto Animado SYSGAS que Aparece y Desaparece (Efecto Respiración / Glow) */
+.px-footer-ref__pulse-brand {
+  margin-bottom: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 12px;
+}
+
+.px-footer-ref__brand-glow-text {
+  font-family: 'Montserrat', 'Inter', sans-serif;
+  font-size: clamp(2.4rem, 5.5vw, 4rem);
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  user-select: none;
+  cursor: default;
+  display: inline-block;
+  animation: sysgasFadeGlow 4s ease-in-out infinite;
+}
+
+@keyframes sysgasFadeGlow {
+  0% {
+    opacity: 0.15;
+    color: #004D36;
+    text-shadow: 0 0 0px rgba(0, 210, 148, 0);
+    transform: scale(0.96);
+  }
+  50% {
+    opacity: 1;
+    color: #00D294;
+    text-shadow: 
+      0 0 12px rgba(0, 210, 148, 0.8),
+      0 0 28px rgba(0, 168, 120, 0.6),
+      0 0 50px rgba(0, 168, 120, 0.3);
+    transform: scale(1.02);
+  }
+  100% {
+    opacity: 0.15;
+    color: #004D36;
+    text-shadow: 0 0 0px rgba(0, 210, 148, 0);
+    transform: scale(0.96);
+  }
+}
+
+.px-footer-ref__brand-glow-text:hover {
+  animation-play-state: paused;
+  opacity: 1;
+  color: #00D294;
+  text-shadow: 
+    0 0 16px rgba(0, 210, 148, 0.9),
+    0 0 35px rgba(0, 168, 120, 0.7);
+  transform: scale(1.04);
+}
+
+/* Líneas Legales Centrales */
+.px-footer-ref__legal-title {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.98rem;
+  font-weight: 800;
+  color: #FFFFFF;
+  margin-bottom: 5px;
+  letter-spacing: -0.01em;
+}
+
+.px-footer-ref__legal-sub {
+  font-size: 0.88rem;
+  font-weight: 600;
+  color: #A3F5DC;
+  margin-bottom: 5px;
+}
+
+.px-footer-ref__legal-cert {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 6px;
+}
+
+.px-footer-ref__legal-copy {
+  font-family: var(--font-mono);
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: 14px;
+}
+
+/* Mini Redes Sociales Inferiores */
+.px-footer-ref__bottom-social {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.px-footer-ref__bottom-social a {
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 1.05rem;
+  transition: all var(--trans-fast);
+  text-decoration: none;
+}
+
+.px-footer-ref__bottom-social a:hover {
+  color: #00D294;
+  transform: translateY(-1px);
+}
+
+/* Botón Flotante para Volver Arriba */
+.px-footer-ref__scroll-top {
+  position: absolute;
+  right: 20px;
+  bottom: 0px;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-sm);
+  background-color: #06261A;
+  border: 1px solid #00A878;
+  color: #00D294;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  cursor: pointer;
+  transition: all var(--trans-fast);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.35);
+}
+
+.px-footer-ref__scroll-top:hover {
+  background-color: #00A878;
+  color: #FFFFFF;
+  border-color: #00D294;
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(0, 168, 120, 0.4);
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .px-footer-ref__container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    text-align: center;
+  }
+
+  .px-footer-ref__col-left {
+    align-items: center;
+  }
+
+  .px-footer-ref__desc {
+    text-align: center;
+  }
+
+  .px-footer-ref__contact-list {
+    align-items: center;
+  }
+
+  .px-footer-ref__social-circles {
+    justify-content: center;
+  }
+
+  .px-footer-ref__scroll-top {
+    position: static;
+    margin-top: 20px;
+  }
+}
