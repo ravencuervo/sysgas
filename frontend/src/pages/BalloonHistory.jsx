@@ -1,93 +1,29 @@
+import { friendlyError } from '../lib/forms'
+import { useEffect, useState } from 'react'
+import { db } from '../lib/supabase'
 import { useParams, Link } from 'react-router-dom'
 import './BalloonHistory.css'
 
-const DEMO_DATA = {
-  'demo-001': {
-    codigo: 'GD-2024-00142',
-    uuid: 'f839a1-2026-c774-4b10-891920',
-    tipo: '10 kg Familiar',
-    planta: 'Planta Envasadora Central A · Bahía 04',
-    tara: '11.45 kg',
-    pesoBruto: '21.45 kg',
-    estado: 'EN RUTA DE ENTREGA',
-    fechaLlenado: '12 Oct 2026 · 08:14 AM',
-    operadorLlenado: 'Ing. Carlos Morales · Lic. GLP-884',
-    eventos: [
-      {
-        fecha: '12/10/2026 08:14',
-        evento: 'Llenado y Control de Tara',
-        detalle: 'Carga computarizada de 10.00 kg netos de propano/butano. Báscula calibrada #B-04.',
-        operador: 'Ing. Carlos Morales (Planta Central)',
-        icono: 'bi-droplet-fill',
-        ok: true,
-      },
-      {
-        fecha: '14/10/2026 10:30',
-        evento: 'Prueba de Presión Hidrostática',
-        detalle: 'Presión aplicada de 14.7 bar durante 60 segundos. Deformación permanente: 0.00%. APROBADO.',
-        operador: 'Inspector de Ensayos No Destructivos',
-        icono: 'bi-speedometer2',
-        ok: true,
-      },
-      {
-        fecha: '14/10/2026 11:15',
-        evento: 'Certificación de Calidad ISO 4706',
-        detalle: 'Inspección de cordón de soldadura por ultrasonido. Válvula de alivio calibrada a 24 bar.',
-        operador: 'Supervisor ISO: T. Gómez · Acta #ISO-4706-9912',
-        icono: 'bi-patch-check-fill',
-        ok: true,
-      },
-      {
-        fecha: '20/10/2026 07:00',
-        evento: 'Ingreso a Almacén & Asignación QR',
-        detalle: 'Placa con QR inmutable remachada al collarín y vinculada en el registro oficial digital.',
-        operador: 'Jefe de Patio y Logística',
-        icono: 'bi-qr-code',
-        ok: true,
-      },
-      {
-        fecha: '28/10/2026 08:45',
-        evento: 'Despacho y Carga a Vehículo',
-        detalle: 'Salida de planta en camión GLP-03 con precinto de seguridad #PR-7721.',
-        operador: 'Despachador en Ruta: J. Pérez',
-        icono: 'bi-truck',
-        ok: true,
-      },
-      {
-        fecha: '28/10/2026 14:10',
-        evento: 'Telemetría en Vivo de Aproximación',
-        detalle: 'Vehículo a 850 metros del domicilio de destino. Hora estimada de llegada: 14:35.',
-        operador: 'Sensor GPS en tiempo real',
-        icono: 'bi-geo-alt-fill',
-        ok: null,
-      },
-    ],
-    certificados: [
-      {
-        norma: 'ISO 9001:2015',
-        descripcion: 'Sistema de Gestión de Calidad en Envasado y Distribución',
-        codigoCert: 'CERT-SGC-2026-081',
-        estado: 'VIGENTE & APROBADO',
-      },
-      {
-        norma: 'ISO 4706',
-        descripcion: 'Cilindros de gas de acero soldados recargables para GLP',
-        codigoCert: 'CERT-REC-2026-944',
-        estado: 'VIGENTE & APROBADO',
-      },
-      {
-        norma: 'NTC 522-1',
-        descripcion: 'Reglamento Técnico Colombiano de Recipientes a Presión',
-        codigoCert: 'RUT-MINMINAS-2026',
-        estado: 'CONFORME',
-      },
-    ],
-  },
-}
-
 export default function BalloonHistory() {
   const { qrId } = useParams()
-  const data = DEMO_DATA[qrId]
+  const [result, setResult] = useState({ loading: true, data: null, error: '' })
+  useEffect(() => {
+    let active = true
+    dbLoad()
+    async function dbLoad() {
+      try {
+        await Promise.resolve()
+        if (active) setResult({ loading: true, data: null, error: '' })
+        const { data, error } = await db().rpc('pasaporte_publico', { p_codigo: qrId })
+        if (error) throw error
+        if (active) setResult({ loading: false, data, error: '' })
+      } catch (e) { if (active) setResult({ loading: false, data: null, error: friendlyError(e) }) }
+    }
+    return () => { active = false }
+  }, [qrId])
+  const { data, loading, error } = result
+  if (loading) return <main className="container" role="status">Consultando historial…</main>
+  if (error) return <main className="container" role="alert">{error} <Link to="/">Volver</Link></main>
 
   if (!data) {
     return (
@@ -117,7 +53,7 @@ export default function BalloonHistory() {
 
           <div className="status-pill">
             <span className="status-dot" />
-            <span>CERTIFICADO OFICIAL VERIFICADO</span>
+            <span>REGISTRO DE TRAZABILIDAD</span>
           </div>
         </div>
       </header>
@@ -157,7 +93,7 @@ export default function BalloonHistory() {
               <h2 className="px-bh__section-title">Cadena de Custodia &amp; Eventos Registrados</h2>
             </div>
             <p className="px-bh__section-desc">
-              Cada hito ha sido firmado digitalmente por los supervisores y operadores de la planta.
+              Eventos registrados en la base de datos de SYSGAS.
             </p>
 
             <div className="px-bh__timeline">
@@ -178,6 +114,7 @@ export default function BalloonHistory() {
                           <i className="bi bi-check2" /> APROBADO
                         </span>
                       )}
+                      {ev.ok === false && <span className="solid-badge solid-badge--amber">NO CONFORME</span>}
                       {ev.ok === null && (
                         <span className="solid-badge solid-badge--amber">
                           <i className="bi bi-clock" /> EN CURSO
@@ -224,7 +161,7 @@ export default function BalloonHistory() {
             <div className="px-bh__side-card solid-card" style={{ marginTop: 24 }}>
               <div className="px-bh__section-title-wrap">
                 <i className="bi bi-info-circle-fill text-jade" />
-                <h3 className="px-bh__side-title">Ficha Técnica de Envasado</h3>
+                <h3 className="px-bh__side-title">Ficha técnica del balón</h3>
               </div>
 
               <div className="px-bh__specs-list">
@@ -241,9 +178,10 @@ export default function BalloonHistory() {
                   <strong className="text-jade">{data.pesoBruto}</strong>
                 </div>
                 <div className="px-bh__spec-row">
-                  <span>Planta de Envasado</span>
+                  <span>Empresa responsable</span>
                   <span>{data.planta}</span>
                 </div>
+                <div className="px-bh__spec-row"><span>Último llenado registrado</span><span>{data.fechaLlenado || 'Sin registro'}</span></div>
                 <div className="px-bh__spec-row">
                   <span>Operador de Llenado</span>
                   <span>{data.operadorLlenado}</span>
@@ -252,7 +190,7 @@ export default function BalloonHistory() {
 
               <div className="px-bh__side-footer">
                 <a
-                  href="#contacto"
+                  href="/#contacto"
                   className="btn btn-primary btn-sm"
                   style={{ width: '100%' }}
                 >

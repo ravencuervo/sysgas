@@ -6,9 +6,6 @@ import { useEffect } from 'react'
  */
 export function useScrollReveal() {
   useEffect(() => {
-    const elements = document.querySelectorAll('.reveal:not(.is-visible)')
-    if (!elements.length) return
-
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -24,9 +21,11 @@ export function useScrollReveal() {
       }
     )
 
-    elements.forEach((el) => observer.observe(el))
-
-    return () => observer.disconnect()
-  })
+    const observeNew = () => document.querySelectorAll('.reveal:not(.is-visible)').forEach(el => observer.observe(el))
+    observeNew()
+    const mutations = new MutationObserver(observeNew)
+    mutations.observe(document.body, { childList: true, subtree: true })
+    return () => { observer.disconnect(); mutations.disconnect() }
+  }, [])
 }
 

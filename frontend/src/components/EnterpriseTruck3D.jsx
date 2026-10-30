@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
-export default function EnterpriseTruck3D({ cylinderVolume = 2500 }) {
+export default function EnterpriseTruck3D() {
   const mountRef = useRef(null)
   const truckGroupRef = useRef(null)
   const cargoGroupRef = useRef(null)
@@ -251,14 +251,11 @@ export default function EnterpriseTruck3D({ cylinderVolume = 2500 }) {
     truckGroup.rotation.y = -0.65
 
     // ─── 6. Interacción de Rotación 360° con Mouse / Touch ───
-    let mouseX = 0
     let isDragging = false
     let previousPointerX = 0
     let rotationVelocity = 0.004
 
     const onPointerMove = (e) => {
-      const rect = el.getBoundingClientRect()
-      mouseX = ((e.clientX - rect.left) / rect.width) * 2 - 1
 
       if (isDragging) {
         const deltaX = e.clientX - previousPointerX

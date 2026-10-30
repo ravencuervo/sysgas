@@ -43,7 +43,7 @@ export default function Landing() {
         <ValueProposition />
 
         {/* 8. Pedido Express Inmediato */}
-        <ContactCTA selectedCapacity={selectedCapacity} />
+        <ContactCTA selectedCapacity={selectedCapacity} onSelectCapacity={setSelectedCapacity} />
       </main>
       <Footer />
     </>

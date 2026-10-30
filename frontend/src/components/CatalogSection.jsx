@@ -1,43 +1,9 @@
+import { useCatalog } from '../hooks/useCatalog'
 import CatalogCylinder3D from './CatalogCylinder3D.jsx'
 import './CatalogSection.css'
 
-const PRODUCTS = [
-  {
-    capacity: '5 kg',
-    name: 'Balón Portátil',
-    dimensions: '38 cm alto × 23 cm ø',
-    idealFor: 'Departamentos, campamentos, parrillas y espacios reducidos.',
-    price: 'S/ 28.50',
-    tara: '6.2 kg',
-    popular: false,
-    icon: 'bi-house-heart-fill',
-    specs: ['Tara certificada 6.2 kg', 'Conexión rápida 7/8"', 'Sello hermético probado'],
-  },
-  {
-    capacity: '10 kg',
-    name: 'Balón Familiar',
-    dimensions: '62 cm alto × 30 cm ø',
-    idealFor: 'El más elegido para hogares familiares, cocinas y pequeños negocios.',
-    price: 'S/ 48.00',
-    tara: '11.5 kg',
-    popular: true,
-    icon: 'bi-fire',
-    specs: ['Tara calibrada 11.5 kg', 'Sello inviolable con QR', 'Pesaje en balanza digital en puerta'],
-  },
-  {
-    capacity: '45 kg',
-    name: 'Balón Industrial',
-    dimensions: '132 cm alto × 38 cm ø',
-    idealFor: 'Restaurantes, panaderías, hoteles y calderas de alta demanda.',
-    price: 'S/ 185.00',
-    tara: '38.0 kg',
-    popular: false,
-    icon: 'bi-building-fill-gear',
-    specs: ['Tara de alta carga 38.0 kg', 'Válvula POL con doble alivio', 'Monitoreo de ruta programado'],
-  },
-]
-
 export default function CatalogSection({ onSelectProduct }) {
+  const { products, error, loading } = useCatalog()
   const handleSelect = (capacity) => {
     if (onSelectProduct) onSelectProduct(capacity)
     const contactEl = document.getElementById('contacto')
@@ -55,15 +21,18 @@ export default function CatalogSection({ onSelectProduct }) {
             <span className="section-tag__num">01</span>
             <span>CATÁLOGO SYSGAS</span>
           </div>
-          <h2 className="section-title">Elige tu cilindro. Recíbelo en minutos.</h2>
+          <h2 className="section-title">Elige tu cilindro y tu distribuidora.</h2>
           <p className="section-desc">
             Cada balón incluye garantía de peso exacto, precinto inviolable y pasaporte QR escaneable desde tu celular. Gira e inspecciona cada modelo en 3D con sus medidas oficiales.
           </p>
         </div>
 
         {/* Grid de Productos Estilo Nike/Apple con Modelos 3D */}
+        {loading && <p role="status">Cargando catálogo…</p>}
+        {error && <p role="alert">{error}</p>}
+        {!loading && !error && !products.length && <p>No hay productos disponibles por el momento.</p>}
         <div className="px-catalog__grid">
-          {PRODUCTS.map((item, idx) => (
+          {products.map((item, idx) => (
             <div
               key={item.capacity}
               className={`px-catalog__card solid-card card-hover-lift reveal reveal-delay-${idx + 1} ${
@@ -105,7 +74,7 @@ export default function CatalogSection({ onSelectProduct }) {
 
               <div className="px-catalog__price-box">
                 <span className="px-catalog__price">{item.price}</span>
-                <span className="px-catalog__price-sub">con entrega a domicilio</span>
+                <span className="px-catalog__price-sub">precio de referencia · elige distribuidora al pedir</span>
               </div>
 
               <p className="px-catalog__ideal">{item.idealFor}</p>

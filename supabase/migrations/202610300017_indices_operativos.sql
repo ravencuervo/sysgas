@@ -1,0 +1,14 @@
+begin;
+create index if not exists pedidos_empresa_fecha on public.pedidos(empresa_id,created_at desc);
+create index if not exists pedido_items_pedido on public.pedido_items(pedido_id);
+create index if not exists perfiles_empresa_cargo on public.perfiles(empresa_id,rol,activo);
+create index if not exists pagos_membresia_empresa_fecha on public.pagos_membresia(empresa_id,created_at desc);
+create index if not exists invitaciones_correo_estado on public.invitaciones_personal(correo,estado);
+create index if not exists notificaciones_bandeja on public.notificaciones(usuario_id,leida,created_at desc);
+create index if not exists viajes_empresa_fecha on public.viajes_flota(empresa_id,created_at desc);
+create index if not exists cargas_por_cilindro on public.detalle_cargas_balones(cilindro_id);
+create index if not exists incidencias_empresa_estado on public.incidencias(empresa_id,estado,created_at desc);
+create index if not exists auditoria_empresa_fecha on public.auditoria_operaciones(empresa_id,created_at desc);
+create index if not exists movimientos_empresa_fecha on public.movimientos_inventario(empresa_id,created_at desc);
+create index if not exists comprobantes_por_pedido on public.comprobantes_pago(pedido_id);
+commit;

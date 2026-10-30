@@ -344,9 +344,7 @@ export default function CatalogCylinder3D({ capacity = '10 kg' }) {
       // Dimensiones: Altura ~62 cm, Diámetro ~30 cm
       // Proporción clásica exacta del Hero de SYSGAS
       // ═══════════════════════════════════════════════════════════════
-      const bodyRadius = 1.0
       const baseCenterY = -0.94
-      const lowerDomeEndY = -0.52
       const barrelEndY = 0.52
       const upperDomeEndY = 1.16
       const neckY = 1.20

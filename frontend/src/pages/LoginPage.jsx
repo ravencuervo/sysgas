@@ -1,35 +1,36 @@
+import { friendlyError } from '../lib/forms'
+import { db } from '../lib/supabase'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import './LoginPage.css'
 
 export default function LoginPage() {
-  const [role, setRole] = useState('empresa') // 'empresa' | 'operador'
+  const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
     setLoading(true)
     setMsg('')
-    setTimeout(() => {
-      setLoading(false)
-      setMsg('Portal de demostración: Credenciales validadas. Conectando con el panel de control...')
-    }, 900)
+    try {
+      const { error } = await db().auth.signInWithPassword({ email: email.trim(), password })
+      if (error) throw error
+      navigate('/panel')
+    } catch (e) { setMsg(friendlyError(e)) }
+    finally { setLoading(false) }
   }
 
-  const handleQuickDemo = () => {
-    setRole('empresa')
-    setEmail('demo.distribuidor@sysgas.pe')
-    setPassword('sysgas2026demo')
-    setLoading(true)
-    setMsg('')
-    setTimeout(() => {
-      setLoading(false)
-      setMsg('Sesión Demo Activa: Conectado a la Consola de Distribuidora (Flota en ruta: 14 camiones, 420 balones trazados).')
-    }, 600)
+  const recover = async () => {
+    if (!email) { setMsg('Escribe tu correo para recuperar tu contraseña.'); return }
+    try {
+      const { error } = await db().auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/recuperar` })
+      if (error) throw error
+      setMsg('Revisa tu correo para continuar.')
+    } catch (e) { setMsg(friendlyError(e)) }
   }
 
   return (
@@ -48,54 +49,26 @@ export default function LoginPage() {
             </Link>
             <h1 className="login-card__title">Acceso a la Plataforma</h1>
             <p className="login-card__subtitle">
-              Gestiona tu flota, despacho de balones y telemetría en tiempo real
+              Acceso para clientes, empresas y trabajadores de SYSGAS
             </p>
           </div>
 
-          {/* Botón de Acceso Demo de 1 Clic */}
-          <button
-            type="button"
-            className="login-card__demo-pill"
-            onClick={handleQuickDemo}
-            title="Cargar credenciales de demostración instantáneas"
-          >
-            <i className="bi bi-lightning-charge-fill" />
-            <span>Probar con Cuenta Demo (1 Clic)</span>
-          </button>
-
-          {/* Selector de Rol: Empresa B2B vs Operador de Ruta */}
-          <div className="login-card__role-selector">
-            <button
-              type="button"
-              className={`login-card__role-btn ${role === 'empresa' ? 'login-card__role-btn--active' : ''}`}
-              onClick={() => setRole('empresa')}
-            >
-              <i className="bi bi-building" />
-              <span>Empresa / Distribuidor</span>
-            </button>
-            <button
-              type="button"
-              className={`login-card__role-btn ${role === 'operador' ? 'login-card__role-btn--active' : ''}`}
-              onClick={() => setRole('operador')}
-            >
-              <i className="bi bi-truck" />
-              <span>Operador / Flota</span>
-            </button>
-          </div>
+          <p className="login-card__subtitle">Tu panel se adapta al rol de tu cuenta.</p>
 
           {/* Formulario */}
           <form onSubmit={handleSubmit} className="login-card__form">
             <div className="login-card__field">
               <label className="login-card__label" htmlFor="login-email">
-                {role === 'empresa' ? 'Correo corporativo' : 'Código de chofer o correo'}
+                Correo electrónico
               </label>
               <div className="login-card__input-wrap">
                 <i className="bi bi-envelope login-card__input-icon" />
                 <input
+                  autoComplete="username"
                   id="login-email"
-                  type={role === 'empresa' ? 'email' : 'text'}
+                  type="email"
                   className="login-card__input"
-                  placeholder={role === 'empresa' ? 'gerencia@distribuidoragas.com' : 'OP-7024 o correo'}
+                  placeholder="tu-correo@ejemplo.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   required
@@ -108,13 +81,14 @@ export default function LoginPage() {
                 <label className="login-card__label" htmlFor="login-pass">
                   Contraseña de acceso
                 </label>
-                <a href="#recuperar" className="login-card__forgot-link">
+                <button type="button" onClick={recover} className="login-card__forgot-link">
                   ¿Olvidaste tu clave?
-                </a>
+                </button>
               </div>
               <div className="login-card__input-wrap">
                 <i className="bi bi-lock login-card__input-icon" />
                 <input
+                  autoComplete="current-password"
                   id="login-pass"
                   type={showPass ? 'text' : 'password'}
                   className="login-card__input"
@@ -135,7 +109,7 @@ export default function LoginPage() {
             </div>
 
             {msg && (
-              <div className="login-card__alert">
+              <div className="login-card__alert" role="status">
                 <i className="bi bi-check-circle-fill" />
                 <span>{msg}</span>
               </div>
@@ -153,6 +127,7 @@ export default function LoginPage() {
             </button>
           </form>
 
+          <p>¿Quieres consultar tus pedidos? <Link to="/registro">Crea tu cuenta de cliente</Link></p>
           {/* Footer de la tarjeta */}
           <div className="login-card__footer">
             <p>

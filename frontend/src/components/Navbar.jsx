@@ -1,8 +1,10 @@
+import { useSession } from '../hooks/useSession'
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import './Navbar.css'
 
 export default function Navbar() {
+  const session = useSession()
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
 
@@ -59,9 +61,9 @@ export default function Navbar() {
 
         {/* Right CTA Button: LOGIN para acceso a plataforma y empresas */}
         <div className="sys-nav__actions">
-          <Link to="/login" className="sys-nav__pill-btn">
+          <Link to={session ? "/panel" : "/login"} className="sys-nav__pill-btn">
             <i className="bi bi-box-arrow-in-right" />
-            <span>LOGIN</span>
+            <span>{session ? "MI PANEL" : "INGRESAR"}</span>
           </Link>
         </div>
 
@@ -69,7 +71,8 @@ export default function Navbar() {
         <button
           className="sys-nav__toggle"
           onClick={() => setMenuOpen(!menuOpen)}
-          aria-label="Abrir menú"
+          aria-label={menuOpen ? "Cerrar menú" : "Abrir menú"}
+          aria-expanded={menuOpen}
         >
           <i className={`bi ${menuOpen ? 'bi-x-lg' : 'bi-list'}`} />
         </button>

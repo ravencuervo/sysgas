@@ -1,3 +1,5 @@
+import { friendlyError } from '../lib/forms'
+import { db } from '../lib/supabase'
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import EnterpriseTruck3D from './EnterpriseTruck3D.jsx'
@@ -5,6 +7,23 @@ import './EnterpriseSection.css'
 
 export default function EnterpriseSection() {
   const [cylinderVolume, setCylinderVolume] = useState(2500)
+
+  const [message, setMessage] = useState('')
+  const [busy, setBusy] = useState(false)
+  async function affiliate(e) {
+    e.preventDefault()
+    const form = e.currentTarget
+    const fields = Object.fromEntries(new FormData(form))
+    setBusy(true)
+    setMessage('')
+    try {
+      const { error } = await db().from('solicitudes_afiliacion').insert({ ...fields, volumen_mensual_balones: cylinderVolume })
+      if (error) throw error
+      setMessage('Solicitud registrada. Nuestro equipo se pondrá en contacto contigo.')
+      form.reset()
+    } catch (e) { setMessage(friendlyError(e)) }
+    finally { setBusy(false) }
+  }
 
   // Cálculos de ahorro basados en métricas estándar de la industria GLP
   const lossSavings = Math.round(cylinderVolume * 0.025 * 95) // Reducción de mermas y balones perdidos
@@ -144,6 +163,14 @@ export default function EnterpriseSection() {
                 </div>
               </div>
 
+              <form onSubmit={affiliate} style={{ display: 'grid', gap: 12 }}>
+                <label>Empresa <input name="nombre_empresa" required maxLength={150} /></label>
+                <label>Representante <input name="representante_nombre" required maxLength={120} /></label>
+                <label>Teléfono <input name="telefono" type="tel" required maxLength={20} /></label>
+                <label>Correo <input name="correo" type="email" required maxLength={120} /></label>
+                <button className="btn btn-primary" disabled={busy}>{busy ? 'Enviando…' : 'Registrar solicitud de afiliación'}</button>
+                <p role="status">{message}</p>
+              </form>
               {/* Botones de Afiliación y Contacto B2B */}
               <div className="px-enterprise__cta-actions">
                 <a

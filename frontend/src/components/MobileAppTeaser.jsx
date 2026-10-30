@@ -2,11 +2,6 @@ import Phone3DModel from './Phone3DModel.jsx'
 import './MobileAppTeaser.css'
 
 export default function MobileAppTeaser() {
-  const handleDirectApkDownload = (e) => {
-    e.preventDefault()
-    alert('Iniciando descarga segura de SYSGAS App (Instalador Oficial APK v2.4 para Android)...')
-  }
-
   return (
     <section className="section px-app section--white" id="app-movil">
       <div className="container">
@@ -14,11 +9,11 @@ export default function MobileAppTeaser() {
         <div className="px-app__header reveal">
           <div className="section-tag">
             <span className="section-tag__num">03</span>
-            <span>APLICATIVO MÓVIL OFICIAL</span>
+            <span>PRÓXIMAMENTE EN ANDROID</span>
           </div>
-          <h2 className="section-title">Tu gas en un solo toque. Descarga la App SYSGAS.</h2>
+          <h2 className="section-title">SYSGAS también llegará a tu celular.</h2>
           <p className="section-desc">
-            Pide tu balón en segundos en toda la región Puno, rastrea el camión en tiempo real sobre el mapa y certifica el peso exacto con balanza digital en la puerta de tu hogar.
+            La aplicación Android está planificada para clientes, motorizados y operadores. Por ahora puedes utilizar SYSGAS desde el navegador de tu celular.
           </p>
         </div>
 
@@ -32,9 +27,9 @@ export default function MobileAppTeaser() {
                   <i className="bi bi-geo-alt-fill" />
                 </div>
                 <div>
-                  <h4 className="px-app__feature-title">Rastreo GPS en tiempo real</h4>
+                  <h4 className="px-app__feature-title">Seguimiento del pedido</h4>
                   <p className="px-app__feature-desc">
-                    Observa exactamente por qué calle viene la unidad repartidora y conoce el tiempo exacto de llegada sin esperas inciertas.
+                    Consulta en la web la última ubicación que tu repartidor comparta durante una entrega activa.
                   </p>
                 </div>
               </div>
@@ -44,9 +39,9 @@ export default function MobileAppTeaser() {
                   <i className="bi bi-fingerprint" />
                 </div>
                 <div>
-                  <h4 className="px-app__feature-title">Repetición Express en 3 segundos</h4>
+                  <h4 className="px-app__feature-title">Historial de pedidos</h4>
                   <p className="px-app__feature-desc">
-                    Tus direcciones frecuentes y tu tipo de balón favorito quedan guardados para pedir con solo pulsar un botón.
+                    Regístrate y consulta los pedidos asociados a tu cuenta desde el panel web.
                   </p>
                 </div>
               </div>
@@ -56,9 +51,9 @@ export default function MobileAppTeaser() {
                   <i className="bi bi-patch-check-fill" />
                 </div>
                 <div>
-                  <h4 className="px-app__feature-title">Registro inmutable de peso</h4>
+                  <h4 className="px-app__feature-title">Registro de pesaje</h4>
                   <p className="px-app__feature-desc">
-                    El chofer conecta la balanza digital por Bluetooth a la app y recibes el recibo digital con la foto del precinto.
+                    El repartidor registra la lectura de peso de la entrega. La conexión automática a balanzas se integrará por separado.
                   </p>
                 </div>
               </div>
@@ -69,47 +64,20 @@ export default function MobileAppTeaser() {
               <div className="px-app__download-header">
                 <span className="status-pill">
                   <span className="status-dot" />
-                  DISPONIBLE EN PUNO
+                  VERSIÓN WEB DISPONIBLE
                 </span>
-                <span className="px-app__download-version">Versión Oficial 2.4</span>
+                <span className="px-app__download-version">APK pendiente</span>
               </div>
 
-              <h3 className="px-app__download-title">Descarga nuestro aplicativo móvil</h3>
+              <h3 className="px-app__download-title">Continúa desde la web</h3>
               <p className="px-app__download-desc">
-                Instálalo ahora mismo desde la tienda de Google Play o descarga el instalador APK directo para tu teléfono.
+                No hay una APK publicada todavía. Realiza tu pedido y consulta los códigos QR desde esta web.
               </p>
 
-              {/* Botones de Descarga Monocromáticos y Elegantes */}
-              <div className="px-app__download-buttons">
-                <a
-                  href="https://play.google.com"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="px-app__store-btn px-app__store-btn--play"
-                >
-                  <i className="bi bi-google-play" />
-                  <div className="px-app__store-text">
-                    <span className="px-app__store-sub">DISPONIBLE EN</span>
-                    <strong className="px-app__store-name">Google Play</strong>
-                  </div>
-                </a>
-
-                <a
-                  href="#descargar-apk"
-                  onClick={handleDirectApkDownload}
-                  className="px-app__store-btn px-app__store-btn--direct"
-                >
-                  <i className="bi bi-download" />
-                  <div className="px-app__store-text">
-                    <span className="px-app__store-sub">DESCARGA DIRECTA</span>
-                    <strong className="px-app__store-name">Instalador APK</strong>
-                  </div>
-                </a>
-              </div>
-
+              <div className="px-app__download-buttons"><a href="#contacto" className="btn btn-primary">Pedir desde la web</a><a href="#qr-demo" className="btn btn-secondary">Consultar un balón</a></div>
               <div className="px-app__download-badges">
-                <span><i className="bi bi-shield-check" /> Verificado y 100% Seguro</span>
-                <span><i className="bi bi-phone" /> Compatible con Android</span>
+                <span><i className="bi bi-shield-check" /> Acceso según tu cuenta</span>
+                <span><i className="bi bi-phone" /> Web adaptable a celular</span>
               </div>
             </div>
           </div>

@@ -4,7 +4,7 @@ const STEPS = [
   {
     num: '01',
     title: 'Elige tu balón en segundos',
-    desc: 'Selecciona la capacidad que necesitas (10 kg, 15 kg o 45 kg) e ingresa tu dirección sin registros complicados.',
+    desc: 'Selecciona la capacidad que necesitas (5 kg, 10 kg o 45 kg) e ingresa tu dirección sin registros complicados.',
     icon: 'bi-phone-fill',
     badge: '30 SEGUNDOS',
   },

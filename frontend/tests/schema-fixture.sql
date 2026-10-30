@@ -1,0 +1,51 @@
+-- Solo pruebas: modelo mínimo del esquema original, nunca ejecutar en producción.
+create schema auth;
+create role anon;
+create role authenticated;
+grant usage on schema public,auth to authenticated,anon;
+alter default privileges in schema public grant all on tables to authenticated,anon;
+alter default privileges in schema public grant usage,select on sequences to authenticated,anon;
+create function auth.uid() returns uuid language sql stable as $$ select nullif(current_setting('request.jwt.claim.sub',true),'')::uuid $$;
+create table auth.users(id uuid primary key default gen_random_uuid(),email text unique,email_confirmed_at timestamptz,raw_user_meta_data jsonb default '{}');
+create type public.rol_usuario as enum('super_admin','empresa_admin','supervisor_calidad','planta_operador','chofer_repartidor','cliente_comun');
+create type public.capacidad_cilindro as enum('5kg','10kg','45kg');
+create type public.estado_cilindro as enum('en_planta','en_almacen','cargado_camion','en_ruta_entrega','entregado_cliente','recuperado_vacio','en_mantenimiento','baja_recalificacion');
+create type public.estado_pedido as enum('pendiente','asignado_chofer','en_camino','en_puerta_pesaje','entregado','cancelado');
+create type public.estado_afiliacion as enum('pendiente_revision','contactado','aprobada_activa','rechazada');
+create type public.metodo_pago as enum('efectivo','yape','plin','tarjeta_pos','credito_empresa','transferencia');
+create type public.estado_pago as enum('pendiente','completado','fallido','reembolsado');
+create table public.empresas_distribuidoras(id uuid primary key default gen_random_uuid(),ruc text unique not null,razon_social text not null,nombre_comercial text,ciudad text default 'Puno',direccion text,telefono_contacto text,correo_contacto text,volumen_estimado_mensual int,estado text default 'activo');
+create table public.plantas_envasadoras(id uuid primary key default gen_random_uuid(),nombre text);
+create table public.perfiles(id uuid primary key references auth.users(id),correo text not null,nombres text not null,apellidos text not null,rol public.rol_usuario default 'cliente_comun',empresa_id uuid references public.empresas_distribuidoras(id),activo boolean default true,telefono text,avatar_url text);
+create table public.productos_catalogo(id uuid primary key default gen_random_uuid(),capacidad public.capacidad_cilindro unique,nombre_comercial text,precio_venta_pen numeric,disponible_en_puno boolean default true,peso_neto_gas_kg numeric,tara_promedio_kg numeric,descripcion text,dimensiones text);
+create table public.camiones_flota(id uuid primary key default gen_random_uuid(),empresa_id uuid references public.empresas_distribuidoras(id),placa text unique not null,numero_unidad text,capacidad_balones int not null default 80,activo boolean default true);
+create table public.cilindros(id uuid primary key default gen_random_uuid(),codigo_qr text unique not null,uuid_inmutable text unique,numero_serie_fabricacion text not null,capacidad public.capacidad_cilindro default '10kg',empresa_duena_id uuid references public.empresas_distribuidoras(id),planta_envasado_id uuid references public.plantas_envasadoras(id),camion_actual_id uuid references public.camiones_flota(id),cliente_actual_id uuid references public.perfiles(id),tara_calibrada_kg numeric not null,peso_bruto_actual_kg numeric,estado public.estado_cilindro default 'en_planta',aprobado_calidad boolean default true,motivo_bloqueo text,fecha_ultimo_envasado timestamptz,norma_tecnica_certificada text,fecha_proxima_recalificacion date);
+create table public.cilindros_trazabilidad(id bigint generated always as identity primary key,cilindro_id uuid references public.cilindros(id),tipo_evento text not null,descripcion text not null,operador_nombre text,icono_bootstrap text default 'bi-patch-check-fill',es_conforme boolean default true,peso_registrado_kg numeric,created_at timestamptz default now());
+create table public.pedidos(id uuid primary key default gen_random_uuid(),codigo_ticket text unique not null,cliente_id uuid references public.perfiles(id),empresa_id uuid references public.empresas_distribuidoras(id),chofer_id uuid references public.perfiles(id),nombre_destinatario text not null,telefono_contacto text not null,direccion_entrega text not null,referencia_direccion text,total_pedido_pen numeric default 0,estado public.estado_pedido default 'pendiente',metodo_pago public.metodo_pago default 'efectivo',estado_pago public.estado_pago default 'pendiente',created_at timestamptz default now(),updated_at timestamptz default now(),fecha_hora_asignacion timestamptz,fecha_hora_llegada timestamptz,fecha_hora_entrega timestamptz);
+create table public.pedido_items(id uuid primary key default gen_random_uuid(),pedido_id uuid references public.pedidos(id),capacidad public.capacidad_cilindro,cantidad int default 1,precio_unitario_pen numeric,subtotal_pen numeric,cilindro_asignado_id uuid references public.cilindros(id));
+create table public.solicitudes_afiliacion(id uuid primary key default gen_random_uuid(),nombre_empresa text,representante_nombre text,telefono text,correo text,ciudad text default 'Puno',volumen_mensual_balones int,estado public.estado_afiliacion default 'pendiente_revision',notas_internas text,created_at timestamptz default now(),updated_at timestamptz default now());
+alter table public.empresas_distribuidoras enable row level security;
+alter table public.perfiles enable row level security;
+alter table public.productos_catalogo enable row level security;
+alter table public.camiones_flota enable row level security;
+alter table public.cilindros enable row level security;
+alter table public.cilindros_trazabilidad enable row level security;
+alter table public.pedidos enable row level security;
+alter table public.pedido_items enable row level security;
+alter table public.solicitudes_afiliacion enable row level security;
+create policy catalogo_publico on public.productos_catalogo for select using(true);
+create or replace function public.handle_new_auth_user() returns trigger language plpgsql security definer as $$ begin insert into public.perfiles(id,correo,nombres,apellidos) values(new.id,new.email,'Usuario','Prueba');return new;end;$$;
+create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_auth_user();
+insert into auth.users(email,email_confirmed_at) values('menaronaldocarlos@gmail.com',now());
+
+create table public.pesajes_entrega(id uuid primary key default gen_random_uuid(),pedido_id uuid references public.pedidos(id),cilindro_entregado_id uuid references public.cilindros(id),cilindro_vacio_retornado_id uuid references public.cilindros(id),chofer_id uuid references public.perfiles(id),id_balanza_bluetooth text,peso_bruto_medido_kg numeric,tara_descontada_kg numeric,peso_neto_calculado_kg numeric,pesaje_aprobado boolean);
+alter table public.pesajes_entrega enable row level security;
+alter table public.camiones_flota add column ultima_latitud numeric,add column ultima_longitud numeric,add column ultima_telemetria timestamptz;
+create table public.camiones_telemetria(id bigint generated always as identity primary key,camion_id uuid references public.camiones_flota(id),latitud numeric,longitud numeric,timestamp_gps timestamptz default now());
+alter table public.camiones_telemetria enable row level security;
+
+alter table public.pedidos add column ciudad text default 'Puno';
+
+create type public.tipo_comprobante as enum('nota_venta','boleta_electronica','factura_electronica');
+create table public.comprobantes_pago(id uuid primary key default gen_random_uuid(),pedido_id uuid references public.pedidos(id),tipo public.tipo_comprobante,serie text,correlativo integer,numero_completo text,subtotal_pen numeric,igv_pen numeric,total_pen numeric,estado_sunat text);
+alter table public.comprobantes_pago enable row level security;
