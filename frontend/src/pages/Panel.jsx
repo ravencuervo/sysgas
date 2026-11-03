@@ -28,10 +28,15 @@ export default function Panel() {
     setLoading(true)
     try {
       const { data: { user }, error: authError } = await db().auth.getUser()
-      if (authError || !user) { navigate('/login'); return }
+      if (authError && authError.name !== 'AuthSessionMissingError' && authError.status !== 401) throw authError
+      if (authError || !user) { navigate('/login', { replace: true }); return }
       const { data: person, error: profileError } = await db().from('perfiles').select('nombres,rol,activo,empresa_id').eq('id', user.id).single()
       if (profileError) throw profileError
-      if (!person.activo) throw new Error('Tu perfil está desactivado.')
+      if (!person.activo) {
+        setProfile(null)
+        previousRole.current = null
+        throw new Error('Tu perfil está desactivado.')
+      }
       if (previousRole.current !== person.rol) { setSection(person.rol === 'planta_operador' ? 'flota' : 'pedidos'); previousRole.current = person.rol }
       setProfile(person)
       const { data, error } = await db().from('pedidos').select('id,codigo_ticket,nombre_destinatario,telefono_contacto,ciudad,direccion_entrega,referencia_direccion,estado,estado_pago,empresa_id,chofer_id,total_pedido_pen,created_at,comprobantes_pago(id,numero_completo,total_pen),pedido_items(id,capacidad,cantidad,precio_unitario_pen,subtotal_pen)').order('created_at', { ascending: false }).limit(100)
