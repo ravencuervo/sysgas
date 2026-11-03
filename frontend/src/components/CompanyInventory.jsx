@@ -56,7 +56,9 @@ export default function CompanyInventory({ profile }) {
   return <section className="inventory"><div className="panel__header"><div><h2>Precios e inventario</h2><p>Administra los balones disponibles para tus clientes.</p></div><span className="dash-tag">POR DISTRIBUIDORA</span></div>
     <label className="inventory__company">Distribuidora<select value={company} disabled={busy} onChange={e => { setCompany(e.target.value); setMessage('') }}><option value="">Selecciona una empresa</option>{companies.map(c => <option key={c.id} value={c.id}>{c.razon_social}</option>)}</select></label>
     <p className="panel__hint">El stock representa unidades disponibles. Cada pedido reserva una unidad; al cancelarlo se devuelve. Las correcciones manuales reemplazan el saldo actual. El conteo físico por estado se obtiene de los balones registrados y puede diferir mientras hay reservas o ajustes.</p>
-    {error && <p role="alert" className="panel__notice">{error}</p>}{message && <p role="status" className="dash-success">{message}</p>}
+    {error && <p role="alert" className="panel__notice">{error}</p>}
+    {error && !items.length && <button type="button" className="btn btn-secondary" disabled={busy} onClick={load}>Volver a cargar inventario</button>}
+    {message && <p role="status" className="dash-success">{message}</p>}
     {busy && <p role="status">Actualizando inventario…</p>}
     {!busy && !company && <div className="panel__empty">Elige una distribuidora para gestionar sus productos.</div>}
     {!busy && company && !error && !items.length && <p>No hay productos en el catálogo general. El administrador debe configurar el catálogo antes de registrar precios.</p>}
@@ -65,12 +67,12 @@ export default function CompanyInventory({ profile }) {
       <article className="solid-card"><span>Productos con 1 a {LOW_STOCK_LIMIT} unidades</span><strong>{lowStock.length}</strong></article>
       <article className="solid-card"><span>Productos activos agotados</span><strong>{activeItems.filter(item => item.stock === 0).length}</strong></article>
     </div>}
-    <div className="inventory__grid">{!busy && items.map(item => <form key={`${company}-${item.capacidad}`} className="inventory__card" onSubmit={e => save(e,item.capacidad)}>
+    <div className="inventory__grid">{items.map(item => <form key={`${company}-${item.capacidad}`} className="inventory__card" onSubmit={e => save(e,item.capacidad)}>
       <div className="inventory__visual"><i className="bi bi-fire" /><strong>{item.capacidad.replace('kg',' kg')}</strong><span>{item.nombre_comercial}</span><span>{stockStatus(item)}</span></div>
       <div className="inventory__physical"><strong>Balones físicos registrados</strong>{physical.filter(p=>p.capacidad===item.capacidad).map(p=><p key={p.estado}>{cylinderStates[p.estado] || p.estado}: <b>{p.cantidad}</b></p>)}{!physical.some(p=>p.capacidad===item.capacidad) && <p>Sin balones unitarios registrados.</p>}</div>
-      <label>Precio de venta (S/)<input name="price" type="number" min="0.01" max="999999.99" step="0.01" required defaultValue={item.precio_pen ?? item.precio_venta_pen} /></label>
-      <label>Unidades disponibles<input name="stock" type="number" min="0" max="2147483647" step="1" required defaultValue={item.stock ?? 0} /></label>
-      <label className="inventory__check"><input name="active" type="checkbox" defaultChecked={item.activo ?? true} /> Disponible para venta</label>
+      <label>Precio de venta (S/)<input name="price" type="number" min="0.01" max="999999.99" step="0.01" required disabled={busy} defaultValue={item.precio_pen ?? item.precio_venta_pen} /></label>
+      <label>Unidades disponibles<input name="stock" type="number" min="0" max="2147483647" step="1" required disabled={busy} defaultValue={item.stock ?? 0} /></label>
+      <label className="inventory__check"><input name="active" type="checkbox" disabled={busy} defaultChecked={item.activo ?? true} /> Disponible para venta</label>
       <button className="btn btn-primary" disabled={busy}><i className="bi bi-check2" /> Guardar cambios</button>
     </form>)}</div>
   </section>

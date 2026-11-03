@@ -13,16 +13,29 @@ export default function CodeScanner({ onCode }) {
     state.alive = true
     return () => { state.alive = false; state.generation++; state.controls?.stop() }
   }, [])
+  function stop() {
+    const state = lifecycle.current
+    state.generation++
+    state.controls?.stop()
+    state.controls = null
+    setRunning(false)
+  }
   async function start() {
     const state=lifecycle.current
     const current = ++state.generation
     setError(''); setRunning(true)
     try {
       const { BrowserQRCodeReader } = await import('@zxing/browser')
+      if (!state.alive || current !== state.generation) return
       const reader = new BrowserQRCodeReader(undefined, { delayBetweenScanAttempts: 250, delayBetweenScanSuccess: 1200 })
       const scanner = await reader.decodeFromVideoDevice(undefined, video.current, result => {
         if (result && state.alive && current === state.generation) {
-          try { callback.current(readCylinderCode(result.getText())) }
+          try {
+            const code = readCylinderCode(result.getText())
+            stop()
+            setError('')
+            callback.current(code)
+          }
           catch(e) { setError(e.message) }
         }
       })
@@ -31,7 +44,7 @@ export default function CodeScanner({ onCode }) {
     } catch { if (state.alive && current === state.generation) { setError('No se pudo abrir la cámara. Revisa el permiso o ingresa el código manualmente.'); setRunning(false) } }
   }
   return <div className="scanner"><video ref={video} muted playsInline hidden={!running} aria-label="Vista de la cámara para leer QR" />
-    <button className="btn btn-secondary" type="button" onClick={() => { if (running) { lifecycle.current.generation++; lifecycle.current.controls?.stop(); setRunning(false) } else void start() }}><i className="bi bi-qr-code-scan" />{running ? 'Detener cámara' : 'Leer QR con cámara'}</button>
+    <button className="btn btn-secondary" type="button" onClick={running ? stop : start}><i className="bi bi-qr-code-scan" />{running ? 'Detener cámara' : 'Leer QR con cámara'}</button>
     {error && <p role="alert">{error}</p>}
   </div>
 }
