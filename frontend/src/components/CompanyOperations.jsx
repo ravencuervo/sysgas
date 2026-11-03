@@ -1,3 +1,4 @@
+import VehiclePhotos from './VehiclePhotos'
 import { reportCsv } from '../lib/report-csv'
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -9,12 +10,12 @@ import CodeScanner from './CodeScanner'
 const money = n => new Intl.NumberFormat('es-PE',{style:'currency',currency:'PEN'}).format(n || 0)
 const date = value => value ? new Date(value).toLocaleDateString('es-PE',{timeZone:'America/Lima'}) : 'Sin vigencia'
 const source = (data,label) => data.map(r => [r.id,label(r)])
-function Form({ title, fields, submit, busy, button = 'Guardar' }) {
+function Form({ title, description, fields, submit, busy, button = 'Guardar' }) {
   return <form className="module-form solid-card" onSubmit={e => { e.preventDefault(); void submit(Object.fromEntries(new FormData(e.currentTarget)),e.currentTarget) }}>
-    <h3>{title}</h3>{fields.map(([name,label,type='text',options,initial]) => <label key={name}>{label}
+    <h3>{title}</h3>{description && <p className="panel__hint">{description}</p>}{fields.map(([name,label,type='text',options,initial]) => <label key={name}>{label}
       {type === 'select' ? <select name={name} required defaultValue={initial || ""}><option value="">Selecciona una opción</option>{options.map(([id,text]) => <option key={id} value={id}>{text}</option>)}</select>
         : type === 'textarea' ? <textarea name={name} maxLength={2000} required />
-          : <input name={name} type={type} defaultValue={initial} required min={type==='number' ? 0 : undefined} step={type==='number' ? (['dias','capacidad','esperados'].includes(name)?'1':'0.01') : undefined} maxLength={type==='email'?120:150} />}</label>)}
+          : <input name={name} type={type} defaultValue={initial} required={type !== "password"} autoComplete={type === "password" ? "new-password" : undefined} minLength={type === "password" ? 12 : undefined} min={type==='number' ? 0 : undefined} step={type==='number' ? (['dias','capacidad','esperados'].includes(name)?'1':'0.01') : undefined} maxLength={type==='email'?120:150} />}</label>)}
     <button className="btn btn-primary" disabled={busy}>{busy ? 'Guardando…' : button}</button>
   </form>
 }
@@ -102,6 +103,21 @@ export default function CompanyOperations({ profile, section }) {
     if(!navigator.geolocation) {setError('Geolocalización no disponible.');return}
     navigator.geolocation.getCurrentPosition(p => {void run('compartir_ubicacion_flota',{p_viaje:trip.id,p_latitud:p.coords.latitude,p_longitud:p.coords.longitude})},()=>setError('No se obtuvo ubicación. Revisa el permiso del navegador.'),{enableHighAccuracy:true,timeout:15000})
   }
+  async function onboard(values, form) {
+    if (busy) return
+    setBusy(true); setError(''); setNotice('')
+    try {
+      const { data, error } = await db().functions.invoke('alta-directa-empresa', { body: values })
+      if (error) {
+        const detail = await error.context?.json?.().catch(() => null)
+        throw new Error(detail?.message || 'No se pudo completar el alta. Comprueba que la función esté publicada en Supabase.')
+      }
+      form.reset()
+      setNotice(data.cuenta_creada ? 'Empresa y cuenta creadas. El gerente ya puede entrar con el correo y la contraseña que ingresaste.' : 'El gerente quedó vinculado a la empresa. Puede iniciar sesión con su cuenta existente.')
+      setCompany(data.empresa_id)
+      if (company === data.empresa_id) await load()
+    } catch (e) { setError(friendlyError(e)) } finally { setBusy(false) }
+  }
   const operation = action => (values,form) => run('gestion_logistica',{p_accion:action,p_empresa:company,p_datos:values},form)
   const membership = action => (values,form) => run('gestion_membresia',{p_accion:action,p_datos:{...values,empresa_id:company}},form)
   const common = {busy:busy || loading}
@@ -123,6 +139,7 @@ export default function CompanyOperations({ profile, section }) {
       {company && !loading && !data.subscriptions?.length && <p>Esta empresa todavía no tiene membresía activa.</p>}
       {(data.payments||[]).map(p=><article className="solid-card panel__order" key={p.id}><h3>{money(p.importe_pen)} · {p.estado}</h3><p>Referencia: {p.referencia} · {date(p.created_at)}</p>{superadmin && p.estado==='pendiente' && <div className="panel__order-actions"><button className="btn btn-primary" disabled={busy} onClick={()=>{if(window.confirm('¿Verificaste que este dinero fue recibido? Esto activará la membresía.')) void membership('verificar')({pago_id:p.id})}}>Verificar y activar</button><button className="btn btn-secondary" disabled={busy} onClick={()=>membership('rechazar')({pago_id:p.id})}>Rechazar pago</button></div>}</article>)}
     </>}
+    {superadmin && section==='empresa' && <Form {...common} title="Alta directa de empresa y gerente" description="Si el gerente ya tiene una cuenta en SYSGAS, deja vacía la contraseña inicial. Para una cuenta nueva, ingresa una contraseña de al menos 12 caracteres. La cortesía permite operar antes de verificar un pago." button="Crear empresa y habilitar gerente" fields={[["ruc","RUC (11 dígitos)"],["razon_social","Razón social"],["ciudad","Ciudad"],["direccion","Dirección fiscal"],["telefono","Teléfono"],["nombres","Nombres del gerente"],["apellidos","Apellidos del gerente"],["correo","Correo del gerente","email"],["contrasena","Contraseña inicial para cuenta nueva","password"],["dias_cortesia","Acceso inicial","select",[['0','Sin cortesía: activar con pago verificado'],['7','7 días de cortesía'],['15','15 días de cortesía'],['30','30 días de cortesía']], '30']]} submit={onboard} />}
     {company && section==='empresa' && <>{(data.companyInfo||[]).map(c=><article className="solid-card panel__order" key={c.id}><h3>{c.razon_social}</h3><p>RUC {c.ruc} · {c.ciudad} · {c.estado}</p>{superadmin && <button className="btn btn-secondary" disabled={busy} onClick={()=>run('administrar_activo',{p_tipo:'empresa',p_id:c.id,p_activo:c.estado!=='activo'})}>{c.estado==='activo'?'Suspender empresa':'Habilitar empresa'}</button>}</article>)}
       {superadmin && <Form {...common} title="Asignar administrador empresarial" fields={[["correo","Correo de la cuenta confirmada","email"]]} submit={(v,f)=>run('asignar_administrador',{p_empresa:company,p_correo:v.correo},f)} />}
     </>}
@@ -135,7 +152,7 @@ export default function CompanyOperations({ profile, section }) {
     {company && section==='vehiculos' && <><div className="module-grid">
       {manager && <><Form {...common} title="Vehículo domiciliario" fields={[["placa","Placa"],["descripcion","Descripción"]]} submit={operation('moto')} />
       <Form {...common} title="Camión de transporte masivo" fields={[["placa","Placa"],["unidad","Número de unidad"],["capacidad","Capacidad de balones","number"]]} submit={operation('camion')} /></>}
-      </div>{[...(data.motos||[]).map(v=>({...v,kind:'moto'})),...(data.trucks||[]).map(v=>({...v,kind:'camion'}))].map(v=><article className="solid-card panel__order" key={v.id}><h3>{v.placa}</h3><p>{v.descripcion || v.numero_unidad} {v.capacidad_balones && `· ${v.capacidad_balones} balones`}</p><p>{v.activo?'Activo':'Fuera de servicio'}</p>{manager && <button className="btn btn-secondary" disabled={busy} onClick={()=>run('administrar_activo',{p_tipo:v.kind,p_id:v.id,p_activo:!v.activo})}>{v.activo?'Desactivar':'Activar'}</button>}</article>)}</>}
+      </div>{[...(data.motos||[]).map(v=>({...v,kind:'moto'})),...(data.trucks||[]).map(v=>({...v,kind:'camion'}))].map(v=><article className="solid-card panel__order" key={v.id}><h3>{v.placa}</h3><p>{v.descripcion || v.numero_unidad} {v.capacidad_balones && `· ${v.capacidad_balones} balones`}</p><p>{v.activo?'Activo':'Fuera de servicio'}</p>{manager && <button className="btn btn-secondary" disabled={busy} onClick={()=>run('administrar_activo',{p_tipo:v.kind,p_id:v.id,p_activo:!v.activo})}>{v.activo?'Desactivar':'Activar'}</button>}{manager && <VehiclePhotos vehicle={v} />}</article>)}</>}
     {company && section==='cilindros' && <><div className="module-grid">
       <Form {...common} title="Registrar balón" fields={[["codigo","Código único"],["serie","Serie de fabricación"],["capacidad","Capacidad","select",[['5kg','5 kg'],['10kg','10 kg'],['45kg','45 kg']]],["tara","Tara (kg)","number"]]} submit={operation('cilindro')} />
       <Form {...common} title="Registrar inspección" fields={[["codigo","Código del balón"],["detalle","Resultado de inspección","textarea"],["aprobado","Conformidad","select",[['true','Aprobado'],['false','Rechazado / mantenimiento']]]]} submit={operation('inspeccionar')} />

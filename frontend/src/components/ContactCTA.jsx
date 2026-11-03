@@ -8,6 +8,7 @@ import './ContactCTA.css'
 
 export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
   const requestId = useRef(null)
+  const submitting = useRef(false)
   const session = useSession()
   const { products, error: catalogError } = useCatalog()
   const [zones, setZones] = useState([])
@@ -28,7 +29,15 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
     }).catch(e => { if (active) setOffersError(friendlyError(e)) }).finally(() => { if (active) setOffersLoading(false) })
     return () => { active = false }
   }, [offersVersion])
-  const available = offers.filter(o => o.capacidad === (selectedCapacity || '10 kg').replace(' ', '') && o.stock > 0 && (o.ciudad.toLowerCase() === city.toLowerCase() || zones.some(z => z.empresa_id===o.empresa_id && z.ciudad.toLowerCase()===city.toLowerCase())) && (!zone || !zones.some(z=>z.empresa_id===o.empresa_id) || zones.some(z=>z.empresa_id===o.empresa_id && z.ciudad.toLowerCase()===city.toLowerCase() && z.zona===zone)))
+  const deliveryCity = city.trim().toLowerCase()
+  const localOffers = offers.filter(offer => {
+    if (offer.stock <= 0) return false
+    const coverage = zones.filter(row => row.empresa_id === offer.empresa_id)
+    const inCity = coverage.filter(row => row.ciudad.toLowerCase() === deliveryCity)
+    if (zone && coverage.length) return inCity.some(row => row.zona === zone)
+    return offer.ciudad.toLowerCase() === deliveryCity || inCity.length > 0
+  }).sort((first, second) => Number(first.precio_pen) - Number(second.precio_pen))
+  const available = localOffers.filter(offer => offer.capacidad === (selectedCapacity || '10 kg').replace(' ', ''))
   const chosenOffer = available.find(o => o.empresa_id === company)
   const [error, setError] = useState('')
   const [confirmation,setConfirmation] = useState(null)
@@ -49,13 +58,14 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault()
-    if (loading) return
+    if (submitting.current || loading || offersLoading || offersError) return
     const validation = validateOrder(formData)
     if (validation) { setError(validation); return }
     if (!products.some(p => p.capacity === capacity)) { setError('Selecciona un producto disponible.'); return }
     if (!chosenOffer) { setError('Selecciona la distribuidora que atenderá tu pedido.'); return }
     if (zones.some(z=>z.empresa_id===company) && !zone) { setError('Selecciona tu zona de entrega.'); return }
     if (!requestId.current) requestId.current = crypto.randomUUID()
+    submitting.current = true
     setLoading(true)
     setError('')
     try {
@@ -65,11 +75,12 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
         p_capacidad: capacity.replace(' ', ''), p_empresa: company, p_ciudad: city, p_zona: zone, p_solicitud: requestId.current,
       })
       if (error) throw error
-      setConfirmation({capacity,phone:formData.telefono,company:chosenOffer.empresa_nombre,price:chosenOffer.precio_pen})
+      if (!data) throw new Error('No se pudo confirmar el pedido. Intenta enviarlo de nuevo.')
+      setConfirmation({capacity,phone:formData.telefono,company:chosenOffer.empresa_nombre})
       setTicket(data)
       setSubmitted(true)
     } catch (e) { setError(friendlyError(e)) }
-    finally { setLoading(false) }
+    finally { submitting.current = false; setLoading(false) }
   }
 
   const whatsappMessage = encodeURIComponent(
@@ -100,7 +111,7 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
               </div>
               <h3 className="px-cta__success-title">¡Pedido Recibido con Éxito!</h3>
               <p className="px-cta__success-desc">
-                Registramos tu pedido {ticket} de <strong>{confirmation?.capacity}</strong> con {confirmation?.company} por S/ {Number(confirmation?.price).toFixed(2)} para su coordinación de entrega. Te contactaremos al <strong>{confirmation?.phone}</strong> en los próximos minutos.
+                Registramos tu pedido {ticket} de <strong>{confirmation?.capacity}</strong> con {confirmation?.company}. La distribuidora puede contactarte al <strong>{confirmation?.phone}</strong> para coordinar la entrega.
               </p>
               {session && <Link className="btn btn-secondary" to="/panel">Ver mis pedidos</Link>}
               <div className="px-cta__success-actions">
@@ -116,7 +127,7 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => { setSubmitted(false); setError(''); requestId.current=null; setCompany(''); setOffersLoading(true); setOffersVersion(v=>v+1); setFormData({ nombre: '', telefono: '', direccion: '', referencia: '' }) }}
+                  onClick={() => { setSubmitted(false); setError(''); setOffersError(''); requestId.current=null; setCompany(''); setOffersLoading(true); setOffersVersion(v=>v+1); setFormData({ nombre: '', telefono: '', direccion: '', referencia: '' }) }}
                 >
                   Hacer Otro Pedido
                 </button>
@@ -136,7 +147,7 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
                       onClick={() => { onSelectCapacity(c.capacity); setCompany('') }}
                     >
                       <span className="px-cta__pill-name">{c.name}</span>
-                      <span className="px-cta__pill-price">{offers.some(o => o.capacidad === c.capacidad && o.stock > 0) ? `Desde S/ ${Math.min(...offers.filter(o => o.capacidad === c.capacidad && o.stock > 0).map(o => Number(o.precio_pen))).toFixed(2)}` : 'Sin stock'}</span>
+                      <span className="px-cta__pill-price">{localOffers.some(o => o.capacidad === c.capacidad) ? `Desde S/ ${Number(localOffers.find(o => o.capacidad === c.capacidad).precio_pen).toFixed(2)}` : 'Sin oferta en tu zona'}</span>
                       {c.popular && <span className="px-cta__pill-star"><i className="bi bi-star-fill" /> Más pedido</span>}
                     </button>
                   ))}
@@ -147,12 +158,12 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
                 <label className="px-cta__label" htmlFor="pedido-ciudad">Ciudad de entrega</label>
                 <input className="px-cta__input" id="pedido-ciudad" maxLength={60} value={city} onChange={e=>{setCity(e.target.value);setCompany('');setZone('')}} required />
                 <label className="px-cta__label" htmlFor="pedido-zona">Zona o distrito</label>
-                <select className="px-cta__input" id="pedido-zona" value={zone} onChange={e=>{setZone(e.target.value);setCompany('')}}><option value="">Selecciona tu zona si está disponible</option>{[...new Set(zones.filter(z=>z.ciudad.toLowerCase()===city.toLowerCase()).map(z=>z.zona))].map(z=><option key={z} value={z}>{z}</option>)}</select>
+                <select className="px-cta__input" id="pedido-zona" value={zone} onChange={e=>{setZone(e.target.value);setCompany('')}}><option value="">Selecciona tu zona si está disponible</option>{[...new Set(zones.filter(z=>z.ciudad.toLowerCase()===deliveryCity).map(z=>z.zona))].map(z=><option key={z} value={z}>{z}</option>)}</select>
                 <label className="px-cta__label" htmlFor="pedido-empresa">Distribuidora que atenderá tu pedido</label>
                 {offersLoading && <p role="status">Consultando precios y stock…</p>}
                 {offersError && <p role="alert">{offersError}</p>}
                 <button className="btn btn-secondary" type="button" disabled={offersLoading || loading} onClick={()=>{setOffersError('');setOffersLoading(true);setOffersVersion(v=>v+1)}}>Actualizar precios y stock</button>
-                <select className="px-cta__input" id="pedido-empresa" value={chosenOffer ? company : ''} onChange={e => setCompany(e.target.value)} required disabled={offersLoading || loading}>
+                <select className="px-cta__input" id="pedido-empresa" value={chosenOffer ? company : ''} onChange={e => setCompany(e.target.value)} required disabled={offersLoading || loading || Boolean(offersError)}>
                   <option value="">Selecciona una distribuidora</option>
                   {available.map(o => <option key={o.empresa_id} value={o.empresa_id}>{o.empresa_nombre} · {o.ciudad} · S/ {Number(o.precio_pen).toFixed(2)}</option>)}
                 </select>
@@ -215,7 +226,7 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
               <div className="px-cta__actions">
                 <button
                   type="submit"
-                  disabled={loading || offersLoading || !products.length || !chosenOffer}
+                  disabled={loading || offersLoading || Boolean(offersError) || !products.length || !chosenOffer}
                   className="btn btn-primary px-cta__submit-btn"
                 >
                   {loading ? (

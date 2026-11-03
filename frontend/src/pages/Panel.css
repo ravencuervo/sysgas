@@ -125,3 +125,8 @@
 .dashboard__sidebar nav { scrollbar-width:thin; scrollbar-color:#459a78 #123f32; }
 .dashboard__sidebar nav::-webkit-scrollbar { height:3px; }
 .inventory__physical { padding-bottom:6px; color:#4f6f5b; font-size:12px; line-height:1.8; }
+
+.vehicle-photos { margin-top:16px; }
+.vehicle-photos label { display:grid; gap:6px; margin-top:12px; }
+.vehicle-photos__grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(120px,1fr)); gap:12px; }
+.vehicle-photos__grid img { width:100%; aspect-ratio:4/3; object-fit:cover; border-radius:8px; }

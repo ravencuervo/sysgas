@@ -2,7 +2,7 @@ import { readFile,readdir,writeFile } from 'node:fs/promises'
 const root=new URL('../../supabase/',import.meta.url)
 const dir=new URL('migrations/',root)
 const parts=[]
-for(const file of (await readdir(dir)).filter(n=>/^2026103000(0[3-9]|1\d)_.*\.sql$/.test(n)).sort()) {
+for(const file of (await readdir(dir)).filter(n=>n>'202610300003' && /^\d{12}\d*_.*\.sql$/.test(n)).sort()) {
  const sql=await readFile(new URL(file,dir),'utf8')
  parts.push(`-- ${file}\n${sql.split(/\r?\n/).filter(line=>!['begin;','commit;'].includes(line.trim().toLowerCase())).join('\n')}`)
 }

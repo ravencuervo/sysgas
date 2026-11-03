@@ -34,7 +34,7 @@ export default function Panel() {
       if (!person.activo) throw new Error('Tu perfil está desactivado.')
       if (previousRole.current !== person.rol) { setSection(person.rol === 'planta_operador' ? 'flota' : 'pedidos'); previousRole.current = person.rol }
       setProfile(person)
-      const { data, error } = await db().from('pedidos').select('id,codigo_ticket,nombre_destinatario,direccion_entrega,estado,estado_pago,empresa_id,chofer_id,total_pedido_pen,created_at,comprobantes_pago(id,numero_completo,total_pen),pedido_items(id,capacidad,cantidad,precio_unitario_pen,subtotal_pen)').order('created_at', { ascending: false }).limit(100)
+      const { data, error } = await db().from('pedidos').select('id,codigo_ticket,nombre_destinatario,telefono_contacto,ciudad,direccion_entrega,referencia_direccion,estado,estado_pago,empresa_id,chofer_id,total_pedido_pen,created_at,comprobantes_pago(id,numero_completo,total_pen),pedido_items(id,capacidad,cantidad,precio_unitario_pen,subtotal_pen)').order('created_at', { ascending: false }).limit(100)
       if (error) throw error
       setOrders(data)
     } catch (e) { setError(friendlyError(e)) }
@@ -107,7 +107,12 @@ export default function Panel() {
     {loading ? <p role="status">Consultando pedidos…</p> : !error && visible.length === 0 && <div className="solid-card panel__empty"><h2>{orders.length ? 'Sin coincidencias' : 'Todavía no hay pedidos'}</h2><p>{orders.length ? 'Prueba con otro texto o estado.' : 'Los pedidos asociados a tu cuenta aparecerán aquí.'}</p></div>}
     <div className="panel__orders">{!loading && visible.map(order => <article className="solid-card panel__order" key={order.id}>
       <div className="panel__order-top"><h2>{order.codigo_ticket}</h2><span className={`order-status order-status--${order.estado}`}>{orderStates[order.estado] || order.estado}</span></div>
-      <h3>{order.nombre_destinatario}</h3><p>{order.direccion_entrega}</p>
+      <h3>{order.nombre_destinatario}</h3>
+      <p>{[order.direccion_entrega, order.ciudad].filter(Boolean).join(' · ')}</p>
+      {order.referencia_direccion && <p className="panel__hint">Referencia de entrega · {order.referencia_direccion}</p>}
+      {(manager || profile?.rol === 'chofer_repartidor') && !['entregado', 'cancelado'].includes(order.estado) && order.telefono_contacto && (
+        <p><a href={`tel:${order.telefono_contacto.replace(/[^+0-9]/g, '')}`}>Llamar al destinatario · {order.telefono_contacto}</a></p>
+      )}
       <ul className="panel__items" aria-label="Detalle del pedido">{order.pedido_items?.map(item => <li key={item.id}>{item.cantidad} × Balón de {item.capacidad} · {money(item.subtotal_pen)}</li>)}</ul>
       {(manager || profile?.rol === 'chofer_repartidor') && !['entregado','cancelado'].includes(order.estado) && <div className="panel__order-actions">
         {order.estado === 'asignado_chofer' && <button className="btn btn-primary" disabled={!!saving} onClick={() => changeState(order,'en_camino')}>Iniciar reparto</button>}

@@ -131,6 +131,26 @@ test('migraciones y operaciones multiempresa en PostgreSQL aislado', async t => 
    await asUser(ownerA);const canceled=(await rpc('gestion_logistica',['viaje',a,args])).result;await rpc('cancelar_viaje',[a,canceled])
    assert.equal((await one('select stock from public.inventario_empresa where empresa_id=$1',[a])).stock,201)
   })
+  await t.test('alta directa exige superadmin y habilita cortesía sin pagos',async()=>{
+   const email='gerente-directo@test.local'
+   const values={correo:email,ruc:'33333333333',razon_social:'Gas Alta Directa',ciudad:'Puno',direccion:'Dirección de prueba',telefono:'999999999',nombres:'Gerente',apellidos:'Prueba',dias_cortesia:'15'}
+   await asUser(ownerA);await assert.rejects(rpc('alta_directa_empresa',[values,true]),/Solo el superadministrador/)
+   await asUser(admin);assert.equal((await rpc('alta_directa_empresa',[values,true])).result,null)
+   await db.exec('reset role');const manager=await one('insert into auth.users(email,email_confirmed_at) values($1,now()) returning id',[email])
+   await asUser(admin);const company=(await rpc('alta_directa_empresa',[values,false])).result
+   assert.equal((await rpc('alta_directa_empresa',[values,false])).result,company)
+   assert.equal((await rpc('membresia_activa',[company])).result,true)
+   assert.equal((await db.query('select id from public.pagos_membresia where empresa_id=$1',[company])).rows.length,0)
+   await asUser(manager.id);assert.equal((await one('select rol from public.perfiles where id=$1',[manager.id])).rol,'empresa_admin')
+  })
+  await t.test('las fotos de un vehículo solo se suben y leen en su propia empresa',async()=>{
+   const path=`${a}/moto/${moto}/aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa.jpg`
+   await asUser(ownerA);await db.query("insert into storage.objects(bucket_id,name) values('estado-vehiculos',$1)",[path])
+   assert.equal((await db.query('select id from storage.objects where name=$1',[path])).rows.length,1)
+   await asUser(ownerB);assert.equal((await db.query('select id from storage.objects where name=$1',[path])).rows.length,0)
+   await assert.rejects(db.query("insert into storage.objects(bucket_id,name) values('estado-vehiculos',$1)",[path]),/row-level security/)
+   await assert.rejects(db.query("insert into storage.objects(bucket_id,name) values('estado-vehiculos',$1)",[path.replace(a,b)]),/row-level security/)
+  })
   await t.test('el instalador combinado se puede repetir sin borrar registros',async()=>{
    await db.exec('reset role');const before=Number((await one('select count(*) n from public.pedidos')).n)
    await db.exec(await readFile(new URL('../../supabase/ACTUALIZAR_SYSGAS.sql',import.meta.url),'utf8'))
