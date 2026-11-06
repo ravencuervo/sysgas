@@ -1,3 +1,4 @@
+import CustomerWeight from '../components/CustomerWeight'
 import CompanyOperations from '../components/CompanyOperations'
 import AccountInbox from '../components/AccountInbox'
 import DeliveryTools from '../components/DeliveryTools'
@@ -42,7 +43,7 @@ export default function Panel() {
       }
       if (previousRole.current !== person.rol) { setSection(person.rol === 'planta_operador' ? 'flota' : 'pedidos'); previousRole.current = person.rol }
       setProfile(person)
-      const { data, error } = await db().from('pedidos').select('id,codigo_ticket,nombre_destinatario,telefono_contacto,ciudad,direccion_entrega,referencia_direccion,estado,estado_pago,empresa_id,chofer_id,total_pedido_pen,created_at,comprobantes_pago(id,numero_completo,total_pen),pedido_items(id,capacidad,cantidad,precio_unitario_pen,subtotal_pen)').order('created_at', { ascending: false }).limit(100)
+      const { data, error } = await db().from('pedidos').select('id,codigo_ticket,nombre_destinatario,telefono_contacto,ciudad,direccion_entrega,referencia_direccion,estado,estado_pago,empresa_id,chofer_id,total_pedido_pen,created_at,pesajes_entrega(id,peso_bruto_medido_kg,tara_descontada_kg,peso_neto_calculado_kg),comprobantes_pago(id,numero_completo,total_pen),pedido_items(id,capacidad,cantidad,precio_unitario_pen,subtotal_pen)').order('created_at', { ascending: false }).limit(100)
       if (error) throw error
       setOrders(data)
     } catch (e) { setError(friendlyError(e)) }
@@ -129,6 +130,7 @@ export default function Panel() {
         <button className="btn btn-secondary" disabled={!!saving} onClick={() => { if (window.confirm('¿Cancelar este pedido? El stock reservado se devolverá.')) void changeState(order,'cancelado') }}>Cancelar pedido</button>
         </>}
       </div>}
+      {profile?.rol === 'cliente_comun' && <CustomerWeight order={order} />}
       {profile && <DeliveryTools order={order} profile={profile} onSaved={load} />}
       <footer><time dateTime={order.created_at}>{new Date(order.created_at).toLocaleString('es-PE', { timeZone: 'America/Lima' })}</time><strong>{money(order.total_pedido_pen)}</strong></footer>
     </article>)}</div>

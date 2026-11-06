@@ -12,7 +12,7 @@ test('migraciones y operaciones multiempresa en PostgreSQL aislado', async t => 
     try {await db.exec(await readFile(new URL(name,dir),'utf8'))} catch(e) {throw new Error(`Migración ${name}: ${e.message}`,{cause:e})}
   }
   const one = async (sql,args=[]) => (await db.query(sql,args)).rows[0]
-  const admin=(await one("select id from auth.users where email='menaronaldocarlos@gmail.com'")).id
+  const admin=(await one("select id from auth.users where email='admin@sysgas.test'")).id
   async function asUser(id) {await db.exec('reset role');await db.query("select set_config('request.jwt.claim.sub',$1,false)",[id || '']);await db.exec(id?'set role authenticated':'set role anon')}
   async function rpc(name,args) {return one(`select public.${name}(${args.map((_,i)=>'$'+(i+1)).join(',')}) result`,args)}
   await db.exec("insert into public.empresas_distribuidoras(id,ruc,razon_social) values('11111111-1111-4111-8111-111111111111','11111111111','Empresa A'),('22222222-2222-4222-8222-222222222222','22222222222','Empresa B'); insert into public.productos_catalogo(capacidad,nombre_comercial,precio_venta_pen) values('10kg','Familiar',48);")
@@ -69,6 +69,27 @@ test('migraciones y operaciones multiempresa en PostgreSQL aislado', async t => 
    await assert.rejects(rpc('gestion_logistica',['entregar',a,{pedido_id:order.id,codigo:'NO-CORRESPONDE'}]),/no corresponde/)
    await rpc('gestion_logistica',['entregar',a,{pedido_id:order.id,codigo:'TEST-CIL-001',peso:21.5,balanza:'BALANZA-PRUEBA'}]);await assert.rejects(rpc('compartir_ubicacion',[order.id,-15.84,-70.02]),/solo durante/)
    await asUser(customer);assert.equal((await db.query('select * from public.ubicaciones_repartidores where pedido_id=$1',[order.id])).rows.length,0)
+  })
+  await t.test('la comprobación del cliente respeta propiedad, margen y reintentos',async()=>{
+   await asUser(ownerB)
+   await assert.rejects(rpc('comprobar_peso_cliente',[order.id,21.5]),/Solo puedes/)
+   assert.equal((await db.query('select * from public.pesajes_entrega where pedido_id=$1',[order.id])).rows.length,0)
+   await asUser(customer)
+   const complete=(await rpc('comprobar_peso_cliente',[order.id,21.5])).result
+   assert.equal(complete.incidencia_id,null)
+   await db.exec('reset role')
+   await db.query('delete from public.comprobaciones_peso where pedido_id=$1',[order.id])
+   await asUser(customer)
+   const short=(await rpc('comprobar_peso_cliente',[order.id,20.9])).result
+   assert.ok(short.incidencia_id)
+   const repeated=(await rpc('comprobar_peso_cliente',[order.id,20.8])).result
+   assert.equal(short.incidencia_id,repeated.incidencia_id)
+   await asUser(ownerB)
+   assert.equal((await db.query('select * from public.comprobaciones_peso where pedido_id=$1',[order.id])).rows.length,0)
+   await asUser(ownerA)
+   const incident=await one('select * from public.incidencias where id=$1',[short.incidencia_id])
+   assert.equal(incident.empresa_id,a)
+   assert.equal(incident.cliente_reclamante_id,customer)
   })
   await t.test('el cobro del gas y los ingresos de membresía permanecen separados',async()=>{
    await asUser(ownerA);await rpc('gestion_logistica',['cobro',a,{pedido_id:order.id,metodo:'efectivo'}]);const report=(await rpc('reporte_empresa',[a,'2020-01-01','2020-01-31'])).result;assert.equal(Number(report.cobrado_pen),0)

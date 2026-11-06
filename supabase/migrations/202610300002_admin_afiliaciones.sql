@@ -7,12 +7,13 @@ alter table public.solicitudes_afiliacion
 
 -- La asignación inicial se ejecuta únicamente con privilegios de SQL Editor.
 do $$
-declare v_id uuid;
+declare v_id uuid; v_correo text:=nullif(current_setting('sysgas.admin_email',true),'');
 begin
-  select id into v_id from auth.users where lower(email) = 'menaronaldocarlos@gmail.com';
-  if v_id is null then raise exception 'Primero registra menaronaldocarlos@gmail.com en SYSGAS.'; end if;
+  if v_correo is null then return; end if;
+  select id into v_id from auth.users where lower(email) = lower(v_correo);
+  if v_id is null then raise exception 'Registra primero la cuenta indicada en sysgas.admin_email.'; end if;
   insert into public.perfiles(id,correo,nombres,apellidos,rol,activo)
-    values(v_id,'menaronaldocarlos@gmail.com','Administrador','SYSGAS','super_admin',true)
+    values(v_id,v_correo,'Administrador','SYSGAS','super_admin',true)
     on conflict(id) do update set rol='super_admin', activo=true;
 end;
 $$;
