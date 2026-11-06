@@ -36,7 +36,7 @@ alter table public.solicitudes_afiliacion enable row level security;
 create policy catalogo_publico on public.productos_catalogo for select using(true);
 create or replace function public.handle_new_auth_user() returns trigger language plpgsql security definer as $$ begin insert into public.perfiles(id,correo,nombres,apellidos) values(new.id,new.email,'Usuario','Prueba');return new;end;$$;
 create trigger on_auth_user_created after insert on auth.users for each row execute function public.handle_new_auth_user();
-insert into auth.users(email,email_confirmed_at) values('menaronaldocarlos@gmail.com',now());
+insert into auth.users(email,email_confirmed_at) values('admin@sysgas.test',now());
 
 create table public.pesajes_entrega(id uuid primary key default gen_random_uuid(),pedido_id uuid references public.pedidos(id),cilindro_entregado_id uuid references public.cilindros(id),cilindro_vacio_retornado_id uuid references public.cilindros(id),chofer_id uuid references public.perfiles(id),id_balanza_bluetooth text,peso_bruto_medido_kg numeric,tara_descontada_kg numeric,peso_neto_calculado_kg numeric,pesaje_aprobado boolean);
 alter table public.pesajes_entrega enable row level security;
@@ -56,3 +56,5 @@ create table storage.objects(id uuid primary key default gen_random_uuid(),bucke
 alter table storage.objects enable row level security;
 grant usage on schema storage to anon,authenticated;
 grant select,insert on storage.objects to authenticated;
+
+select set_config('sysgas.admin_email','admin@sysgas.test',false);

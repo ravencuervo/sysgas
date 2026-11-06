@@ -79,7 +79,11 @@ export default function CompanyOperations({ profile, section }) {
         if(section==='incidencias') await table('incidents','incidencias')
         if(section==='cobertura') await table('zones','zonas_cobertura')
         if(section==='auditoria') await table('audit','auditoria_operaciones')
-        if(section==='reportes') { const {data,error}=await db().rpc('reporte_empresa',{p_empresa:company,p_desde:period.from,p_hasta:period.to}); if(error) throw error; out.report=data }
+        if(section==='reportes') { const {data,error}=await db().rpc('reporte_empresa',{p_empresa:company,p_desde:period.from,p_hasta:period.to}); if(error) throw error; out.report=data
+          const weights=await db().rpc('reporte_pesos_cliente',{p_empresa:company,p_desde:period.from,p_hasta:period.to})
+          if(weights.error) out.weightError='El reporte de comprobaciones requiere actualizar la base de datos.'
+          else out.weights=weights.data
+        }
       }
       setData(out)
     } catch(e) {setError(friendlyError(e))} finally {setLoading(false)}
@@ -178,6 +182,10 @@ export default function CompanyOperations({ profile, section }) {
     {company && section==='incidencias' && <><Form {...common} title="Reportar incidencia" fields={[["descripcion","Descripción","textarea"]]} submit={operation('incidencia')} />{(data.incidents||[]).map(i=><article className="solid-card panel__order" key={i.id}><p>{i.descripcion}</p><p>{i.estado} · {date(i.created_at)}</p>{manager && i.estado==='abierta' && <button disabled={busy} className="btn btn-secondary" onClick={()=>operation('resolver')({id:i.id})}>Marcar resuelta</button>}</article>)}</>}
     {company && section==='cobertura' && <><Form {...common} title="Agregar zona de atención" fields={[["ciudad","Ciudad"],["zona","Distrito o zona"]]} submit={(v,f)=>run('guardar_cobertura',{p_empresa:company,p_ciudad:v.ciudad,p_zona:v.zona},f)} />{(data.zones||[]).map(z=><article className="solid-card panel__order" key={z.id}><h3>{z.ciudad}</h3><p>{z.zona}</p></article>)}</>}
     {company && section==='reportes' && <><div className="module__toolbar"><label>Desde<input type="date" value={period.from} onChange={e=>setPeriod({...period,from:e.target.value})}/></label><label>Hasta<input type="date" value={period.to} onChange={e=>setPeriod({...period,to:e.target.value})}/></label></div>
+      <h3>Pesajes y reclamos por repartidor</h3>
+      {data.weightError && <p role="status">{data.weightError}</p>}
+      {data.weights?.length === 0 && <p>Sin entregas pesadas en el periodo.</p>}
+      {data.weights?.map((row,index)=><p key={index}>{row.repartidor} · {row.entregas_pesadas} entregas pesadas · {row.reclamos_peso} reclamos · {row.reclamos_resueltos} resueltos</p>)}
       <p className="panel__hint">Periodo por fecha de creación del pedido, zona horaria Perú. Ventas corresponde a pedidos entregados; cobrado, a pagos registrados. Stock e incidencias son el saldo actual; recepciones y devoluciones usan la fecha del evento.</p>
       {data.report && <><button className="btn btn-secondary" onClick={exportReport}>Exportar reporte CSV</button><div className="report-grid">{Object.entries(data.report).filter(([,v])=>!Array.isArray(v)).map(([k,v])=><article className="solid-card" key={k}><span>{k.replaceAll('_',' ')}</span><strong>{k.includes('pen')?money(v):v}</strong></article>)}</div>
       <h3>Balones por estado</h3>{data.report.cilindros.map(r=><p key={r.estado}>{cylinderStates[r.estado] || r.estado}: {r.cantidad}</p>)}<h3>Productos entregados</h3>{data.report.productos.map(r=><p key={r.capacidad}>{r.capacidad}: {r.unidades} unidades</p>)}<h3>Entregas por repartidor</h3>{data.report.repartidores?.map((r,i)=><p key={i}>{r.nombres}: {r.entregas} entregas</p>)}</>}
