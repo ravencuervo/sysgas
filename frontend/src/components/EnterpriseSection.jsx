@@ -1,7 +1,6 @@
 import { friendlyError } from '../lib/forms'
 import { db } from '../lib/supabase'
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
 import EnterpriseTruck3D from './EnterpriseTruck3D.jsx'
 import './EnterpriseSection.css'
 
@@ -24,11 +23,6 @@ export default function EnterpriseSection() {
     } catch (e) { setMessage(friendlyError(e)) }
     finally { setBusy(false) }
   }
-
-  // Cálculos de ahorro basados en métricas estándar de la industria GLP
-  const lossSavings = Math.round(cylinderVolume * 0.025 * 95) // Reducción de mermas y balones perdidos
-  const routeSavings = Math.round(cylinderVolume * 0.85) // Optimización de rutas y combustible
-  const totalMonthlySavings = lossSavings + routeSavings
 
   return (
     <section className="section px-enterprise section--alt" id="empresas">
@@ -54,12 +48,12 @@ export default function EnterpriseSection() {
             </div>
             <h3 className="px-enterprise__card-title">Despacho &amp; Telemetría en Ruta</h3>
             <p className="px-enterprise__card-desc">
-              Visualiza tus unidades en un mapa con geocercas en tiempo real. Los pedidos entrantes se asignan automáticamente al chofer más cercano para reducir tiempos de espera.
+              Asigna pedidos a tus repartidores y consulta la ubicación que comparten durante una entrega activa.
             </p>
             <ul className="px-enterprise__bullet-list">
-              <li><i className="bi bi-check2-circle" /> Asignación algorítmica por proximidad</li>
-              <li><i className="bi bi-check2-circle" /> Historial de kilometraje y desvíos</li>
-              <li><i className="bi bi-check2-circle" /> Alerta de combustible y mantenimiento</li>
+              <li><i className="bi bi-check2-circle" /> Asignación de repartidor y vehículo</li>
+              <li><i className="bi bi-check2-circle" /> Ubicación durante la entrega</li>
+              <li><i className="bi bi-check2-circle" /> Registro de vehículos y fotos</li>
             </ul>
           </div>
 
@@ -73,7 +67,7 @@ export default function EnterpriseSection() {
               Cada balón posee un número de serie y QR único. El sistema audita exactamente qué chofer cargó el cilindro, a qué cliente se entregó y si el cilindro vacío fue recuperado.
             </p>
             <ul className="px-enterprise__bullet-list">
-              <li><i className="bi bi-check2-circle" /> Cero extravíos de cilindros vacíos</li>
+              <li><i className="bi bi-check2-circle" /> Registro de balones vacíos recuperados</li>
               <li><i className="bi bi-check2-circle" /> Registro de fecha de prueba y tara de fábrica</li>
               <li><i className="bi bi-check2-circle" /> Auditoría inmutable de inventario</li>
             </ul>
@@ -84,14 +78,14 @@ export default function EnterpriseSection() {
             <div className="px-enterprise__icon-box">
               <i className="bi bi-receipt-cutoff" />
             </div>
-            <h3 className="px-enterprise__card-title">App de Chofer &amp; Facturación</h3>
+            <h3 className="px-enterprise__card-title">Panel web de reparto y cobros</h3>
             <p className="px-enterprise__card-desc">
-              Tus repartidores usan la App Móvil de chofer con conexión bluetooth a balanza digital. Emite boletas y facturas electrónicas en segundos y acepta Yape, Plin o tarjetas.
+              Tus repartidores pueden registrar el peso medido desde el panel web. Consulta las entregas, registra los cobros recibidos y genera notas de venta internas.
             </p>
             <ul className="px-enterprise__bullet-list">
               <li><i className="bi bi-check2-circle" /> Validación obligatoria de peso antes de cobrar</li>
-              <li><i className="bi bi-check2-circle" /> Emisión electrónica SUNAT en puerta</li>
-              <li><i className="bi bi-check2-circle" /> Liquidación diaria automática de caja</li>
+              <li><i className="bi bi-check2-circle" /> Nota de venta interna</li>
+              <li><i className="bi bi-check2-circle" /> Reporte de cobros registrados</li>
             </ul>
           </div>
         </div>
@@ -109,7 +103,7 @@ export default function EnterpriseSection() {
 
             <h3 className="px-enterprise__calc-title">Solicita tu afiliación a nuestro servicio</h3>
             <p className="px-enterprise__calc-desc">
-              Conecta tu flota distribuidora al sistema inteligente de SYSGAS. Desliza según el volumen mensual de balones para estimar tu ahorro y rendimiento operativo.
+              Conecta tu flota distribuidora al sistema inteligente de SYSGAS. Indica tu volumen mensual para preparar una prueba piloto con tu distribuidora.
             </p>
 
             {/* Modelo 3D del Camión de Distribución SYSGAS */}
@@ -147,22 +141,8 @@ export default function EnterpriseSection() {
 
           <div className="px-enterprise__calc-right">
             <div className="px-enterprise__savings-box">
-              <span className="px-enterprise__savings-label">AHORRO MENSUAL ESTIMADO</span>
-              <div className="px-enterprise__savings-amount">
-                S/ {totalMonthlySavings.toLocaleString()}
-                <span className="px-enterprise__savings-period">/ mes</span>
-              </div>
-              <div className="px-enterprise__savings-breakdown">
-                <div className="px-enterprise__breakdown-item">
-                  <span>Ahorro en cilindros recuperados:</span>
-                  <strong>S/ {lossSavings.toLocaleString()}</strong>
-                </div>
-                <div className="px-enterprise__breakdown-item">
-                  <span>Optimización de ruta &amp; combustible:</span>
-                  <strong>S/ {routeSavings.toLocaleString()}</strong>
-                </div>
-              </div>
-
+              <h3>Prueba piloto con tu distribuidora</h3>
+              <p>Evaluaremos los balones recuperados, las entregas y los reclamos con datos de tu operación.</p>
               <form onSubmit={affiliate} style={{ display: 'grid', gap: 12 }}>
                 <label>Empresa <input name="nombre_empresa" required maxLength={150} /></label>
                 <label>Representante <input name="representante_nombre" required maxLength={120} /></label>
@@ -185,22 +165,6 @@ export default function EnterpriseSection() {
                   <span>Solicitar Afiliación al Servicio</span>
                 </a>
 
-                <a
-                  href={`https://wa.me/51951667696?text=${encodeURIComponent(
-                    `¡Hola SYSGAS! Solicito una demostración guiada del sistema para mi distribuidora (${cylinderVolume} balones/mes).`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-secondary"
-                >
-                  <i className="bi bi-calendar-check" />
-                  <span>Solicitar Demo Guiada</span>
-                </a>
-
-                <Link to="/login" className="btn btn-secondary">
-                  <i className="bi bi-box-arrow-in-right" />
-                  <span>Acceso LOGIN</span>
-                </Link>
               </div>
             </div>
           </div>

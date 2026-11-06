@@ -71,8 +71,7 @@ export default function BalloonHistory() {
                 <span className="section-tag__num">BALÓN #{data.codigo}</span>
                 <span>{data.tipo}</span>
               </div>
-              <h1 className="px-bh__title">Hoja de Trazabilidad e Historial Inmutable</h1>
-              <p className="px-bh__meta-uuid">Código Único de Trazabilidad: <code>{data.uuid}</code></p>
+              <h1 className="px-bh__title">Historial de tu balón</h1>
             </div>
           </div>
 
@@ -90,7 +89,7 @@ export default function BalloonHistory() {
           <section className="px-bh__events-card solid-card">
             <div className="px-bh__section-title-wrap">
               <i className="bi bi-clock-history text-jade" />
-              <h2 className="px-bh__section-title">Cadena de Custodia &amp; Eventos Registrados</h2>
+              <h2 className="px-bh__section-title">Eventos registrados</h2>
             </div>
             <p className="px-bh__section-desc">
               Eventos registrados en la base de datos de SYSGAS.
@@ -137,7 +136,7 @@ export default function BalloonHistory() {
           {/* Columna Derecha: Certificaciones y Ficha de Tara */}
           <aside className="px-bh__sidebar">
             {/* Certificados ISO */}
-            <div className="px-bh__side-card solid-card">
+            {data.certificados?.length > 0 && <div className="px-bh__side-card solid-card">
               <div className="px-bh__section-title-wrap">
                 <i className="bi bi-patch-check-fill text-jade" />
                 <h3 className="px-bh__side-title">Certificaciones ISO</h3>
@@ -155,7 +154,7 @@ export default function BalloonHistory() {
                   </div>
                 ))}
               </div>
-            </div>
+            </div>}
 
             {/* Ficha Técnica del Cilindro */}
             <div className="px-bh__side-card solid-card" style={{ marginTop: 24 }}>
@@ -182,10 +181,6 @@ export default function BalloonHistory() {
                   <span>{data.planta}</span>
                 </div>
                 <div className="px-bh__spec-row"><span>Último llenado registrado</span><span>{data.fechaLlenado || 'Sin registro'}</span></div>
-                <div className="px-bh__spec-row">
-                  <span>Operador de Llenado</span>
-                  <span>{data.operadorLlenado}</span>
-                </div>
               </div>
 
               <div className="px-bh__side-footer">

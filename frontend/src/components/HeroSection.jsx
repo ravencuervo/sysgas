@@ -32,16 +32,16 @@ export default function HeroSection() {
       <div className="marquee-container">
         <div className="marquee-track">
           <div className="marquee-item"><i className="bi bi-qr-code" /> SYSGAS: TRAZABILIDAD TOTAL EN CADA BALÓN <span className="marquee-bullet">✦</span></div>
-          <div className="marquee-item"><i className="bi bi-patch-check-fill" /> CERTIFICACIÓN ISO 9001:2015 &amp; ISO 4706 <span className="marquee-bullet">✦</span></div>
-          <div className="marquee-item"><i className="bi bi-shield-fill-check" /> SELLO ORBITAL HERMÉTICO APROBADO <span className="marquee-bullet">✦</span></div>
+          <div className="marquee-item"><i className="bi bi-patch-check-fill" /> HISTORIAL DEL BALÓN POR QR <span className="marquee-bullet">✦</span></div>
+          <div className="marquee-item"><i className="bi bi-shield-fill-check" /> CONSULTA EL PESO REGISTRADO <span className="marquee-bullet">✦</span></div>
           <div className="marquee-item"><i className="bi bi-truck" /> TELEMETRÍA Y CONTROL DE FLOTA EN RUTA <span className="marquee-bullet">✦</span></div>
           <div className="marquee-item"><i className="bi bi-house-check-fill" /> ENTREGA SEGURA Y FIRMA DIGITAL EN HOGAR <span className="marquee-bullet">✦</span></div>
           <div className="marquee-item"><i className="bi bi-patch-check-fill" /> PESO EXACTO Y CERTIFICADO OFICIAL DE TARA <span className="marquee-bullet">✦</span></div>
         </div>
         <div className="marquee-track" aria-hidden="true">
           <div className="marquee-item"><i className="bi bi-qr-code" /> SYSGAS: TRAZABILIDAD TOTAL EN CADA BALÓN <span className="marquee-bullet">✦</span></div>
-          <div className="marquee-item"><i className="bi bi-patch-check-fill" /> CERTIFICACIÓN ISO 9001:2015 &amp; ISO 4706 <span className="marquee-bullet">✦</span></div>
-          <div className="marquee-item"><i className="bi bi-shield-fill-check" /> SELLO ORBITAL HERMÉTICO APROBADO <span className="marquee-bullet">✦</span></div>
+          <div className="marquee-item"><i className="bi bi-patch-check-fill" /> HISTORIAL DEL BALÓN POR QR <span className="marquee-bullet">✦</span></div>
+          <div className="marquee-item"><i className="bi bi-shield-fill-check" /> CONSULTA EL PESO REGISTRADO <span className="marquee-bullet">✦</span></div>
           <div className="marquee-item"><i className="bi bi-truck" /> TELEMETRÍA Y CONTROL DE FLOTA EN RUTA <span className="marquee-bullet">✦</span></div>
           <div className="marquee-item"><i className="bi bi-house-check-fill" /> ENTREGA SEGURA Y FIRMA DIGITAL EN HOGAR <span className="marquee-bullet">✦</span></div>
           <div className="marquee-item"><i className="bi bi-patch-check-fill" /> PESO EXACTO Y CERTIFICADO OFICIAL DE TARA <span className="marquee-bullet">✦</span></div>

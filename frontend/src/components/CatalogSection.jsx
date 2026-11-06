@@ -105,7 +105,7 @@ export default function CatalogSection({ onSelectProduct }) {
           <div className="px-catalog__trust-item">
             <i className="bi bi-clock-history text-jade" />
             <div>
-              <strong>Entrega en ~25 minutos</strong>
+              <strong>Entrega coordinada con tu distribuidora</strong>
               <span>Despachador más cercano a tu zona</span>
             </div>
           </div>

@@ -20,7 +20,7 @@ const STEPS = [
     title: 'Pesaje y prueba en tu puerta',
     desc: 'El despachador pesa el cilindro con balanza digital frente a ti y escaneas el QR para verificar el sello hermético.',
     icon: 'bi-patch-check-fill',
-    badge: '100% GARANTÍA',
+    badge: 'PESO REGISTRADO',
   },
 ]
 
