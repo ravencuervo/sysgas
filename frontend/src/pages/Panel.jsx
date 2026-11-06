@@ -9,6 +9,9 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { db } from '../lib/supabase'
 
+const sectionLabels = { pedidos: 'Pedidos y entregas', inventario: 'Precios y stock', empresa: 'Mi empresa', personal: 'Personal', vehiculos: 'Vehículos', cilindros: 'Balones y QR', flota: 'Transporte masivo', cobertura: 'Cobertura', reportes: 'Reportes', membresia: 'Membresía', auditoria: 'Auditoría', incidencias: 'Incidencias', notificaciones: 'Notificaciones', afiliaciones: 'Afiliaciones' }
+const roleLabels = { super_admin: 'Administrador general', empresa_admin: 'Administrador de empresa', cliente_comun: 'Cliente', chofer_repartidor: 'Repartidor', planta_operador: 'Operador de transporte', supervisor_calidad: 'Supervisor de calidad' }
+
 export default function Panel() {
   const previousRole = useRef(null)
   const navigate = useNavigate()
@@ -73,7 +76,7 @@ export default function Panel() {
   return <div className="dashboard">
     <aside className="dashboard__sidebar">
       <Link to="/" className="dashboard__brand"><span className="dashboard__logo"><i className="bi bi-fire" /></span><span>SYSGAS<small>GESTIÓN INTELIGENTE</small></span></Link>
-      <div className="dashboard__workspace"><span className="dash-live" />{manager ? 'Centro de operaciones' : 'Mi cuenta SYSGAS'}<small>{profile?.rol.replaceAll('_',' ') || 'Conectando…'}</small></div>
+      <div className="dashboard__workspace"><span className="dash-live" />{manager ? 'Centro de operaciones' : 'Mi cuenta SYSGAS'}<small>{roleLabels[profile?.rol] || 'Conectando…'}</small></div>
       <span className="dashboard__nav-label">PRINCIPAL</span>
       <nav aria-label="Secciones del panel">
         <button className={section === 'pedidos' ? 'active' : ''} onClick={() => setSection('pedidos')}><i className="bi bi-grid-1x2" />{manager ? 'Pedidos y entregas' : profile?.rol === 'chofer_repartidor' ? 'Mis entregas' : 'Mis pedidos'}<span>{orders.filter(o => o.estado === 'pendiente').length}</span></button>
@@ -89,9 +92,9 @@ export default function Panel() {
       <button className="dashboard__logout" onClick={logout}><i className="bi bi-box-arrow-left" />Cerrar sesión</button>
     </aside>
     <main className="panel dashboard__main">
-      <header className="dashboard__topbar"><span>Mi espacio <i className="bi bi-chevron-right" /> {section.charAt(0).toUpperCase()+section.slice(1)}</span><div className="dashboard__user"><span>{profile?.nombres || 'Usuario'}</span><b>{profile?.nombres?.charAt(0) || 'S'}</b></div></header>
+      <header className="dashboard__topbar"><span>Mi espacio <i className="bi bi-chevron-right" /> {sectionLabels[section]}</span><div className="dashboard__user"><span>{profile?.nombres || 'Usuario'}</span><b>{profile?.nombres?.charAt(0) || 'S'}</b></div></header>
       <div className="dashboard__content">
-      <div className="panel__header"><div><span className="dashboard__eyebrow">TU DISTRIBUIDORA, MÁS CONECTADA</span><h1>{section === 'pedidos' ? (manager ? 'Tu operación de un vistazo' : profile?.rol === 'chofer_repartidor' ? 'Tus entregas asignadas' : 'Tus pedidos, en un solo lugar') : section === 'inventario' ? 'Control de productos' : section.charAt(0).toUpperCase()+section.slice(1)}</h1><p>{section === 'pedidos' ? 'Consulta los pedidos y mantén cada entrega en orden.' : 'Información actualizada para tomar mejores decisiones.'}</p></div><button className="btn btn-secondary" onClick={load} disabled={loading}><i className="bi bi-arrow-clockwise" />Actualizar</button></div>
+      <div className="panel__header"><div><span className="dashboard__eyebrow">TU DISTRIBUIDORA, MÁS CONECTADA</span><h1>{section === 'pedidos' ? (manager ? 'Tu operación de un vistazo' : profile?.rol === 'chofer_repartidor' ? 'Tus entregas asignadas' : 'Tus pedidos, en un solo lugar') : section === 'inventario' ? 'Control de productos' : sectionLabels[section]}</h1><p>{section === 'pedidos' ? 'Consulta los pedidos y mantén cada entrega en orden.' : 'Información actualizada para tomar mejores decisiones.'}</p></div><button className="btn btn-secondary" onClick={load} disabled={loading}><i className="bi bi-arrow-clockwise" />Actualizar</button></div>
       {notice && <p className="dash-success" role="status">{notice}</p>}
       {section === 'inventario' && manager && <CompanyInventory profile={profile} />}
       {section === 'afiliaciones' && profile?.rol === 'super_admin' && <AffiliationAdmin />}

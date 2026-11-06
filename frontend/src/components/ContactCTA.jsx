@@ -211,7 +211,7 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
                     name="direccion" minLength={5} maxLength={500} autoComplete="street-address"
                     value={formData.direccion}
                     onChange={handleChange}
-                    placeholder="Ej. Av. Los Próceres 452, Dpto 301, Surco"
+                    placeholder="Ej. Jr. Arequipa 520, Puno"
                     className="px-cta__input"
                     required
                   />

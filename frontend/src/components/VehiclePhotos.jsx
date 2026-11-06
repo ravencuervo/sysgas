@@ -69,7 +69,7 @@ export default function VehiclePhotos({ vehicle }) {
     setBusy(false)
   }
   return <section className="vehicle-photos">
-    <button className="btn btn-secondary" type="button" aria-expanded={open} disabled={busy} onClick={() => { setOpen(!open); setGallery('loading'); setError(''); setNotice('') }}>{open ? 'Ocultar fotos' : 'Fotos del estado'}</button>
+    <button className="btn btn-secondary" type="button" aria-expanded={open} disabled={busy} onClick={() => { setOpen(!open); setGallery('loading'); setError(''); setNotice('') }}>{open ? 'Ocultar fotos' : 'Agregar o ver fotos'}</button>
     {open && <>
       <label>Agregar fotos de {vehicle.placa}<input type="file" accept="image/jpeg,image/png,image/webp" multiple disabled={busy} onChange={upload} /></label>
       <p className="panel__hint">Fotos privadas. Hasta cinco por carga, de 5 MB cada una.</p>

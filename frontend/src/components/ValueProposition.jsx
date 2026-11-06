@@ -3,21 +3,21 @@ import './ValueProposition.css'
 const FEATURES = [
   {
     icon: 'bi-speedometer2',
-    title: 'Peso Exacto al Gramo',
-    desc: 'Cada cilindro cuenta con su tara calibrada de fábrica. Verificamos el peso neto en tu puerta antes de instalarlo.',
-    highlight: 'Garantía 100% de llenado',
+    title: 'Registro de peso en la entrega',
+    desc: 'Consulta la tara y el peso registrado por el repartidor al entregar tu balón.',
+    highlight: 'Peso neto calculado',
   },
   {
     icon: 'bi-shield-fill-check',
-    title: 'Sello Hermético Inviolable',
-    desc: 'Precinto probado a 14.7 bar bajo norma ISO 4706. Cero fugas y máxima concentración de gas licuado para mayor duración.',
-    highlight: 'Certificación ISO 9001:2015',
+    title: 'Historial del balón',
+    desc: 'Consulta los eventos de llenado, inspección y entrega registrados por la distribuidora.',
+    highlight: 'Consulta mediante QR',
   },
   {
     icon: 'bi-lightning-charge-fill',
     title: 'Despacho Rápido a tu Zona',
-    desc: 'Unidades de distribución inteligentes en ruta para que tu pedido llegue en promedio en 25 minutos a tu hogar.',
-    highlight: 'Tiempo promedio: ~25 min',
+    desc: 'La empresa recibe tu pedido y asigna un repartidor para coordinar la entrega.',
+    highlight: 'Atención según cobertura',
   },
 ]
 
