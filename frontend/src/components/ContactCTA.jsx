@@ -21,7 +21,10 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
   const [offersLoading, setOffersLoading] = useState(true)
   useEffect(() => {
     let active = true
-    Promise.all([db().rpc('ofertas_distribuidoras'), db().from('zonas_cobertura').select('empresa_id,ciudad,zona')]).then(([{data,error}, coverage]) => {
+    Promise.resolve().then(() => Promise.all([
+      db().rpc('ofertas_distribuidoras'),
+      db().from('zonas_cobertura').select('empresa_id,ciudad,zona'),
+    ])).then(([{data,error}, coverage]) => {
       if (!active) return
       if (error) { setOffersError(friendlyError(error)); return }
       if (coverage.error) { setOffersError(friendlyError(coverage.error)); return }

@@ -1,27 +1,22 @@
-import { friendlyError } from '../lib/forms'
-import { db } from '../lib/supabase'
 import { useState } from 'react'
 import EnterpriseTruck3D from './EnterpriseTruck3D.jsx'
 import './EnterpriseSection.css'
 
 export default function EnterpriseSection() {
   const [cylinderVolume, setCylinderVolume] = useState(2500)
-
-  const [message, setMessage] = useState('')
-  const [busy, setBusy] = useState(false)
-  async function affiliate(e) {
+  const [whatsappUrl, setWhatsappUrl] = useState('')
+  function affiliate(e) {
     e.preventDefault()
-    const form = e.currentTarget
-    const fields = Object.fromEntries(new FormData(form))
-    setBusy(true)
-    setMessage('')
-    try {
-      const { error } = await db().from('solicitudes_afiliacion').insert({ ...fields, volumen_mensual_balones: cylinderVolume })
-      if (error) throw error
-      setMessage('Solicitud registrada. Nuestro equipo se pondrá en contacto contigo.')
-      form.reset()
-    } catch (e) { setMessage(friendlyError(e)) }
-    finally { setBusy(false) }
+    const fields = Object.fromEntries(new FormData(e.currentTarget))
+    const message = [
+      '¡Hola SYSGAS Puno! Deseo solicitar una prueba piloto para mi distribuidora.',
+      `Empresa: ${fields.nombre_empresa}`,
+      `Representante: ${fields.representante_nombre}`,
+      `Teléfono: ${fields.telefono}`,
+      `Correo: ${fields.correo}`,
+      `Volumen estimado: ${cylinderVolume} balones/mes.`,
+    ].join('\n')
+    setWhatsappUrl(`https://wa.me/51951667696?text=${encodeURIComponent(message)}`)
   }
 
   return (
@@ -143,29 +138,39 @@ export default function EnterpriseSection() {
             <div className="px-enterprise__savings-box">
               <h3>Prueba piloto con tu distribuidora</h3>
               <p>Evaluaremos los balones recuperados, las entregas y los reclamos con datos de tu operación.</p>
-              <form onSubmit={affiliate} style={{ display: 'grid', gap: 12 }}>
-                <label>Empresa <input name="nombre_empresa" required maxLength={150} /></label>
-                <label>Representante <input name="representante_nombre" required maxLength={120} /></label>
-                <label>Teléfono <input name="telefono" type="tel" required maxLength={20} /></label>
-                <label>Correo <input name="correo" type="email" required maxLength={120} /></label>
-                <button className="btn btn-primary" disabled={busy}>{busy ? 'Enviando…' : 'Registrar solicitud de afiliación'}</button>
-                <p role="status">{message}</p>
+              <form className="px-enterprise__affiliation-form" onSubmit={affiliate}>
+                <div className="px-enterprise__form-field">
+                  <label htmlFor="affiliate-company">Empresa</label>
+                  <input id="affiliate-company" name="nombre_empresa" autoComplete="organization" required maxLength={150} />
+                </div>
+                <div className="px-enterprise__form-field">
+                  <label htmlFor="affiliate-representative">Representante</label>
+                  <input id="affiliate-representative" name="representante_nombre" autoComplete="name" required maxLength={120} />
+                </div>
+                <div className="px-enterprise__form-field">
+                  <label htmlFor="affiliate-phone">Teléfono</label>
+                  <input id="affiliate-phone" name="telefono" type="tel" autoComplete="tel" required maxLength={20} />
+                </div>
+                <div className="px-enterprise__form-field">
+                  <label htmlFor="affiliate-email">Correo</label>
+                  <input id="affiliate-email" name="correo" type="email" autoComplete="email" required maxLength={120} />
+                </div>
+                <button className="btn btn-primary px-enterprise__btn-affiliate" type="submit">
+                  <i className="bi bi-whatsapp" />
+                  <span>Preparar solicitud de afiliación</span>
+                </button>
+                {whatsappUrl && (
+                  <a className="btn btn-secondary px-enterprise__btn-whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                    Enviar solicitud por WhatsApp
+                    <i className="bi bi-arrow-up-right" />
+                  </a>
+                )}
+                <p className="px-enterprise__form-note" role="status" aria-live="polite">
+                  {whatsappUrl
+                    ? 'Revisa tus datos y continúa a WhatsApp para enviar la solicitud.'
+                    : 'Tus datos se incluirán en el mensaje de WhatsApp; este formulario no los guarda.'}
+                </p>
               </form>
-              {/* Botones de Afiliación y Contacto B2B */}
-              <div className="px-enterprise__cta-actions">
-                <a
-                  href={`https://wa.me/51951667696?text=${encodeURIComponent(
-                    `¡Hola SYSGAS Puno! Deseo solicitar la afiliación de mi empresa distribuidora al servicio de telemetría y red de gas (Volumen estimado: ${cylinderVolume} balones/mes).`
-                  )}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="btn btn-primary px-enterprise__btn-affiliate"
-                >
-                  <i className="bi bi-shield-fill-check" />
-                  <span>Solicitar Afiliación al Servicio</span>
-                </a>
-
-              </div>
             </div>
           </div>
         </div>

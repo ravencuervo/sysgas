@@ -26,7 +26,7 @@ Las pruebas locales no certifican el estado de una instalación remota ni el fun
 
 ## Publicar la web
 
-Configurar el proyecto Vercel con directorio raíz frontend, instalación pnpm, compilación pnpm build y salida dist. Configurar VITE_SUPABASE_URL y VITE_SUPABASE_PUBLISHABLE_KEY en el proyecto; publicar el código sin archivos .env.local. La clave Publishable está destinada al cliente, pero las claves service_role jamás deben estar en Vite. El archivo vercel.json resuelve las rutas internas.
+Configurar el proyecto Vercel con directorio raíz frontend, instalación pnpm, compilación pnpm build y salida dist. En Settings > Environment Variables, definir `VITE_SUPABASE_URL` con la URL del proyecto Supabase y `VITE_SUPABASE_PUBLISHABLE_KEY` con su clave pública Publishable (o la clave anon heredada), al menos para Production y también Preview si se usa. Estas variables se incorporan durante la compilación: después de agregarlas o cambiarlas, crear un nuevo despliegue. Si el sitio muestra que falta configuración, comprobar que los nombres coincidan exactamente y que las variables estén habilitadas para el entorno del despliegue. En desarrollo local, usar `frontend/.env.local`; no subir ese archivo. La clave Publishable/anon está destinada al cliente, pero las claves `service_role` jamás deben estar en Vite. El archivo `vercel.json` resuelve las rutas internas.
 
 Configurar las URLs de Authentication para el dominio publicado, /panel y /recuperar. Verificar registro, confirmación y restablecimiento desde ese dominio. Antes de un lanzamiento comercial se requieren correo transaccional, control contra abuso, revisión de requisitos operativos y prueba de las integraciones externas que se contraten.
 

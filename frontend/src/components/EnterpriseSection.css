@@ -217,6 +217,63 @@
   box-sizing: border-box;
 }
 
+.px-enterprise__savings-box > h3 {
+  font-size: clamp(1.25rem, 2vw, 1.55rem);
+  margin-bottom: 10px;
+}
+
+.px-enterprise__savings-box > p {
+  color: rgba(255, 255, 255, 0.78);
+  line-height: 1.6;
+  margin-bottom: 22px;
+}
+
+.px-enterprise__affiliation-form {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 14px;
+}
+
+.px-enterprise__form-field {
+  display: grid;
+  gap: 6px;
+}
+
+.px-enterprise__form-field label {
+  font-size: 0.84rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.px-enterprise__affiliation-form input {
+  width: 100%;
+  min-width: 0;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 8px;
+  background-color: rgba(255, 255, 255, 0.97);
+  color: #10251c;
+  font: inherit;
+}
+
+.px-enterprise__affiliation-form input:focus-visible {
+  outline: 3px solid #00D294;
+  outline-offset: 2px;
+}
+
+.px-enterprise__affiliation-form .btn,
+.px-enterprise__form-note {
+  grid-column: 1 / -1;
+}
+
+.px-enterprise__form-note {
+  margin: 0;
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.8rem;
+  line-height: 1.5;
+}
+
 .px-enterprise__savings-label {
   font-family: var(--font-mono);
   font-size: 0.76rem;
@@ -281,6 +338,12 @@
   border-color: #00D294;
 }
 
+.px-enterprise__btn-whatsapp {
+  width: 100%;
+  justify-content: center;
+  gap: 8px;
+}
+
 .px-enterprise__btn-affiliate:hover {
   background-color: #FFFFFF;
   color: #004D36;
@@ -310,3 +373,8 @@
   }
 }
 
+@media (max-width: 520px) {
+  .px-enterprise__affiliation-form {
+    grid-template-columns: 1fr;
+  }
+}
