@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">SYSGAS</string>
+    <string name="tagline">Energía Pura, Peso Exacto, Confianza Total</string>
+    <string name="city_default">Puno, Perú</string>
+</resources>
