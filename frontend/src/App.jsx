@@ -6,13 +6,9 @@ const Panel = lazy(() => import('./pages/Panel.jsx'))
 const Recovery = lazy(() => import('./pages/Recovery.jsx'))
 const BalloonHistory = lazy(() => import('./pages/BalloonHistory.jsx'))
 const LoginPage = lazy(() => import('./pages/LoginPage.jsx'))
-const AppMockup = lazy(() => import('./pages/AppMockup.jsx'))
 export default function App() {
   return <Suspense fallback={<main className="container section" role="status">Cargando SYSGAS…</main>}><Routes>
     <Route path="/" element={<Landing />} />
-    <Route path="/app" element={<AppMockup />} />
-    <Route path="/mockup" element={<AppMockup />} />
-    <Route path="/movil" element={<AppMockup />} />
     <Route path="/registro" element={<Register />} />
     <Route path="/panel" element={<Panel />} />
     <Route path="/recuperar" element={<Recovery />} />
