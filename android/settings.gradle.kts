@@ -22,3 +22,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "SYSGAS"
 include(":app")
+

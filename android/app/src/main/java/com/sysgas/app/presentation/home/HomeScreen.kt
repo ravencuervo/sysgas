@@ -539,3 +539,15 @@ private fun TrustItem(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun HomeScreenPreview() {
+    com.sysgas.app.ui.theme.SysgasTheme {
+        HomeScreen(
+            onNavigateToCheckout = {},
+            onNavigateToTracking = {}
+        )
+    }
+}
+

@@ -43,3 +43,4 @@ data class Order(
     val formattedTotal: String
         get() = "S/ %.2f".format(totalPen)
 }
+

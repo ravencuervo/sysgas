@@ -21,3 +21,4 @@ data class PassportData(
     val plantLocation: String = "Planta Envasadora Juliaca - Puno",
     val qrScanUrl: String = "https://sysgas.pe/pasaporte/CIL-PU-10-84920"
 )
+

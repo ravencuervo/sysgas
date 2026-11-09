@@ -17,3 +17,4 @@ val SurfaceWhite = Color(0xFFFFFFFF)
 val TextTitleDark = Color(0xFF0A1B14)
 val TextBodyMuted = Color(0xFF5D786D)
 val BorderSubtle = Color(0xFFD6E4DC)
+

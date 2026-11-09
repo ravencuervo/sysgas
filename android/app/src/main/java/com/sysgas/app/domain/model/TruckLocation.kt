@@ -19,3 +19,4 @@ data class TruckLocation(
     val speedKmH: Double = 28.0,
     val lastUpdateIso: String = "Hace 30 seg"
 )
+

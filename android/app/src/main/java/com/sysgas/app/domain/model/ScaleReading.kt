@@ -25,3 +25,4 @@ data class ScaleReading(
             "⚠ MERMA DETECTADA (Faltan %.2f kg)".format(-differenceKg)
         }
 }
+

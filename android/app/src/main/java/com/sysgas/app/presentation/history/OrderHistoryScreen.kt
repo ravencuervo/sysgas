@@ -242,3 +242,12 @@ fun OrderHistoryScreen(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun OrderHistoryScreenPreview() {
+    com.sysgas.app.ui.theme.SysgasTheme {
+        OrderHistoryScreen(onReorder = {})
+    }
+}
+

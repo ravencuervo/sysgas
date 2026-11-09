@@ -10,3 +10,4 @@ sealed class SysgasScreen(val route: String, val title: String) {
     data object Scanner : SysgasScreen("scanner", "Pasaporte QR")
     data object History : SysgasScreen("history", "Historial")
 }
+

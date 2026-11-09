@@ -397,3 +397,12 @@ fun CustomerWeightScreen(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun CustomerWeightScreenPreview() {
+    com.sysgas.app.ui.theme.SysgasTheme {
+        CustomerWeightScreen(onNavigateBack = {})
+    }
+}
+

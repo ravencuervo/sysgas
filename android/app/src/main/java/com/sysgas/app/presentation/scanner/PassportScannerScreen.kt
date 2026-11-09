@@ -347,3 +347,12 @@ private fun DataRow(label: String, value: String) {
         )
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun PassportScannerScreenPreview() {
+    com.sysgas.app.ui.theme.SysgasTheme {
+        PassportScannerScreen()
+    }
+}
+

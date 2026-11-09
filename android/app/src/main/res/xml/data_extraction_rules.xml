@@ -5,3 +5,4 @@
         <exclude domain="sharedpref" path="device_keys.xml"/>
     </cloud-backup>
 </data-extraction-rules>
+

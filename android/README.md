@@ -86,3 +86,4 @@ Para release firmado:
 El cliente de Supabase se inicializa en `core/network/SupabaseClientProvider.kt`. Las credenciales públicas anon se configuran en `app/build.gradle.kts`:
 - **URL:** `https://tsegodcutcgchvyurvik.supabase.co`
 - **Key:** Public Anon Key del proyecto SYSGAS.
+

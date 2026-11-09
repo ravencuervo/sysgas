@@ -490,3 +490,12 @@ fun OrderTrackingScreen(
 }
 
 private fun Color.withOpacity(alpha: Float): Color = this.copy(alpha = alpha)
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun OrderTrackingScreenPreview() {
+    com.sysgas.app.ui.theme.SysgasTheme {
+        OrderTrackingScreen(onNavigateToWeight = {})
+    }
+}
+

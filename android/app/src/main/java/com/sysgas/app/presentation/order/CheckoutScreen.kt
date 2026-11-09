@@ -469,3 +469,16 @@ fun CheckoutScreen(
         }
     }
 }
+
+@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun CheckoutScreenPreview() {
+    com.sysgas.app.ui.theme.SysgasTheme {
+        CheckoutScreen(
+            capacity = "10 kg",
+            onOrderPlaced = {},
+            onBack = {}
+        )
+    }
+}
+
