@@ -24,18 +24,20 @@ export default function CatalogCylinder3D({ capacity = '10 kg' }) {
     let camY = 0.15
     let lookAtY = 0.15
 
-    const normCapacity = capacity.toLowerCase().trim()
+    const normCapacity = (capacity || '').toLowerCase().trim()
     const is45Kg = normCapacity.includes('45')
-    const is5Kg = !is45Kg && (normCapacity.includes('5kg') || normCapacity.startsWith('5') || normCapacity.includes('5 kg'))
+    const is5Kg = !is45Kg && (normCapacity.includes('5') || normCapacity.includes('portatil'))
 
     if (is45Kg) {
-      camZ = 7.5
-      camY = 0.38
-      lookAtY = 0.38
+      // Encuadre optimizado para cilindro industrial muy alto y esbelto (132 cm)
+      camZ = 6.6
+      camY = 0.15
+      lookAtY = 0.15
     } else if (is5Kg) {
-      camZ = 4.4
-      camY = 0.05
-      lookAtY = 0.05
+      // Encuadre para cilindro compacto y bajo (38 cm)
+      camZ = 5.2
+      camY = -0.05
+      lookAtY = -0.05
     }
 
     const camera = new THREE.PerspectiveCamera(fov, width / height, 0.1, 50)
@@ -219,16 +221,16 @@ export default function CatalogCylinder3D({ capacity = '10 kg' }) {
     } else if (is45Kg) {
       // ═══════════════════════════════════════════════════════════════
       // 4.B CILINDRO 45 KG (INDUSTRIAL / COMERCIAL / ALTA DEMANDA)
-      // Dimensiones reales: Altura ~132 cm, Diámetro ~38 cm (Ratio ~3.5:1)
+      // Dimensiones reales: Altura ~132 cm, Diámetro ~38 cm (Ratio ~3.5:1 a 4:1)
       // Proporción: Muy alargado, esbelto y alto (columna industrial),
       // con doble cordón de soldadura, collarín pesado y base de alta carga
       // ═══════════════════════════════════════════════════════════════
-      const bodyRadius = 1.02
-      const baseCenterY = -3.05
-      const lowerDomeEndY = -2.60
-      const barrelEndY = 2.60
-      const upperDomeEndY = 3.25
-      const neckY = 3.32
+      const bodyRadius = 0.88
+      const baseCenterY = -3.20
+      const lowerDomeEndY = -2.75
+      const barrelEndY = 2.75
+      const upperDomeEndY = 3.35
+      const neckY = 3.42
 
       const profilePoints = [
         new THREE.Vector2(0.001, baseCenterY),
@@ -244,11 +246,11 @@ export default function CatalogCylinder3D({ capacity = '10 kg' }) {
       for (let i = 0; i <= 12; i++) {
         const t = i / 12
         const angle = (t * Math.PI) / 2
-        const x = bodyRadius - (bodyRadius - 0.20) * (1 - Math.cos(angle))
+        const x = bodyRadius - (bodyRadius - 0.18) * (1 - Math.cos(angle))
         const y = barrelEndY + (upperDomeEndY - barrelEndY) * Math.sin(angle)
         profilePoints.push(new THREE.Vector2(x, y))
       }
-      profilePoints.push(new THREE.Vector2(0.20, neckY))
+      profilePoints.push(new THREE.Vector2(0.18, neckY))
       profilePoints.push(new THREE.Vector2(0.001, neckY))
 
       const tankMesh = new THREE.Mesh(new THREE.LatheGeometry(profilePoints, 56), uniformBlueMaterial)
@@ -257,77 +259,77 @@ export default function CatalogCylinder3D({ capacity = '10 kg' }) {
       // Doble cordón de soldadura industrial en el cuerpo alargado (tercio inferior y superior)
       const weld1 = new THREE.Mesh(new THREE.TorusGeometry(bodyRadius + 0.008, 0.013, 14, 56), uniformBlueMaterial)
       weld1.rotation.x = Math.PI / 2
-      weld1.position.y = -1.30
+      weld1.position.y = -1.40
       cylinderGroup.add(weld1)
 
       const weld2 = new THREE.Mesh(new THREE.TorusGeometry(bodyRadius + 0.008, 0.013, 14, 56), uniformBlueMaterial)
       weld2.rotation.x = Math.PI / 2
-      weld2.position.y = 1.30
+      weld2.position.y = 1.40
       cylinderGroup.add(weld2)
 
       // Base de apoyo pesada y reforzada
-      const footRingMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.84, 0.86, 0.44, 40, 1, true), uniformBlueMaterial)
-      footRingMesh.position.y = -3.00
+      const footRingMesh = new THREE.Mesh(new THREE.CylinderGeometry(0.74, 0.76, 0.44, 40, 1, true), uniformBlueMaterial)
+      footRingMesh.position.y = -3.15
       cylinderGroup.add(footRingMesh)
 
-      const footRimMesh = new THREE.Mesh(new THREE.TorusGeometry(0.86, 0.035, 14, 40), uniformBlueMaterial)
+      const footRimMesh = new THREE.Mesh(new THREE.TorusGeometry(0.76, 0.035, 14, 40), uniformBlueMaterial)
       footRimMesh.rotation.x = Math.PI / 2
-      footRimMesh.position.y = -3.20
+      footRimMesh.position.y = -3.37
       cylinderGroup.add(footRimMesh)
 
       // Ranuras de ventilación base
-      const holeGeo = new THREE.CircleGeometry(0.052, 16)
+      const holeGeo = new THREE.CircleGeometry(0.048, 16)
       ;[Math.PI * 0.25, Math.PI * 0.75, Math.PI * 1.25, Math.PI * 1.75].forEach((angle) => {
         const hole = new THREE.Mesh(holeGeo, darkHoleMaterial)
-        hole.position.set(Math.cos(angle) * 0.862, -3.00, Math.sin(angle) * 0.862)
+        hole.position.set(Math.cos(angle) * 0.762, -3.15, Math.sin(angle) * 0.762)
         hole.rotation.y = -angle + Math.PI / 2
         cylinderGroup.add(hole)
       })
 
       // Collarín protector industrial superior reforzado
       const collarMesh = new THREE.Mesh(
-        new THREE.CylinderGeometry(0.64, 0.66, 0.76, 40, 1, true, -Math.PI * 0.78, Math.PI * 1.56),
+        new THREE.CylinderGeometry(0.56, 0.58, 0.76, 40, 1, true, -Math.PI * 0.78, Math.PI * 1.56),
         uniformBlueMaterial
       )
-      collarMesh.position.y = 3.55
+      collarMesh.position.y = 3.65
       cylinderGroup.add(collarMesh)
 
       const collarRimMesh = new THREE.Mesh(
-        new THREE.TorusGeometry(0.64, 0.040, 16, 40, Math.PI * 1.56),
+        new THREE.TorusGeometry(0.56, 0.038, 16, 40, Math.PI * 1.56),
         uniformBlueMaterial
       )
       collarRimMesh.rotation.x = Math.PI / 2
       collarRimMesh.rotation.z = Math.PI * 0.78
-      collarRimMesh.position.y = 3.95
+      collarRimMesh.position.y = 4.03
       cylinderGroup.add(collarRimMesh)
 
       // Asas industriales robustas
-      const handleGeo = new THREE.TorusGeometry(0.15, 0.032, 12, 24)
+      const handleGeo = new THREE.TorusGeometry(0.14, 0.030, 12, 24)
       const leftH = new THREE.Mesh(handleGeo, uniformBlueMaterial)
-      leftH.position.set(-0.65, 3.58, 0)
+      leftH.position.set(-0.57, 3.68, 0)
       leftH.rotation.y = Math.PI / 2
       cylinderGroup.add(leftH)
 
       const rightH = new THREE.Mesh(handleGeo, uniformBlueMaterial)
-      rightH.position.set(0.65, 3.58, 0)
+      rightH.position.set(0.57, 3.68, 0)
       rightH.rotation.y = Math.PI / 2
       cylinderGroup.add(rightH)
 
       // Válvula industrial pesada con volante
       const valveGroup = new THREE.Group()
-      valveGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.15, 0.15, 20), goldBoltMaterial))
-      const boltStem = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.38, 16), goldBoltMaterial)
+      valveGroup.add(new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.14, 0.14, 20), goldBoltMaterial))
+      const boltStem = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.36, 16), goldBoltMaterial)
       boltStem.position.y = 0.20
       valveGroup.add(boltStem)
-      const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.22, 16), goldBoltMaterial)
+      const nozzle = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.05, 0.22, 16), goldBoltMaterial)
       nozzle.rotation.z = Math.PI / 2
       nozzle.rotation.y = Math.PI * 0.15
       nozzle.position.set(0.11, 0.22, 0.04)
       valveGroup.add(nozzle)
-      const wheelCap = new THREE.Mesh(new THREE.CylinderGeometry(0.14, 0.14, 0.09, 18), valveRedMaterial)
-      wheelCap.position.y = 0.44
+      const wheelCap = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.13, 0.08, 18), valveRedMaterial)
+      wheelCap.position.y = 0.42
       valveGroup.add(wheelCap)
-      valveGroup.position.y = 3.32
+      valveGroup.position.y = 3.42
       cylinderGroup.add(valveGroup)
 
       // Decal SYSGAS 45kg en sector superior del barril
@@ -335,7 +337,7 @@ export default function CatalogCylinder3D({ capacity = '10 kg' }) {
         new THREE.CylinderGeometry(bodyRadius + 0.004, bodyRadius + 0.004, 0.54, 32, 1, true, Math.PI - 1.44 / 2, 1.44),
         decalMaterial
       )
-      decalMesh.position.y = 1.40
+      decalMesh.position.y = 1.50
       cylinderGroup.add(decalMesh)
 
     } else {
@@ -468,11 +470,11 @@ export default function CatalogCylinder3D({ capacity = '10 kg' }) {
 
     // Ajuste fino de escala proporcional según capacidad
     if (is45Kg) {
-      modelRoot.scale.setScalar(0.48)
+      modelRoot.scale.setScalar(0.46)
     } else if (is5Kg) {
-      modelRoot.scale.setScalar(0.92)
+      modelRoot.scale.setScalar(0.82)
     } else {
-      modelRoot.scale.setScalar(0.74)
+      modelRoot.scale.setScalar(0.70)
     }
 
     // ─── 6. Iluminación Técnica de Estudio ───
