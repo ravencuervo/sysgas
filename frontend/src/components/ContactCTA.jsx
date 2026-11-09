@@ -21,15 +21,22 @@ export default function ContactCTA({ selectedCapacity, onSelectCapacity }) {
   const [offersLoading, setOffersLoading] = useState(true)
   useEffect(() => {
     let active = true
-    Promise.resolve().then(() => Promise.all([
-      db().rpc('ofertas_distribuidoras'),
-      db().from('zonas_cobertura').select('empresa_id,ciudad,zona'),
-    ])).then(([{data,error}, coverage]) => {
-      if (!active) return
-      if (error) { setOffersError(friendlyError(error)); return }
-      if (coverage.error) { setOffersError(friendlyError(coverage.error)); return }
-      setOffers(data || []); setZones(coverage.data || [])
-    }).catch(e => { if (active) setOffersError(friendlyError(e)) }).finally(() => { if (active) setOffersLoading(false) })
+    try {
+      Promise.resolve().then(() => Promise.all([
+        db().rpc('ofertas_distribuidoras'),
+        db().from('zonas_cobertura').select('empresa_id,ciudad,zona'),
+      ])).then(([{data,error}, coverage]) => {
+        if (!active) return
+        if (error) { setOffersError(friendlyError(error)); return }
+        if (coverage.error) { setOffersError(friendlyError(coverage.error)); return }
+        setOffers(data || []); setZones(coverage.data || [])
+      }).catch(e => { if (active) setOffersError(friendlyError(e)) }).finally(() => { if (active) setOffersLoading(false) })
+    } catch (e) {
+      if (active) {
+        setOffersError(friendlyError(e))
+        setOffersLoading(false)
+      }
+    }
     return () => { active = false }
   }, [offersVersion])
   const deliveryCity = city.trim().toLowerCase()

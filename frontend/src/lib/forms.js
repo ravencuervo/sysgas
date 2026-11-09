@@ -12,6 +12,7 @@ export function friendlyError(error) {
   if (/Email not confirmed/i.test(message)) return 'Confirma tu correo antes de ingresar.'
   if (/rate limit|too many requests/i.test(message)) return 'Has realizado varios intentos. Espera unos minutos y vuelve a intentar.'
   if (/fetch|network/i.test(message)) return 'No pudimos conectar. Revisa tu conexión e inténtalo otra vez.'
+  if (/Falta configurar/i.test(message)) return 'Falta configurar las variables de entorno de Supabase en Vercel (VITE_SUPABASE_URL y VITE_SUPABASE_PUBLISHABLE_KEY).'
   if (['PGRST202','PGRST205','42P01','42883'].includes(error?.code)) return 'Este servicio todavía necesita configuración. Contacta al administrador.'
   if (error?.code === 'P0001') return message
   if (error?.code === '42501') return 'Tu cuenta no tiene permiso para realizar esta acción.'
