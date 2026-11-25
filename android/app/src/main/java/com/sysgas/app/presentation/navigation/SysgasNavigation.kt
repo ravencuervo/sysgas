@@ -36,7 +36,6 @@ import com.sysgas.app.presentation.scanner.PassportScannerScreen
 import com.sysgas.app.presentation.tracking.OrderTrackingScreen
 import com.sysgas.app.presentation.weight.CustomerWeightScreen
 import com.sysgas.app.ui.theme.JadeDark
-import com.sysgas.app.ui.theme.JadeDeep
 import com.sysgas.app.ui.theme.JadeMint
 import com.sysgas.app.ui.theme.JadePrimary
 

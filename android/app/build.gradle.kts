@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.sysgas.app"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "1.0.0"
@@ -73,7 +73,7 @@ dependencies {
 
     // Supabase Kotlin SDK
     implementation(libs.supabase.postgrest)
-    implementation(libs.supabase.gotrue)
+    implementation(libs.supabase.auth)
     implementation(libs.supabase.realtime)
     implementation(libs.supabase.storage)
     implementation(libs.ktor.client.android)

@@ -1,0 +1,20 @@
+R_DEF: Internal format may change without notice
+local
+color gas_blue
+color jade_bright
+color jade_dark
+color jade_deepest
+color jade_mint
+color jade_primary
+color surface_dark
+color white
+drawable ic_launcher_background
+drawable ic_launcher_foreground
+mipmap ic_launcher
+mipmap ic_launcher_round
+string app_name
+string city_default
+string tagline
+style Theme.SYSGAS
+xml backup_rules
+xml data_extraction_rules

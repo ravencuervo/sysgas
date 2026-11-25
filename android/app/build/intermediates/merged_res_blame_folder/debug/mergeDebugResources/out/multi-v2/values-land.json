@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "com.sysgas.app-mergeDebugResources-71:/values-land/values-land.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\cuervo\\.gradle\\caches\\8.10.2\\transforms\\8873e880fb407dc82c6f5ca434cfb03f\\transformed\\appcompat-1.6.1\\res\\values-land\\values-land.xml",
+                    "from": {
+                        "startLines": "2,3,4",
+                        "startColumns": "4,4,4",
+                        "startOffsets": "55,125,196",
+                        "endColumns": "69,70,67",
+                        "endOffsets": "120,191,259"
+                    }
+                }
+            ]
+        }
+    ]
+}

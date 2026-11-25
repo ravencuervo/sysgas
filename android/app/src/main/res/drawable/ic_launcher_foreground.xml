@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <!-- Icono de llama/energía representativo de SYSGAS -->
+    <path
+        android:fillColor="#FF9800"
+        android:pathData="M54,24 C50,34 42,42 42,54 C42,67.25 52.75,78 66,78 C79.25,78 90,67.25 90,54 C90,40 76,32 70,26 C68,34 62,38 56,40 C56,34 54,24 54,24 Z" />
+    <path
+        android:fillColor="#FFEB3B"
+        android:pathData="M54,46 C51,52 48,56 48,62 C48,68.63 53.37,74 60,74 C66.63,74 72,68.63 72,62 C72,55 64,50 60,46 C59,50 56,52 54,53 C54,50 54,46 54,46 Z" />
+</vector>

@@ -31,7 +31,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Scale
-import androidx.compose.material.icons.filled.ShieldCheck
+import androidx.compose.material.icons.filled.Shield
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -485,7 +485,7 @@ fun HomeScreen(
                     subtitle = "Escanea el cilindro para ver su fecha de prueba hidrostática y planta de llenado."
                 )
                 TrustItem(
-                    icon = Icons.Default.ShieldCheck,
+                    icon = Icons.Default.Shield,
                     title = "Garantía hermética anti-fugas",
                     subtitle = "Válvula calibrada para soportar las bajas temperaturas del Altiplano."
                 )
