@@ -2,11 +2,11 @@ package com.sysgas.app.presentation.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Fireplace
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.LocalShipping
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Scale
+import androidx.compose.material.icons.outlined.History
+import androidx.compose.material.icons.outlined.LocalFireDepartment
+import androidx.compose.material.icons.outlined.LocalShipping
+import androidx.compose.material.icons.outlined.QrCodeScanner
+import androidx.compose.material.icons.outlined.Scale
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -46,11 +46,11 @@ sealed class BottomNavItem(
     val title: String,
     val icon: ImageVector
 ) {
-    data object Home : BottomNavItem(SysgasScreen.Home.route, "Catálogo", Icons.Default.Fireplace)
-    data object Tracking : BottomNavItem(SysgasScreen.Tracking.route, "Rastrear", Icons.Default.LocalShipping)
-    data object Weight : BottomNavItem(SysgasScreen.Weight.route, "Balanza", Icons.Default.Scale)
-    data object Scanner : BottomNavItem(SysgasScreen.Scanner.route, "Pasaporte", Icons.Default.QrCodeScanner)
-    data object History : BottomNavItem(SysgasScreen.History.route, "Historial", Icons.Default.History)
+    data object Home : BottomNavItem(SysgasScreen.Home.route, "Pedir", Icons.Outlined.LocalFireDepartment)
+    data object Tracking : BottomNavItem(SysgasScreen.Tracking.route, "Rastrear", Icons.Outlined.LocalShipping)
+    data object Weight : BottomNavItem(SysgasScreen.Weight.route, "Balanza", Icons.Outlined.Scale)
+    data object Scanner : BottomNavItem(SysgasScreen.Scanner.route, "Pasaporte", Icons.Outlined.QrCodeScanner)
+    data object History : BottomNavItem(SysgasScreen.History.route, "Historial", Icons.Outlined.History)
 }
 
 @Composable
@@ -205,6 +205,11 @@ fun SysgasNavigation() {
                 ProfileScreen(
                     onBack = {
                         navController.popBackStack()
+                    },
+                    onLogout = {
+                        navController.navigate(SysgasScreen.Login.route) {
+                            popUpTo(0) { inclusive = true }
+                        }
                     }
                 )
             }

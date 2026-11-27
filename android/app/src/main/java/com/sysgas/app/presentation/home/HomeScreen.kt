@@ -1,9 +1,14 @@
 package com.sysgas.app.presentation.home
 
-import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -20,33 +25,35 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.DirectionsBike
-import androidx.compose.material.icons.filled.Fireplace
-import androidx.compose.material.icons.filled.History
-import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material.icons.filled.NearMe
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Scale
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.filled.Store
-import androidx.compose.material.icons.filled.TwoWheeler
+import androidx.compose.material.icons.outlined.AccountBalanceWallet
+import androidx.compose.material.icons.outlined.DirectionsBike
+import androidx.compose.material.icons.outlined.LocalFireDepartment
+import androidx.compose.material.icons.outlined.LocalShipping
+import androidx.compose.material.icons.outlined.LocationOn
+import androidx.compose.material.icons.outlined.Payments
+import androidx.compose.material.icons.outlined.QrCodeScanner
+import androidx.compose.material.icons.outlined.Storefront
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -54,17 +61,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sysgas.app.domain.model.GasDistributor
 import com.sysgas.app.ui.theme.JadeDark
-import com.sysgas.app.ui.theme.JadeDeep
 import com.sysgas.app.ui.theme.JadeMint
 import com.sysgas.app.ui.theme.JadePrimary
+
+private val InkDark = Color(0xFF0F172A)
+private val InkMuted = Color(0xFF64748B)
+private val SurfaceSoft = Color(0xFFF8FAFC)
+private val BorderLight = Color(0xFFE2E8F0)
 
 @Composable
 fun HomeScreen(
@@ -72,474 +83,162 @@ fun HomeScreen(
     onNavigateToTracking: () -> Unit,
     onNavigateToScanner: () -> Unit
 ) {
+    var currentStep by remember { mutableIntStateOf(0) } // 0: Balón, 1: Empresa, 2: Pago, 3: Recepción
     var selectedCapacity by remember { mutableStateOf("10 kg") }
     val distributors = remember { GasDistributor.PUNO_DISTRIBUTORS }
+    var selectedDistributor by remember { mutableStateOf(distributors.first()) }
+    var deliveryAddress by remember { mutableStateOf("Jr. Arequipa 520, Puno") }
+    var selectedPayment by remember { mutableStateOf("Yape") }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
             .background(Color.White),
-        contentPadding = PaddingValues(bottom = 100.dp)
+        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 14.dp)
     ) {
-        // ─── 1. Saludo Amigable (Estilo Yape) ───
+        // ─── 1. Accesos Rápidos Monocromáticos ───
         item {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 20.dp, vertical = 14.dp)
-            ) {
-                Text(
-                    text = "Hola, Mamá Juana 👋",
-                    style = MaterialTheme.typography.titleLarge.copy(
-                        fontWeight = FontWeight.Black,
-                        color = Color(0xFF0A1B14),
-                        fontSize = 22.sp
-                    )
-                )
-                Text(
-                    text = "Puno · Pedido rápido a tu puerta",
-                    style = MaterialTheme.typography.bodySmall.copy(
-                        color = Color(0xFF64748B),
-                        fontWeight = FontWeight.Medium
-                    )
-                )
-            }
-        }
-
-        // ─── 2. Botón Hero Central: "PEDIR GAS EN 1 TOQUE" ───
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                    .clip(RoundedCornerShape(20.dp))
-                    .background(JadePrimary)
-                    .clickable { onNavigateToCheckout(selectedCapacity) }
-                    .padding(20.dp)
-            ) {
-                Column {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Surface(
-                            color = Color.White.copy(alpha = 0.2f),
-                            shape = RoundedCornerShape(10.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.DirectionsBike,
-                                    contentDescription = null,
-                                    tint = Color.White,
-                                    modifier = Modifier.size(14.dp)
-                                )
-                                Spacer(modifier = Modifier.width(6.dp))
-                                Text(
-                                    text = "Motorizado en Puno",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold
-                                    )
-                                )
-                            }
-                        }
-
-                        Surface(
-                            color = Color.White.copy(alpha = 0.2f),
-                            shape = RoundedCornerShape(10.dp)
-                        ) {
-                            Text(
-                                text = "15-20 min",
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
-                                )
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Text(
-                        text = "PEDIR GAS EN 1 TOQUE",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            color = Color.White,
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 0.5.sp
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Text(
-                        text = "Reparto en moto con balanza digital",
-                        style = MaterialTheme.typography.bodyMedium.copy(
-                            color = Color.White.copy(alpha = 0.9f)
-                        )
-                    )
-                }
-            }
-        }
-
-        // ─── 3. Acciones Rápidas en Círculos (Estilo Yape Monocromático) ───
-        item {
-            Spacer(modifier = Modifier.height(14.dp))
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                horizontalArrangement = Arrangement.SpaceEvenly
+                    .padding(bottom = 16.dp),
+                horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                YapeActionButton(
-                    icon = Icons.Default.Fireplace,
+                QuickActionCircle(
+                    icon = Icons.Outlined.LocalFireDepartment,
                     label = "Pedir Gas",
-                    badgeColor = JadePrimary,
-                    onClick = { onNavigateToCheckout(selectedCapacity) }
+                    isActive = currentStep == 0,
+                    onClick = { currentStep = 0 }
                 )
-                YapeActionButton(
-                    icon = Icons.Default.NearMe,
-                    label = "Sucursales",
-                    badgeColor = Color(0xFF0A1B14),
-                    onClick = { }
+                QuickActionCircle(
+                    icon = Icons.Outlined.Storefront,
+                    label = "Empresas",
+                    isActive = currentStep == 1,
+                    onClick = { currentStep = 1 }
                 )
-                YapeActionButton(
-                    icon = Icons.Default.History,
-                    label = "Mis Pedidos",
-                    badgeColor = Color(0xFF0A1B14),
+                QuickActionCircle(
+                    icon = Icons.Outlined.LocalShipping,
+                    label = "Rastrear",
+                    isActive = false,
                     onClick = onNavigateToTracking
                 )
-                YapeActionButton(
-                    icon = Icons.Default.QrCodeScanner,
+                QuickActionCircle(
+                    icon = Icons.Outlined.QrCodeScanner,
                     label = "Validar QR",
-                    badgeColor = Color(0xFF0A1B14),
+                    isActive = false,
                     onClick = onNavigateToScanner
                 )
             }
         }
 
-        // ─── 4. Selector de Tamaño de Balón (Limpio y grande) ───
+        // ─── 2. Barra de Pasos Animada ───
         item {
-            Spacer(modifier = Modifier.height(20.dp))
-            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
-                Text(
-                    text = "¿Qué tamaño de balón necesitas?",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F2E22)
-                    )
-                )
-                Spacer(modifier = Modifier.height(10.dp))
+            StepIndicatorBar(
+                currentStep = currentStep,
+                onStepClick = { step ->
+                    if (step <= 2 && currentStep < 3) {
+                        currentStep = step
+                    }
+                }
+            )
+            Spacer(modifier = Modifier.height(18.dp))
+        }
 
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(10.dp)
-                ) {
-                    CylinderChip(
-                        capacity = "10 kg",
-                        title = "Familiar",
-                        price = "S/ 48.00",
-                        isPopular = true,
-                        isSelected = selectedCapacity == "10 kg",
-                        modifier = Modifier.weight(1f),
-                        onClick = { selectedCapacity = "10 kg" }
+        // ─── 3. Contenido Animado por Pasos ───
+        item {
+            AnimatedContent(
+                targetState = currentStep,
+                transitionSpec = {
+                    val forward = targetState > initialState
+                    (slideInHorizontally(
+                        animationSpec = tween(280),
+                        initialOffsetX = { if (forward) it else -it }
+                    ) + fadeIn(tween(240))) togetherWith
+                        (slideOutHorizontally(
+                            animationSpec = tween(280),
+                            targetOffsetX = { if (forward) -it else it }
+                        ) + fadeOut(tween(200)))
+                },
+                label = "OrderStepFlow"
+            ) { step ->
+                when (step) {
+                    0 -> StepSelectCylinder(
+                        selectedCapacity = selectedCapacity,
+                        onSelectCapacity = { selectedCapacity = it },
+                        onNext = { currentStep = 1 }
                     )
-                    CylinderChip(
-                        capacity = "5 kg",
-                        title = "Chiquito",
-                        price = "S/ 28.50",
-                        isPopular = false,
-                        isSelected = selectedCapacity == "5 kg",
-                        modifier = Modifier.weight(1f),
-                        onClick = { selectedCapacity = "5 kg" }
+
+                    1 -> StepSelectDistributor(
+                        distributors = distributors,
+                        selectedDistributor = selectedDistributor,
+                        selectedCapacity = selectedCapacity,
+                        onSelectDistributor = { selectedDistributor = it },
+                        onBack = { currentStep = 0 },
+                        onNext = { currentStep = 2 }
                     )
-                    CylinderChip(
-                        capacity = "45 kg",
-                        title = "Industrial",
-                        price = "S/ 185.00",
-                        isPopular = false,
-                        isSelected = selectedCapacity == "45 kg",
-                        modifier = Modifier.weight(1f),
-                        onClick = { selectedCapacity = "45 kg" }
+
+                    2 -> StepConfirmAndPay(
+                        capacity = selectedCapacity,
+                        distributor = selectedDistributor,
+                        address = deliveryAddress,
+                        onAddressChange = { deliveryAddress = it },
+                        selectedPayment = selectedPayment,
+                        onPaymentChange = { selectedPayment = it },
+                        onBack = { currentStep = 1 },
+                        onConfirm = { currentStep = 3 }
+                    )
+
+                    else -> StepOrderReceived(
+                        capacity = selectedCapacity,
+                        distributor = selectedDistributor,
+                        address = deliveryAddress,
+                        onTrackOrder = onNavigateToTracking,
+                        onNewOrder = { currentStep = 0 }
                     )
                 }
             }
         }
 
-        // ─── 5. Sucursales Recomendadas por GPS en Puno ───
         item {
-            Spacer(modifier = Modifier.height(24.dp))
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween
-            ) {
-                Column {
-                    Text(
-                        text = "SUCURSALES CERCANAS (GPS PUNO)",
-                        style = MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Black,
-                            color = Color(0xFF4B6358),
-                            letterSpacing = 0.5.sp
-                        )
-                    )
-                    Text(
-                        text = "Ordenadas por cercanía a tu casa",
-                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
-                    )
-                }
-
-                Surface(
-                    color = Color(0xFFE0F2FE),
-                    shape = RoundedCornerShape(12.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.LocationOn,
-                            contentDescription = null,
-                            tint = Color(0xFF0284C7),
-                            modifier = Modifier.size(12.dp)
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "Puno GPS Activo",
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                color = Color(0xFF0284C7),
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                    }
-                }
-            }
-            Spacer(modifier = Modifier.height(10.dp))
-        }
-
-        // ─── 6. Lista de Distribuidoras y Motorizados de Puno ───
-        items(distributors) { dist ->
-            val price = dist.priceFor(selectedCapacity)
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp),
-                shape = RoundedCornerShape(18.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(
-                    width = if (dist.isRecommendedByGps) 2.dp else 1.dp,
-                    color = if (dist.isRecommendedByGps) JadePrimary else Color(0xFFE2E8F0)
-                ),
-                elevation = CardDefaults.cardElevation(if (dist.isRecommendedByGps) 3.dp else 1.dp)
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    if (dist.isRecommendedByGps) {
-                        Surface(
-                            color = Color(0xFFE8F5E9),
-                            shape = RoundedCornerShape(8.dp),
-                            modifier = Modifier.padding(bottom = 8.dp)
-                        ) {
-                            Row(
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Star,
-                                    contentDescription = null,
-                                    tint = Color(0xFF2E7D32),
-                                    modifier = Modifier.size(12.dp)
-                                )
-                                Spacer(modifier = Modifier.width(4.dp))
-                                Text(
-                                    text = "★ MÁS CERCANA A TI (${dist.formattedDistance} · ${dist.estimatedTimeMinutes} min)",
-                                    style = MaterialTheme.typography.labelSmall.copy(
-                                        color = Color(0xFF2E7D32),
-                                        fontWeight = FontWeight.Black
-                                    )
-                                )
-                            }
-                        }
-                    }
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.Top
-                    ) {
-                        Column(modifier = Modifier.weight(1f)) {
-                            Text(
-                                text = dist.name,
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF0F2E22)
-                                )
-                            )
-                            Text(
-                                text = "${dist.branchName} · ${dist.address}",
-                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
-                            )
-                        }
-
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                text = "S/ ${String.format("%.2f", price)}",
-                                style = MaterialTheme.typography.titleLarge.copy(
-                                    fontWeight = FontWeight.Black,
-                                    color = JadePrimary
-                                )
-                            )
-                            Text(
-                                text = "con envío",
-                                style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    // Datos de seguridad del Motorizado
-                    Surface(
-                        color = Color(0xFFF8FAFC),
-                        shape = RoundedCornerShape(10.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        Row(
-                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            Icon(
-                                imageVector = Icons.Default.DirectionsBike,
-                                contentDescription = null,
-                                tint = JadeDark,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Text(
-                                text = "Reparto: ${dist.motorizedDriverName} (${dist.motorizedVehicle})",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    color = Color(0xFF334155),
-                                    fontWeight = FontWeight.Medium
-                                )
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Box(
-                                modifier = Modifier
-                                    .size(8.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFF16A34A))
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text(
-                                text = "${dist.stock10kg} balones listos",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    color = Color(0xFF16A34A),
-                                    fontWeight = FontWeight.Bold
-                                )
-                            )
-                        }
-
-                        Button(
-                            onClick = { onNavigateToCheckout(selectedCapacity) },
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (dist.isRecommendedByGps) JadePrimary else Color(0xFF0F3E30)
-                            ),
-                            shape = RoundedCornerShape(12.dp),
-                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
-                        ) {
-                            Text(
-                                text = "Elegir y Pedir",
-                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
-                            )
-                        }
-                    }
-                }
-            }
-        }
-
-        // ─── 7. Banner de Confianza Balanza Digital ───
-        item {
-            Spacer(modifier = Modifier.height(16.dp))
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                shape = RoundedCornerShape(14.dp),
-                colors = CardDefaults.cardColors(containerColor = Color(0xFFEFFDF5))
-            ) {
-                Row(
-                    modifier = Modifier.padding(14.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Scale,
-                        contentDescription = null,
-                        tint = JadePrimary,
-                        modifier = Modifier.size(24.dp)
-                    )
-                    Spacer(modifier = Modifier.width(12.dp))
-                    Text(
-                        text = "Garantía SYSGAS: Si la balanza digital en puerta no marca el peso neto exacto, no pagas.",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF065F46),
-                            fontWeight = FontWeight.Medium
-                        )
-                    )
-                }
-            }
+            Spacer(modifier = Modifier.height(80.dp))
         }
     }
 }
 
 @Composable
-fun YapeActionButton(
+private fun QuickActionCircle(
     icon: ImageVector,
     label: String,
-    badgeColor: Color,
+    isActive: Boolean,
     onClick: () -> Unit
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
             .clickable { onClick() }
-            .padding(4.dp)
+            .padding(horizontal = 6.dp, vertical = 4.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(58.dp)
+                .size(52.dp)
                 .clip(CircleShape)
-                .background(Color(0xFFF7F9F8)),
+                .background(if (isActive) JadePrimary else SurfaceSoft),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
                 contentDescription = label,
-                tint = badgeColor,
-                modifier = Modifier.size(24.dp)
+                tint = if (isActive) Color.White else InkDark,
+                modifier = Modifier.size(22.dp)
             )
         }
         Spacer(modifier = Modifier.height(6.dp))
         Text(
             text = label,
             style = MaterialTheme.typography.labelSmall.copy(
-                fontWeight = FontWeight.SemiBold,
-                color = Color(0xFF1E293B),
+                fontWeight = if (isActive) FontWeight.Bold else FontWeight.Medium,
+                color = if (isActive) JadeDark else InkDark,
                 fontSize = 11.sp
             )
         )
@@ -547,73 +246,704 @@ fun YapeActionButton(
 }
 
 @Composable
-fun CylinderChip(
-    capacity: String,
-    title: String,
-    price: String,
-    isPopular: Boolean,
-    isSelected: Boolean,
-    modifier: Modifier = Modifier,
-    onClick: () -> Unit
+private fun StepIndicatorBar(
+    currentStep: Int,
+    onStepClick: (Int) -> Unit
 ) {
-    val borderColor by animateColorAsState(
-        targetValue = if (isSelected) JadePrimary else Color(0xFFE2E8F0),
-        label = "borderColor"
+    val steps = listOf("Balón", "Empresa", "Pago", "Recepción")
+
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        steps.forEachIndexed { index, title ->
+            val isCompleted = index < currentStep
+            val isCurrent = index == currentStep
+
+            val circleBg by animateColorAsState(
+                targetValue = when {
+                    isCurrent -> JadePrimary
+                    isCompleted -> JadeDark
+                    else -> SurfaceSoft
+                },
+                label = "stepBg"
+            )
+
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .weight(1f)
+                    .clickable(enabled = index <= 2 && currentStep < 3) { onStepClick(index) }
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(28.dp)
+                        .clip(CircleShape)
+                        .background(circleBg),
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (isCompleted) {
+                        Icon(
+                            imageVector = Icons.Default.Check,
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(16.dp)
+                        )
+                    } else {
+                        Text(
+                            text = "${index + 1}",
+                            style = MaterialTheme.typography.labelSmall.copy(
+                                color = if (isCurrent) Color.White else InkMuted,
+                                fontWeight = FontWeight.Bold
+                            )
+                        )
+                    }
+                }
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = title,
+                    style = MaterialTheme.typography.labelSmall.copy(
+                        color = if (isCurrent || isCompleted) InkDark else InkMuted,
+                        fontWeight = if (isCurrent) FontWeight.Bold else FontWeight.Normal,
+                        fontSize = 11.sp
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StepSelectCylinder(
+    selectedCapacity: String,
+    onSelectCapacity: (String) -> Unit,
+    onNext: () -> Unit
+) {
+    val options = listOf(
+        Triple("5 kg", "Portátil", "S/ 28.50"),
+        Triple("10 kg", "Familiar", "S/ 48.00"),
+        Triple("45 kg", "Industrial", "S/ 185.00")
     )
 
-    Card(
-        modifier = modifier.clickable { onClick() },
-        shape = RoundedCornerShape(16.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (isSelected) Color(0xFFF0FDF4) else Color.White
-        ),
-        border = BorderStroke(if (isSelected) 2.dp else 1.dp, borderColor),
-        elevation = CardDefaults.cardElevation(if (isSelected) 2.dp else 0.dp)
-    ) {
-        Column(
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Elige tu balón",
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                color = InkDark
+            )
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            options.forEach { (cap, subtitle, price) ->
+                val selected = selectedCapacity == cap
+                val scale by animateFloatAsState(
+                    targetValue = if (selected) 1.02f else 1f,
+                    label = "cylinderScale"
+                )
+                val borderColor by animateColorAsState(
+                    targetValue = if (selected) JadePrimary else BorderLight,
+                    label = "cylinderBorder"
+                )
+
+                Card(
+                    modifier = Modifier
+                        .weight(1f)
+                        .scale(scale)
+                        .clickable { onSelectCapacity(cap) },
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = if (selected) JadeMint.copy(alpha = 0.45f) else Color.White
+                    ),
+                    border = BorderStroke(if (selected) 2.dp else 1.dp, borderColor)
+                ) {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 18.dp, horizontal = 8.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Icon(
+                            imageVector = Icons.Outlined.LocalFireDepartment,
+                            contentDescription = null,
+                            tint = if (selected) JadePrimary else InkMuted,
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = cap,
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Black,
+                                color = if (selected) JadeDark else InkDark
+                            )
+                        )
+                        Text(
+                            text = subtitle,
+                            style = MaterialTheme.typography.labelSmall.copy(color = InkMuted)
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = price,
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = InkDark
+                            )
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        Button(
+            onClick = onNext,
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(vertical = 12.dp, horizontal = 8.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+                .height(52.dp),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = JadePrimary)
         ) {
-            if (isPopular) {
-                Surface(
-                    color = Color(0xFFDCFCE7),
-                    shape = RoundedCornerShape(6.dp),
-                    modifier = Modifier.padding(bottom = 4.dp)
+            Text(
+                text = "Elegir Empresa ($selectedCapacity)",
+                style = MaterialTheme.typography.titleSmall.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White
+                )
+            )
+            Spacer(modifier = Modifier.width(8.dp))
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                contentDescription = null,
+                modifier = Modifier.size(18.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun StepSelectDistributor(
+    distributors: List<GasDistributor>,
+    selectedDistributor: GasDistributor,
+    selectedCapacity: String,
+    onSelectDistributor: (GasDistributor) -> Unit,
+    onBack: () -> Unit,
+    onNext: () -> Unit
+) {
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "Empresas en Puno",
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = InkDark
+                )
+            )
+            Text(
+                text = selectedCapacity,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    color = JadeDark,
+                    fontWeight = FontWeight.Bold
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        distributors.forEach { dist ->
+            val isSelected = selectedDistributor.id == dist.id
+            val price = dist.priceFor(selectedCapacity)
+            val borderColor by animateColorAsState(
+                targetValue = if (isSelected) JadePrimary else BorderLight,
+                label = "distBorder"
+            )
+
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 10.dp)
+                    .clickable { onSelectDistributor(dist) },
+                shape = RoundedCornerShape(16.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = if (isSelected) JadeMint.copy(alpha = 0.35f) else Color.White
+                ),
+                border = BorderStroke(if (isSelected) 2.dp else 1.dp, borderColor)
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
+                    Box(
+                        modifier = Modifier
+                            .size(40.dp)
+                            .clip(CircleShape)
+                            .background(if (isSelected) JadePrimary else SurfaceSoft),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = if (isSelected) Icons.Default.Check else Icons.Outlined.Storefront,
+                            contentDescription = null,
+                            tint = if (isSelected) Color.White else InkDark,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.width(12.dp))
+
+                    Column(modifier = Modifier.weight(1f)) {
+                        Text(
+                            text = dist.name,
+                            style = MaterialTheme.typography.titleSmall.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = InkDark
+                            )
+                        )
+                        Text(
+                            text = "${dist.branchName} · ${dist.estimatedTimeMinutes} min",
+                            style = MaterialTheme.typography.labelSmall.copy(color = InkMuted)
+                        )
+                    }
+
+                    Column(horizontalAlignment = Alignment.End) {
+                        Text(
+                            text = "S/ ${String.format("%.2f", price)}",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Black,
+                                color = if (isSelected) JadeDark else InkDark
+                            )
+                        )
+                        Text(
+                            text = "${dist.stock10kg} disp.",
+                            style = MaterialTheme.typography.labelSmall.copy(color = InkMuted)
+                        )
+                    }
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            OutlinedButton(
+                onClick = onBack,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(50.dp),
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(1.dp, BorderLight)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null,
+                    tint = InkDark,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text = "Atrás", color = InkDark, fontWeight = FontWeight.SemiBold)
+            }
+
+            Button(
+                onClick = onNext,
+                modifier = Modifier
+                    .weight(2f)
+                    .height(50.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = JadePrimary)
+            ) {
+                Text(
+                    text = "Confirmar Pago",
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = null,
+                    modifier = Modifier.size(18.dp)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun StepConfirmAndPay(
+    capacity: String,
+    distributor: GasDistributor,
+    address: String,
+    onAddressChange: (String) -> Unit,
+    selectedPayment: String,
+    onPaymentChange: (String) -> Unit,
+    onBack: () -> Unit,
+    onConfirm: () -> Unit
+) {
+    val total = distributor.priceFor(capacity)
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        Text(
+            text = "Confirmar y Pagar",
+            style = MaterialTheme.typography.titleMedium.copy(
+                fontWeight = FontWeight.Bold,
+                color = InkDark
+            )
+        )
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        // Resumen compacto
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = SurfaceSoft),
+            border = BorderStroke(1.dp, BorderLight),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(14.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Column {
                     Text(
-                        text = "★ MÁS PEDIDO",
-                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                        style = MaterialTheme.typography.labelSmall.copy(
-                            color = Color(0xFF15803D),
+                        text = "$capacity · ${distributor.name}",
+                        style = MaterialTheme.typography.titleSmall.copy(
                             fontWeight = FontWeight.Bold,
-                            fontSize = 8.sp
+                            color = InkDark
+                        )
+                    )
+                    Text(
+                        text = distributor.motorizedDriverName,
+                        style = MaterialTheme.typography.labelSmall.copy(color = InkMuted)
+                    )
+                }
+                Text(
+                    text = "S/ ${String.format("%.2f", total)}",
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Black,
+                        color = JadeDark
+                    )
+                )
+            }
+        }
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        OutlinedTextField(
+            value = address,
+            onValueChange = onAddressChange,
+            label = { Text("Dirección en Puno") },
+            leadingIcon = {
+                Icon(
+                    imageVector = Icons.Outlined.LocationOn,
+                    contentDescription = null,
+                    tint = JadePrimary
+                )
+            },
+            singleLine = true,
+            modifier = Modifier.fillMaxWidth(),
+            shape = RoundedCornerShape(14.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedBorderColor = JadePrimary,
+                unfocusedBorderColor = BorderLight
+            )
+        )
+
+        Spacer(modifier = Modifier.height(14.dp))
+
+        Text(
+            text = "Método de pago",
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.Bold,
+                color = InkDark
+            )
+        )
+
+        Spacer(modifier = Modifier.height(8.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            PaymentChip(
+                label = "Yape",
+                icon = Icons.Outlined.AccountBalanceWallet,
+                selected = selectedPayment == "Yape",
+                modifier = Modifier.weight(1f),
+                onClick = { onPaymentChange("Yape") }
+            )
+            PaymentChip(
+                label = "Efectivo",
+                icon = Icons.Outlined.Payments,
+                selected = selectedPayment == "Efectivo",
+                modifier = Modifier.weight(1f),
+                onClick = { onPaymentChange("Efectivo") }
+            )
+        }
+
+        if (selectedPayment == "Yape") {
+            Spacer(modifier = Modifier.height(12.dp))
+            Surface(
+                color = SurfaceSoft,
+                shape = RoundedCornerShape(12.dp),
+                border = BorderStroke(1.dp, BorderLight),
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column {
+                        Text(
+                            text = "Yape ${distributor.name}",
+                            style = MaterialTheme.typography.labelMedium.copy(
+                                fontWeight = FontWeight.Bold,
+                                color = InkDark
+                            )
+                        )
+                        Text(
+                            text = "Cel: ${distributor.phoneYape}",
+                            style = MaterialTheme.typography.labelSmall.copy(color = InkMuted)
+                        )
+                    }
+                    Text(
+                        text = "S/ ${String.format("%.2f", total)}",
+                        style = MaterialTheme.typography.titleSmall.copy(
+                            fontWeight = FontWeight.Black,
+                            color = JadeDark
                         )
                     )
                 }
             }
+        }
 
+        Spacer(modifier = Modifier.height(18.dp))
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(10.dp)
+        ) {
+            OutlinedButton(
+                onClick = onBack,
+                modifier = Modifier
+                    .weight(1f)
+                    .height(50.dp),
+                shape = RoundedCornerShape(14.dp),
+                border = BorderStroke(1.dp, BorderLight)
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = null,
+                    tint = InkDark,
+                    modifier = Modifier.size(18.dp)
+                )
+                Spacer(modifier = Modifier.width(6.dp))
+                Text(text = "Atrás", color = InkDark, fontWeight = FontWeight.SemiBold)
+            }
+
+            Button(
+                onClick = onConfirm,
+                modifier = Modifier
+                    .weight(2f)
+                    .height(50.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = JadePrimary)
+            ) {
+                Text(
+                    text = if (selectedPayment == "Yape") "Simular Pago Yape" else "Confirmar Pedido",
+                    style = MaterialTheme.typography.titleSmall.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun PaymentChip(
+    label: String,
+    icon: ImageVector,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    Card(
+        modifier = modifier.clickable { onClick() },
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (selected) JadeMint.copy(alpha = 0.45f) else Color.White
+        ),
+        border = BorderStroke(if (selected) 2.dp else 1.dp, if (selected) JadePrimary else BorderLight)
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp),
+            horizontalArrangement = Arrangement.Center,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = if (selected) JadeDark else InkMuted,
+                modifier = Modifier.size(18.dp)
+            )
+            Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = capacity,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Black,
-                    color = if (isSelected) JadePrimary else Color(0xFF0F2E22)
+                text = label,
+                style = MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = if (selected) JadeDark else InkDark
                 )
             )
+        }
+    }
+}
 
-            Text(
-                text = title,
-                style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
+@Composable
+private fun StepOrderReceived(
+    capacity: String,
+    distributor: GasDistributor,
+    address: String,
+    onTrackOrder: () -> Unit,
+    onNewOrder: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(vertical = 12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Box(
+            modifier = Modifier
+                .size(72.dp)
+                .clip(CircleShape)
+                .background(JadeMint),
+            contentAlignment = Alignment.Center
+        ) {
+            Icon(
+                imageVector = Icons.Default.CheckCircle,
+                contentDescription = null,
+                tint = JadePrimary,
+                modifier = Modifier.size(44.dp)
             )
+        }
 
-            Spacer(modifier = Modifier.height(4.dp))
+        Spacer(modifier = Modifier.height(14.dp))
 
+        Text(
+            text = "Pedido en Camino",
+            style = MaterialTheme.typography.titleLarge.copy(
+                fontWeight = FontWeight.Black,
+                color = InkDark
+            )
+        )
+        Text(
+            text = "Código TK-2026-84210 · ${distributor.estimatedTimeMinutes} min",
+            style = MaterialTheme.typography.bodySmall.copy(
+                color = JadeDark,
+                fontWeight = FontWeight.SemiBold
+            )
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        Card(
+            shape = RoundedCornerShape(16.dp),
+            colors = CardDefaults.cardColors(containerColor = SurfaceSoft),
+            border = BorderStroke(1.dp, BorderLight),
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Column(
+                modifier = Modifier.padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Outlined.DirectionsBike,
+                        contentDescription = null,
+                        tint = JadeDark,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "${distributor.motorizedDriverName} · ${distributor.motorizedVehicle}",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            color = InkDark,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                    )
+                }
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        imageVector = Icons.Outlined.LocationOn,
+                        contentDescription = null,
+                        tint = JadeDark,
+                        modifier = Modifier.size(18.dp)
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text(
+                        text = "$capacity · $address",
+                        style = MaterialTheme.typography.labelSmall.copy(color = InkMuted)
+                    )
+                }
+            }
+        }
+
+        Spacer(modifier = Modifier.height(18.dp))
+
+        Button(
+            onClick = onTrackOrder,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(50.dp),
+            shape = RoundedCornerShape(14.dp),
+            colors = ButtonDefaults.buttonColors(containerColor = JadePrimary)
+        ) {
             Text(
-                text = price,
-                style = MaterialTheme.typography.labelMedium.copy(
+                text = "Rastrear Motorizado",
+                style = MaterialTheme.typography.titleSmall.copy(
                     fontWeight = FontWeight.Bold,
-                    color = Color(0xFF334155)
+                    color = Color.White
+                )
+            )
+        }
+
+        Spacer(modifier = Modifier.height(10.dp))
+
+        OutlinedButton(
+            onClick = onNewOrder,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(48.dp),
+            shape = RoundedCornerShape(14.dp),
+            border = BorderStroke(1.dp, BorderLight)
+        ) {
+            Text(
+                text = "Hacer otro pedido",
+                style = MaterialTheme.typography.labelLarge.copy(
+                    color = InkDark,
+                    fontWeight = FontWeight.SemiBold
                 )
             )
         }

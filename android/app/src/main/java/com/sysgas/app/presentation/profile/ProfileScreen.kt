@@ -48,13 +48,19 @@ import com.sysgas.app.ui.theme.JadePrimary
 
 @Composable
 fun ProfileScreen(
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    onLogout: () -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF6FAF7))
-            .padding(16.dp)
+            .background(Color.White),
+        contentPadding = androidx.compose.foundation.layout.PaddingValues(
+            start = 16.dp,
+            end = 16.dp,
+            top = 16.dp,
+            bottom = 90.dp
+        )
     ) {
         // ─── Header con Botón Volver ───
         item {
@@ -271,12 +277,12 @@ fun ProfileScreen(
                         Icon(
                             imageVector = Icons.Default.Payments,
                             contentDescription = null,
-                            tint = Color(0xFF6B21A8),
+                            tint = JadePrimary,
                             modifier = Modifier.size(20.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(
-                            text = "Pagos directos con Yape sin comisiones",
+                            text = "Pagos con Yape o efectivo",
                             style = MaterialTheme.typography.bodyMedium.copy(color = Color(0xFF1E293B))
                         )
                     }
@@ -302,9 +308,9 @@ fun ProfileScreen(
 
         // ─── Botón Cerrar Sesión ───
         item {
-            Spacer(modifier = Modifier.height(30.dp))
+            Spacer(modifier = Modifier.height(24.dp))
             Button(
-                onClick = onBack,
+                onClick = onLogout,
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),

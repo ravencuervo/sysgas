@@ -111,42 +111,33 @@ fun LoginScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(94.dp)
-                        .clip(RoundedCornerShape(24.dp))
-                        .background(Color.White),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.sysgas_logo_icon),
-                        contentDescription = "SYSGAS Logo",
-                        modifier = Modifier.size(72.dp)
-                    )
-                }
+                Image(
+                    painter = painterResource(id = R.drawable.sysgas_logo_white),
+                    contentDescription = "SYSGAS Logo",
+                    modifier = Modifier.size(100.dp)
+                )
 
-                Spacer(modifier = Modifier.height(20.dp))
+                Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    text = "SYSGAS Puno",
+                    text = "SYSGAS",
                     style = MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.Black,
                         color = Color.White,
                         fontSize = 32.sp,
-                        letterSpacing = 0.5.sp
+                        letterSpacing = 1.sp
                     )
                 )
 
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
 
                 Text(
-                    text = "Tu balón de gas exacto en la puerta de tu hogar",
+                    text = "Gas a domicilio en Puno",
                     style = MaterialTheme.typography.bodyMedium.copy(
                         color = Color(0xFFD1D5DB),
                         textAlign = TextAlign.Center,
-                        fontSize = 15.sp
-                    ),
-                    modifier = Modifier.padding(horizontal = 24.dp)
+                        fontSize = 14.sp
+                    )
                 )
             }
 
@@ -175,8 +166,8 @@ fun LoginScreen(
                         Icon(
                             imageVector = Icons.Default.AccountCircle,
                             contentDescription = null,
-                            tint = Color(0xFFEA4335), // Google Red Accent
-                            modifier = Modifier.size(24.dp)
+                            tint = Color(0xFF0A1B14),
+                            modifier = Modifier.size(22.dp)
                         )
                         Spacer(modifier = Modifier.width(12.dp))
                         Text(

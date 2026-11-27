@@ -1,7 +1,17 @@
 package com.sysgas.app.presentation.scanner
 
+import android.Manifest
 import android.content.Intent
-import android.net.Uri
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.OptIn
+import androidx.camera.core.CameraSelector
+import androidx.camera.core.ExperimentalGetImage
+import androidx.camera.core.ImageAnalysis
+import androidx.camera.core.Preview
+import androidx.camera.lifecycle.ProcessCameraProvider
+import androidx.camera.view.PreviewView
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
@@ -15,6 +25,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,15 +35,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.QrCode
-import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.CameraAlt
+import androidx.compose.material.icons.outlined.QrCode
+import androidx.compose.material.icons.outlined.QrCodeScanner
+import androidx.compose.material.icons.outlined.Security
+import androidx.compose.material.icons.outlined.Share
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -43,6 +52,8 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,22 +69,49 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import com.google.mlkit.vision.barcode.BarcodeScanning
+import com.google.mlkit.vision.common.InputImage
 import com.sysgas.app.data.repository.PassportRepository
 import com.sysgas.app.domain.model.PassportData
 import com.sysgas.app.ui.theme.JadeDark
-import com.sysgas.app.ui.theme.JadeDeep
 import com.sysgas.app.ui.theme.JadeMint
 import com.sysgas.app.ui.theme.JadePrimary
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 
 @Composable
 fun PassportScannerScreen() {
     val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
     val coroutineScope = rememberCoroutineScope()
     val repository = remember { PassportRepository() }
 
+    var hasCameraPermission by remember {
+        mutableStateOf(
+            ContextCompat.checkSelfPermission(
+                context,
+                Manifest.permission.CAMERA
+            ) == PackageManager.PERMISSION_GRANTED
+        )
+    }
+
+    val permissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { granted ->
+        hasCameraPermission = granted
+    }
+
+    LaunchedEffect(Unit) {
+        if (!hasCameraPermission) {
+            permissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
+
     var scannedPassport by remember { mutableStateOf<PassportData?>(null) }
-    var isScanning by remember { mutableStateOf(false) }
+    var lastScannedCode by remember { mutableStateOf<String?>(null) }
 
     val scanTransition = rememberInfiniteTransition(label = "scanLaser")
     val laserOffset by scanTransition.animateFloat(
@@ -89,65 +127,101 @@ fun PassportScannerScreen() {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF6FAF7)),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp)
+            .background(Color.White),
+        contentPadding = PaddingValues(16.dp)
     ) {
-        // ─── Header ───
+        // ─── Header Conciso ───
         item {
-            Column(modifier = Modifier.padding(bottom = 12.dp)) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Box(
-                        modifier = Modifier
-                            .size(36.dp)
-                            .clip(RoundedCornerShape(8.dp))
-                            .background(JadePrimary),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(Icons.Default.QrCodeScanner, contentDescription = null, tint = Color.White)
-                    }
-                    Spacer(modifier = Modifier.width(10.dp))
-                    Column {
-                        Text(
-                            text = "Pasaporte Digital del Balón",
-                            style = MaterialTheme.typography.titleMedium.copy(
-                                fontWeight = FontWeight.Black,
-                                color = Color(0xFF0F2E22)
-                            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(bottom = 12.dp)
+            ) {
+                Box(
+                    modifier = Modifier
+                        .size(36.dp)
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(JadePrimary),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Icon(
+                        imageVector = Icons.Outlined.QrCodeScanner,
+                        contentDescription = null,
+                        tint = Color.White,
+                        modifier = Modifier.size(20.dp)
+                    )
+                }
+                Spacer(modifier = Modifier.width(10.dp))
+                Column {
+                    Text(
+                        text = "Pasaporte QR",
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF0F172A)
                         )
-                        Text(
-                            text = "Escanea el código QR grabado en el cuello del cilindro",
-                            style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
-                        )
-                    }
+                    )
+                    Text(
+                        text = "Escanea el código del balón",
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF64748B))
+                    )
                 }
             }
         }
 
-        // ─── 1. Visor de Cámara con Retícula de Escaneo ───
+        // ─── 1. Visor de Cámara Real (CameraX + ML Kit) ───
         item {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 16.dp),
+                    .padding(bottom = 14.dp),
                 shape = RoundedCornerShape(18.dp),
                 colors = CardDefaults.cardColors(containerColor = Color(0xFF06140F))
             ) {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(240.dp),
+                        .height(260.dp),
                     contentAlignment = Alignment.Center
                 ) {
+                    if (hasCameraPermission) {
+                        CameraQrPreview(
+                            lifecycleOwner = lifecycleOwner,
+                            onQrDetected = { rawValue ->
+                                if (rawValue != lastScannedCode) {
+                                    lastScannedCode = rawValue
+                                    coroutineScope.launch {
+                                        scannedPassport = repository.getPassportByCode(rawValue)
+                                    }
+                                }
+                            }
+                        )
+                    } else {
+                        Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(20.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.CameraAlt,
+                                contentDescription = null,
+                                tint = JadePrimary,
+                                modifier = Modifier.size(36.dp)
+                            )
+                            Spacer(modifier = Modifier.height(10.dp))
+                            Button(
+                                onClick = { permissionLauncher.launch(Manifest.permission.CAMERA) },
+                                colors = ButtonDefaults.buttonColors(containerColor = JadePrimary),
+                                shape = RoundedCornerShape(10.dp)
+                            ) {
+                                Text("Activar Cámara", fontWeight = FontWeight.Bold)
+                            }
+                        }
+                    }
+
                     // Retícula animada de escaneo
-                    Canvas(
-                        modifier = Modifier
-                            .size(190.dp)
-                    ) {
+                    Canvas(modifier = Modifier.size(180.dp)) {
                         val stroke = 6f
-                        val cornerLen = 36f
+                        val cornerLen = 34f
                         val cornerColor = Color(0xFF00A878)
 
-                        // Esquinas
                         drawLine(cornerColor, Offset(0f, 0f), Offset(cornerLen, 0f), stroke)
                         drawLine(cornerColor, Offset(0f, 0f), Offset(0f, cornerLen), stroke)
 
@@ -160,7 +234,6 @@ fun PassportScannerScreen() {
                         drawLine(cornerColor, Offset(size.width, size.height), Offset(size.width - cornerLen, size.height), stroke)
                         drawLine(cornerColor, Offset(size.width, size.height), Offset(size.width, size.height - cornerLen), stroke)
 
-                        // Línea láser de escaneo en movimiento
                         val laserY = size.height * laserOffset
                         drawLine(
                             color = Color(0xFF00FFB2).copy(alpha = 0.85f),
@@ -169,45 +242,30 @@ fun PassportScannerScreen() {
                             strokeWidth = 3f
                         )
                     }
-
-                    Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(bottom = 16.dp).align(Alignment.BottomCenter)
-                    ) {
-                        Text(
-                            text = "Apunta al código QR del cilindro",
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                color = Color.White,
-                                fontWeight = FontWeight.Bold
-                            )
-                        )
-                    }
                 }
             }
         }
 
-        // ─── 2. Botón de Simulación de Lectura ───
+        // ─── 2. Botón de Demostración ───
         item {
-            Button(
+            OutlinedButton(
                 onClick = {
                     coroutineScope.launch {
-                        isScanning = true
                         scannedPassport = repository.getPassportByCode("CIL-PU-10-84920")
-                        isScanning = false
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp),
                 shape = RoundedCornerShape(12.dp),
-                colors = ButtonDefaults.buttonColors(containerColor = JadePrimary)
+                border = BorderStroke(1.dp, Color(0xFFE2E8F0))
             ) {
-                Icon(Icons.Default.QrCode, contentDescription = null, tint = Color.White)
+                Icon(Icons.Outlined.QrCode, contentDescription = null, tint = Color(0xFF0F172A))
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
-                    text = "Escanear QR de Demostración",
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White
+                    text = "Simular lectura QR",
+                    fontWeight = FontWeight.SemiBold,
+                    color = Color(0xFF0F172A)
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -222,10 +280,9 @@ fun PassportScannerScreen() {
                         shape = RoundedCornerShape(18.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.White),
                         border = BorderStroke(1.5.dp, JadePrimary),
-                        elevation = CardDefaults.cardElevation(4.dp)
+                        elevation = CardDefaults.cardElevation(2.dp)
                     ) {
-                        Column(modifier = Modifier.padding(18.dp)) {
-                            // Cabecera Certificada
+                        Column(modifier = Modifier.padding(16.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
@@ -233,12 +290,12 @@ fun PassportScannerScreen() {
                             ) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
-                                        imageVector = Icons.Default.Security,
+                                        imageVector = Icons.Outlined.Security,
                                         contentDescription = null,
                                         tint = JadePrimary,
-                                        modifier = Modifier.size(22.dp)
+                                        modifier = Modifier.size(20.dp)
                                     )
-                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Spacer(modifier = Modifier.width(6.dp))
                                     Text(
                                         text = "CERTIFICADO OSINERGMIN",
                                         style = MaterialTheme.typography.labelSmall.copy(
@@ -270,27 +327,24 @@ fun PassportScannerScreen() {
                                 style = MaterialTheme.typography.titleLarge.copy(
                                     fontFamily = FontFamily.Monospace,
                                     fontWeight = FontWeight.Black,
-                                    color = Color(0xFF0F2E22)
+                                    color = Color(0xFF0F172A)
                                 )
                             )
                             Text(
                                 text = "${passport.capacity} · ${passport.distributorName}",
-                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                                style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF64748B))
                             )
 
-                            Spacer(modifier = Modifier.height(14.dp))
+                            Spacer(modifier = Modifier.height(12.dp))
 
-                            // Grid de Datos Técnicos
-                            DataRow(label = "Tara grabada:", value = "%.2f kg".format(passport.tareKg))
+                            DataRow(label = "Tara:", value = "%.2f kg".format(passport.tareKg))
                             DataRow(label = "Gas neto:", value = "%.2f kg".format(passport.netGasExpectedKg))
                             DataRow(label = "Peso bruto:", value = "%.2f kg".format(passport.grossWeightExpectedKg))
-                            DataRow(label = "Prueba hidrostática:", value = "%.1f bar (Aprobada)".format(passport.hydrostaticTestBar))
-                            DataRow(label = "Fecha inspección:", value = passport.hydrostaticTestDate)
-                            DataRow(label = "Próxima prueba:", value = passport.nextInspectionDate)
-                            DataRow(label = "Sello de seguridad:", value = passport.sealNumber)
-                            DataRow(label = "Planta envasadora:", value = passport.plantLocation)
+                            DataRow(label = "Prueba hidrostática:", value = "%.1f bar".format(passport.hydrostaticTestBar))
+                            DataRow(label = "Sello:", value = passport.sealNumber)
+                            DataRow(label = "Planta:", value = passport.plantLocation)
 
-                            Spacer(modifier = Modifier.height(16.dp))
+                            Spacer(modifier = Modifier.height(14.dp))
 
                             OutlinedButton(
                                 onClick = {
@@ -298,22 +352,22 @@ fun PassportScannerScreen() {
                                         action = Intent.ACTION_SEND
                                         putExtra(
                                             Intent.EXTRA_TEXT,
-                                            "Pasaporte de Balón SYSGAS verificado: ${passport.cylinderCode} en Puno. Peso neto: ${passport.netGasExpectedKg}kg. Consulta pública: https://sysgas.pe/pasaporte/${passport.cylinderCode}"
+                                            "Balón SYSGAS verificado: ${passport.cylinderCode} (${passport.netGasExpectedKg} kg)"
                                         )
                                         type = "text/plain"
                                     }
-                                    context.startActivity(Intent.createChooser(sendIntent, "Compartir pasaporte"))
+                                    context.startActivity(Intent.createChooser(sendIntent, "Compartir"))
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(46.dp),
+                                    .height(44.dp),
                                 shape = RoundedCornerShape(10.dp),
                                 border = BorderStroke(1.dp, JadePrimary)
                             ) {
-                                Icon(Icons.Default.Share, contentDescription = null, tint = JadePrimary)
+                                Icon(Icons.Outlined.Share, contentDescription = null, tint = JadePrimary, modifier = Modifier.size(18.dp))
                                 Spacer(modifier = Modifier.width(6.dp))
                                 Text(
-                                    text = "Compartir Certificado Digital",
+                                    text = "Compartir",
                                     color = JadePrimary,
                                     fontWeight = FontWeight.Bold
                                 )
@@ -326,6 +380,77 @@ fun PassportScannerScreen() {
     }
 }
 
+@OptIn(ExperimentalGetImage::class)
+@Composable
+private fun CameraQrPreview(
+    lifecycleOwner: androidx.lifecycle.LifecycleOwner,
+    onQrDetected: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val cameraExecutor = remember { Executors.newSingleThreadExecutor() }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            cameraExecutor.shutdown()
+        }
+    }
+
+    AndroidView(
+        factory = { ctx ->
+            val previewView = PreviewView(ctx)
+            val cameraProviderFuture = ProcessCameraProvider.getInstance(ctx)
+
+            cameraProviderFuture.addListener({
+                try {
+                    val cameraProvider = cameraProviderFuture.get()
+                    val preview = Preview.Builder().build().also {
+                        it.surfaceProvider = previewView.surfaceProvider
+                    }
+
+                    val scanner = BarcodeScanning.getClient()
+                    val imageAnalysis = ImageAnalysis.Builder()
+                        .setBackpressureStrategy(ImageAnalysis.STRATEGY_KEEP_ONLY_LATEST)
+                        .build()
+                        .also { analysis ->
+                            analysis.setAnalyzer(cameraExecutor) { imageProxy ->
+                                val mediaImage = imageProxy.image
+                                if (mediaImage != null) {
+                                    val inputImage = InputImage.fromMediaImage(
+                                        mediaImage,
+                                        imageProxy.imageInfo.rotationDegrees
+                                    )
+                                    scanner.process(inputImage)
+                                        .addOnSuccessListener { barcodes ->
+                                            barcodes.firstOrNull()?.rawValue?.let { value ->
+                                                onQrDetected(value)
+                                            }
+                                        }
+                                        .addOnCompleteListener {
+                                            imageProxy.close()
+                                        }
+                                } else {
+                                    imageProxy.close()
+                                }
+                            }
+                        }
+
+                    cameraProvider.unbindAll()
+                    cameraProvider.bindToLifecycle(
+                        lifecycleOwner,
+                        CameraSelector.DEFAULT_BACK_CAMERA,
+                        preview,
+                        imageAnalysis
+                    )
+                } catch (_: Exception) {
+                }
+            }, ContextCompat.getMainExecutor(ctx))
+
+            previewView
+        },
+        modifier = Modifier.fillMaxSize()
+    )
+}
+
 @Composable
 private fun DataRow(label: String, value: String) {
     Row(
@@ -336,23 +461,14 @@ private fun DataRow(label: String, value: String) {
     ) {
         Text(
             text = label,
-            style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+            style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFF64748B))
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodySmall.copy(
                 fontWeight = FontWeight.Bold,
-                color = Color(0xFF1E293B)
+                color = Color(0xFF0F172A)
             )
         )
     }
 }
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun PassportScannerScreenPreview() {
-    com.sysgas.app.ui.theme.SysgasTheme {
-        PassportScannerScreen()
-    }
-}
-

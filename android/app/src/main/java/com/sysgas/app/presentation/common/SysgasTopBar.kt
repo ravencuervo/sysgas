@@ -49,19 +49,11 @@ fun SysgasTopBar(
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
-                        Box(
-                            modifier = Modifier
-                                .size(38.dp)
-                                .clip(RoundedCornerShape(10.dp))
-                                .background(Color.White),
-                            contentAlignment = Alignment.Center
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.sysgas_logo_icon),
-                                contentDescription = "Logo SYSGAS",
-                                modifier = Modifier.size(28.dp)
-                            )
-                        }
+                        Image(
+                            painter = painterResource(id = R.drawable.sysgas_logo_white),
+                            contentDescription = "Logo SYSGAS",
+                            modifier = Modifier.size(34.dp)
+                        )
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(

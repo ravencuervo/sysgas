@@ -302,23 +302,18 @@ fun OrderTrackingScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "🛵 Moto: Torito Bajaj (Placa 4521-7Z)",
+                            text = "Torito Bajaj · Placa 4521-7Z",
+                            modifier = Modifier.weight(1f),
                             style = MaterialTheme.typography.labelSmall.copy(
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
                             )
                         )
                         Text(
-                            text = "Velocidad: %.0f km/h".format(truckLocation.speedKmH),
+                            text = "%.0f km/h".format(truckLocation.speedKmH),
                             style = MaterialTheme.typography.labelSmall.copy(
-                                color = Color(0xFF90D5B7)
-                            )
-                        )
-                        Text(
-                            text = "Puno GPS",
-                            style = MaterialTheme.typography.labelSmall.copy(
-                                color = Color.Gray,
-                                fontSize = 10.sp
+                                color = Color(0xFF90D5B7),
+                                fontWeight = FontWeight.SemiBold
                             )
                         )
                     }
@@ -365,7 +360,7 @@ fun OrderTrackingScreen(
                                 )
                             )
                             Text(
-                                text = "Licencia MTC: B-IIc Vigente · Habilitado ✅",
+                                text = "Licencia MTC: B-IIc Vigente · Habilitado",
                                 style = MaterialTheme.typography.bodySmall.copy(
                                     color = Color(0xFF15803D),
                                     fontWeight = FontWeight.SemiBold
