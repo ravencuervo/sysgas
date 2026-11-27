@@ -11,6 +11,8 @@ export default function App() {
     <Route path="/" element={<Landing />} />
     <Route path="/registro" element={<Register />} />
     <Route path="/panel" element={<Panel />} />
+    <Route path="/admin" element={<Panel vista="admin" />} />
+    <Route path="/gasero" element={<Panel vista="gasero" />} />
     <Route path="/recuperar" element={<Recovery />} />
     <Route path="/balon/:qrId" element={<BalloonHistory />} />
     <Route path="/login" element={<LoginPage />} />

@@ -13,7 +13,7 @@ import { db } from '../lib/supabase'
 const sectionLabels = { pedidos: 'Pedidos y entregas', inventario: 'Precios y stock', empresa: 'Mi empresa', personal: 'Personal', vehiculos: 'Vehículos', cilindros: 'Balones y QR', flota: 'Transporte masivo', cobertura: 'Cobertura', reportes: 'Reportes', membresia: 'Membresía', auditoria: 'Auditoría', incidencias: 'Incidencias', notificaciones: 'Notificaciones', afiliaciones: 'Afiliaciones' }
 const roleLabels = { super_admin: 'Administrador general', empresa_admin: 'Administrador de empresa', cliente_comun: 'Cliente', chofer_repartidor: 'Repartidor', planta_operador: 'Operador de transporte', supervisor_calidad: 'Supervisor de calidad' }
 
-export default function Panel() {
+export default function Panel({ vista }) {
   const previousRole = useRef(null)
   const navigate = useNavigate()
   const [section, setSection] = useState('pedidos')
@@ -61,6 +61,8 @@ export default function Panel() {
     catch (e) { setError(friendlyError(e)) }
   }
   const manager = profile && ['super_admin','empresa_admin'].includes(profile.rol)
+  const permitido = !vista || !profile || (vista === 'admin' ? manager : ['chofer_repartidor', 'planta_operador'].includes(profile.rol))
+  const nombrePanel = vista === 'admin' ? 'Panel de administración' : vista === 'gasero' ? 'Panel del gasero' : null
   async function changeState(order, state) {
     if (saving) return
     setSaving(order.id); setError(''); setNotice('')
@@ -74,10 +76,15 @@ export default function Panel() {
   const visible = orders.filter(order => (!status || order.estado === status) &&
     `${order.codigo_ticket} ${order.nombre_destinatario} ${order.direccion_entrega}`.toLowerCase().includes(query.toLowerCase()))
   const money = value => new Intl.NumberFormat('es-PE', { style: 'currency', currency: 'PEN' }).format(value)
+  if (!permitido) return <main className="container section" role="alert">
+    <h1>{nombrePanel}</h1>
+    <p>Tu cuenta ({roleLabels[profile.rol] || profile.rol}) no tiene acceso a este panel.</p>
+    <Link to="/panel" className="btn btn-primary">Ir a mi panel</Link>
+  </main>
   return <div className="dashboard">
     <aside className="dashboard__sidebar">
       <Link to="/" className="dashboard__brand"><span className="dashboard__logo"><i className="bi bi-fire" /></span><span>SYSGAS<small>GESTIÓN INTELIGENTE</small></span></Link>
-      <div className="dashboard__workspace"><span className="dash-live" />{manager ? 'Centro de operaciones' : 'Mi cuenta SYSGAS'}<small>{roleLabels[profile?.rol] || 'Conectando…'}</small></div>
+      <div className="dashboard__workspace"><span className="dash-live" />{nombrePanel || (manager ? 'Centro de operaciones' : 'Mi cuenta SYSGAS')}<small>{roleLabels[profile?.rol] || 'Conectando…'}</small></div>
       <span className="dashboard__nav-label">PRINCIPAL</span>
       <nav aria-label="Secciones del panel">
         <button className={section === 'pedidos' ? 'active' : ''} onClick={() => setSection('pedidos')}><i className="bi bi-grid-1x2" />{manager ? 'Pedidos y entregas' : profile?.rol === 'chofer_repartidor' ? 'Mis entregas' : 'Mis pedidos'}<span>{orders.filter(o => o.estado === 'pendiente').length}</span></button>
