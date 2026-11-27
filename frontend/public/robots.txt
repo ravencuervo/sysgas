@@ -1,0 +1,8 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /panel
+Disallow: /gasero
+Disallow: /recuperar
+
+Sitemap: https://sysgas.pe/sitemap.xml
