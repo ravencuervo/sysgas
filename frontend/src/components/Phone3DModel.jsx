@@ -13,7 +13,7 @@ export default function Phone3DModel() {
     // ─── 1. Escena y Cámara ───
     const scene = new THREE.Scene()
     const camera = new THREE.PerspectiveCamera(34, width / height, 0.1, 50)
-    camera.position.set(0, 0, 7.8)
+    camera.position.set(0, 0, 8.9)
 
     // ─── 2. Renderer WebGL ───
     const renderer = new THREE.WebGLRenderer({
@@ -44,7 +44,7 @@ export default function Phone3DModel() {
     rimLight.position.set(0, -6, -4)
     scene.add(rimLight)
 
-    // ─── 4. Canvas Dinámico para la Pantalla OLED de la App SYSGAS ───
+    // ─── 4. Canvas Dinámico con Capturas Reales de la App SYSGAS ───
     const screenWidth = 512
     const screenHeight = 1024
     const screenCanvas = document.createElement('canvas')
@@ -52,195 +52,83 @@ export default function Phone3DModel() {
     screenCanvas.height = screenHeight
     const ctx = screenCanvas.getContext('2d')
     const screenTexture = new THREE.CanvasTexture(screenCanvas)
+    screenTexture.colorSpace = THREE.SRGBColorSpace
     screenTexture.generateMipmaps = true
     screenTexture.minFilter = THREE.LinearMipmapLinearFilter
 
-    // Función para renderizar la pantalla activa con animación de ruta
-    let truckProgress = 0.45
+    const screenSources = [
+      '/images/app/screen-1-login.jpg',
+      '/images/app/screen-2-home.jpg',
+      '/images/app/screen-3-tracking.jpg',
+      '/images/app/screen-4-scanner.jpg',
+      '/images/app/screen-5-profile.jpg',
+    ]
+    const screenImages = screenSources.map((src) => {
+      const img = new Image()
+      img.src = src
+      return img
+    })
+
+    const drawCoverImage = (img, offsetX = 0, alpha = 1) => {
+      if (!img.complete || img.naturalWidth === 0) return
+      ctx.save()
+      ctx.globalAlpha = alpha
+      const imgRatio = img.naturalWidth / img.naturalHeight
+      const boxRatio = screenWidth / screenHeight
+      let drawW = screenWidth
+      let drawH = screenHeight
+      let drawX = offsetX
+      let drawY = 0
+      if (imgRatio > boxRatio) {
+        drawW = screenHeight * imgRatio
+        drawX = offsetX + (screenWidth - drawW) / 2
+      } else {
+        drawH = screenWidth / imgRatio
+        drawY = (screenHeight - drawH) / 2
+      }
+      ctx.drawImage(img, drawX, drawY, drawW, drawH)
+      ctx.restore()
+    }
+
+    const slideDuration = 5.0
+    const transitionDuration = 0.7
+
     const drawAppScreen = (elapsed) => {
       ctx.clearRect(0, 0, screenWidth, screenHeight)
-
-      // Fondo de la pantalla
-      ctx.fillStyle = '#FFFFFF'
+      ctx.fillStyle = '#062118'
       ctx.fillRect(0, 0, screenWidth, screenHeight)
 
-      // Barra Superior / Header de la App
-      ctx.fillStyle = '#062118'
-      ctx.fillRect(0, 0, screenWidth, 120)
+      const total = screenImages.length
+      const cyclePos = elapsed / slideDuration
+      const currentIdx = Math.floor(cyclePos) % total
+      const nextIdx = (currentIdx + 1) % total
+      const slideTime = (cyclePos - Math.floor(cyclePos)) * slideDuration
 
-      // Dynamic Island
+      if (slideTime > slideDuration - transitionDuration) {
+        const rawT = (slideTime - (slideDuration - transitionDuration)) / transitionDuration
+        const ease = 0.5 - 0.5 * Math.cos(Math.PI * rawT)
+        drawCoverImage(screenImages[nextIdx], 0, 1)
+        drawCoverImage(screenImages[currentIdx], 0, 1 - ease)
+      } else {
+        drawCoverImage(screenImages[currentIdx], 0, 1)
+      }
+
+      // Dynamic Island superior sutil
       ctx.fillStyle = '#000000'
       ctx.beginPath()
-      ctx.roundRect(screenWidth / 2 - 75, 18, 150, 36, 18)
+      ctx.roundRect(screenWidth / 2 - 72, 16, 144, 34, 17)
       ctx.fill()
 
-      // Sensor de cámara en la isla
-      ctx.fillStyle = '#101B2B'
-      ctx.beginPath()
-      ctx.arc(screenWidth / 2 + 50, 36, 6, 0, Math.PI * 2)
-      ctx.fill()
-
-      // Titular Header
-      ctx.fillStyle = '#FFFFFF'
-      ctx.font = 'bold 24px Montserrat, sans-serif'
-      ctx.fillText('SYSGAS PUNO', 30, 95)
-
-      // Badge EN RUTA
-      ctx.fillStyle = '#00D294'
-      ctx.font = 'bold 16px "JetBrains Mono", monospace'
-      ctx.textAlign = 'right'
-      ctx.fillText('EN RUTA · GPS', screenWidth - 30, 95)
-      ctx.textAlign = 'left'
-
-      // Mapa de Calles y Trazado GPS
-      ctx.fillStyle = '#F2F8F5'
-      ctx.fillRect(0, 120, screenWidth, 480)
-
-      // Cuadrícula de calles
-      ctx.strokeStyle = '#D6E4DC'
-      ctx.lineWidth = 3
-      for (let x = 30; x < screenWidth; x += 65) {
+      // Indicadores discretos de pantalla activa
+      const activeDot = slideTime > slideDuration - transitionDuration ? nextIdx : currentIdx
+      const dotGap = 18
+      const startX = screenWidth / 2 - ((total - 1) * dotGap) / 2
+      for (let i = 0; i < total; i++) {
+        ctx.fillStyle = i === activeDot ? '#00A878' : 'rgba(255, 255, 255, 0.45)'
         ctx.beginPath()
-        ctx.moveTo(x, 120)
-        ctx.lineTo(x, 600)
-        ctx.stroke()
+        ctx.arc(startX + i * dotGap, screenHeight - 26, i === activeDot ? 5 : 3.5, 0, Math.PI * 2)
+        ctx.fill()
       }
-      for (let y = 160; y < 600; y += 65) {
-        ctx.beginPath()
-        ctx.moveTo(0, y)
-        ctx.lineTo(screenWidth, y)
-        ctx.stroke()
-      }
-
-      // Ruta GPS curva animada en verde jade
-      ctx.strokeStyle = '#00A878'
-      ctx.lineWidth = 10
-      ctx.setLineDash([16, 10])
-      ctx.lineDashOffset = -elapsed * 35
-      ctx.beginPath()
-      ctx.moveTo(60, 520)
-      ctx.bezierCurveTo(140, 420, 220, 280, 420, 210)
-      ctx.stroke()
-      ctx.setLineDash([])
-
-      // Destino: Casa del Cliente (Pin rojo/negro)
-      ctx.fillStyle = '#0A1B14'
-      ctx.beginPath()
-      ctx.arc(420, 210, 20, 0, Math.PI * 2)
-      ctx.fill()
-      ctx.fillStyle = '#00D294'
-      ctx.font = 'bold 18px sans-serif'
-      ctx.textAlign = 'center'
-      ctx.fillText('HOGAR', 420, 180)
-
-      // Camión Repartidor en Movimiento
-      truckProgress = 0.35 + Math.sin(elapsed * 0.8) * 0.2
-      const truckX = 60 + (420 - 60) * truckProgress
-      const truckY = 520 - (520 - 210) * Math.sin(truckProgress * Math.PI * 0.5)
-
-      // Halo de pulso del camión
-      ctx.strokeStyle = 'rgba(0, 168, 120, 0.4)'
-      ctx.lineWidth = 6
-      ctx.beginPath()
-      ctx.arc(truckX, truckY, 28 + Math.sin(elapsed * 4) * 8, 0, Math.PI * 2)
-      ctx.stroke()
-
-      // Círculo del camión
-      ctx.fillStyle = '#00A878'
-      ctx.beginPath()
-      ctx.arc(truckX, truckY, 22, 0, Math.PI * 2)
-      ctx.fill()
-      ctx.fillStyle = '#FFFFFF'
-      ctx.font = 'bold 15px sans-serif'
-      ctx.fillText('GAS', truckX, truckY + 5)
-      ctx.textAlign = 'left'
-
-      // ─── Tarjeta Inferior de Estado ───
-      ctx.fillStyle = '#FFFFFF'
-      ctx.fillRect(0, 600, screenWidth, 424)
-      ctx.strokeStyle = '#E2EDE7'
-      ctx.lineWidth = 2
-      ctx.beginPath()
-      ctx.moveTo(0, 600)
-      ctx.lineTo(screenWidth, 600)
-      ctx.stroke()
-
-      // Info del Balón
-      ctx.fillStyle = '#0A1B14'
-      ctx.font = 'bold 28px Inter, sans-serif'
-      ctx.fillText('Balón Familiar 10 kg', 32, 650)
-
-      ctx.fillStyle = '#007A57'
-      ctx.font = 'bold 20px "JetBrains Mono", monospace'
-      ctx.fillText('Llegada estimada: ~6 min', 32, 686)
-
-      ctx.fillStyle = '#004D36'
-      ctx.beginPath()
-      ctx.roundRect(screenWidth - 160, 624, 128, 42, 8)
-      ctx.fill()
-      ctx.fillStyle = '#FFFFFF'
-      ctx.font = 'bold 22px Inter, sans-serif'
-      ctx.fillText('S/ 48.00', screenWidth - 146, 654)
-
-      // Tarjeta del Chofer
-      ctx.fillStyle = '#F6FAF8'
-      ctx.beginPath()
-      ctx.roundRect(32, 715, screenWidth - 64, 110, 14)
-      ctx.fill()
-      ctx.strokeStyle = '#D6E4DC'
-      ctx.stroke()
-
-      // Avatar del Chofer
-      ctx.fillStyle = '#00A878'
-      ctx.beginPath()
-      ctx.arc(80, 770, 26, 0, Math.PI * 2)
-      ctx.fill()
-      ctx.fillStyle = '#FFFFFF'
-      ctx.font = 'bold 20px sans-serif'
-      ctx.fillText('CM', 65, 777)
-
-      // Nombre y Placa
-      ctx.fillStyle = '#0A1B14'
-      ctx.font = 'bold 22px Inter, sans-serif'
-      ctx.fillText('Carlos Mendoza (Chofer)', 125, 760)
-
-      ctx.fillStyle = '#5D786D'
-      ctx.font = '17px Inter, sans-serif'
-      ctx.fillText('Unidad #08 · Flota Puno Central', 125, 790)
-
-      // Taras y Certificaciones
-      ctx.fillStyle = '#E8F5EE'
-      ctx.beginPath()
-      ctx.roundRect(32, 845, (screenWidth - 80) / 2, 75, 10)
-      ctx.fill()
-      ctx.fillStyle = '#5D786D'
-      ctx.font = 'bold 14px "JetBrains Mono", monospace'
-      ctx.fillText('TARA CALIBRADA', 48, 875)
-      ctx.fillStyle = '#004D36'
-      ctx.font = 'bold 20px "JetBrains Mono", monospace'
-      ctx.fillText('11.5 kg OK', 48, 905)
-
-      ctx.fillStyle = '#E8F5EE'
-      ctx.beginPath()
-      ctx.roundRect(screenWidth / 2 + 8, 845, (screenWidth - 80) / 2, 75, 10)
-      ctx.fill()
-      ctx.fillStyle = '#5D786D'
-      ctx.font = 'bold 14px "JetBrains Mono", monospace'
-      ctx.fillText('SELLO HERMÉTICO', screenWidth / 2 + 24, 875)
-      ctx.fillStyle = '#004D36'
-      ctx.font = 'bold 20px "JetBrains Mono", monospace'
-      ctx.fillText('QR AUDITADO', screenWidth / 2 + 24, 905)
-
-      // Botón Inferior Contactar Repartidor
-      ctx.fillStyle = '#00A878'
-      ctx.beginPath()
-      ctx.roundRect(32, 940, screenWidth - 64, 56, 12)
-      ctx.fill()
-      ctx.fillStyle = '#FFFFFF'
-      ctx.font = 'bold 20px Inter, sans-serif'
-      ctx.textAlign = 'center'
-      ctx.fillText('Coordinar con Repartidor en Ruta', screenWidth / 2, 975)
-      ctx.textAlign = 'left'
 
       screenTexture.needsUpdate = true
     }

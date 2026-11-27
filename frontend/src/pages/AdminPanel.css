@@ -1,4 +1,5 @@
 .adm {
+  position: relative;
   min-height: 100vh;
   min-height: 100dvh;
   display: grid;
@@ -16,6 +17,7 @@
   position: sticky;
   top: 0;
   height: 100vh;
+  z-index: 2;
 }
 
 .adm__brand {
@@ -125,6 +127,8 @@
 }
 
 .adm__main {
+  position: relative;
+  z-index: 1;
   min-width: 0;
   display: flex;
   flex-direction: column;

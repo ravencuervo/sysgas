@@ -9,6 +9,7 @@ import {
   mapNotification,
   mapOrder,
 } from '../lib/mappers.js'
+import HeroWaveGrid from '../components/HeroWaveGrid.jsx'
 import AdminCharts from './admin/AdminCharts.jsx'
 import { formatCap, mapsUrl } from './admin/adminData.js'
 import CompanyModal from './company/CompanyModal.jsx'
@@ -199,6 +200,7 @@ export default function CompanyPanel() {
 
   return (
     <div className="adm">
+      <HeroWaveGrid variant="panel" />
       {menuOpen && (
         <div
           className="adm__sidebar-backdrop"

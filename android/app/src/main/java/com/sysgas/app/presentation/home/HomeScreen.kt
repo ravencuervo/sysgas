@@ -89,13 +89,22 @@ fun HomeScreen(
     onNavigateToTracking: () -> Unit,
     onNavigateToScanner: () -> Unit
 ) {
-    // 0 = Vista Principal (Hero + Balones + Repartidores), 1 = Pago, 2 = Recepción
     var orderStage by remember { mutableIntStateOf(0) }
     var selectedCapacity by remember { mutableStateOf("10 kg") }
-    val distributors = remember { GasDistributor.PUNO_DISTRIBUTORS }
-    var selectedDistributor by remember { mutableStateOf(distributors.first()) }
-    var deliveryAddress by remember { mutableStateOf("Jr. Arequipa 520, Puno") }
+    val catalogRepository = remember { com.sysgas.app.data.repository.CatalogRepository() }
+    var distributors by remember { mutableStateOf<List<GasDistributor>>(emptyList()) }
+    var selectedDistributor by remember { mutableStateOf<GasDistributor?>(null) }
+    var deliveryAddress by remember { mutableStateOf("") }
     var selectedPayment by remember { mutableStateOf("Yape") }
+
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        catalogRepository.getDistributors().onSuccess { list ->
+            distributors = list
+            if (selectedDistributor == null) {
+                selectedDistributor = list.firstOrNull()
+            }
+        }
+    }
 
     AnimatedContent(
         targetState = orderStage,
@@ -116,31 +125,40 @@ fun HomeScreen(
                     orderStage = 1
                 },
                 onQuickOrder = {
-                    selectedDistributor = distributors.first()
-                    orderStage = 1
+                    val first = distributors.firstOrNull()
+                    if (first != null) {
+                        selectedDistributor = first
+                        orderStage = 1
+                    } else {
+                        onNavigateToCheckout(selectedCapacity)
+                    }
                 },
                 onNavigateToTracking = onNavigateToTracking,
                 onNavigateToScanner = onNavigateToScanner
             )
 
-            1 -> PaymentStage(
-                capacity = selectedCapacity,
-                distributor = selectedDistributor,
-                address = deliveryAddress,
-                onAddressChange = { deliveryAddress = it },
-                selectedPayment = selectedPayment,
-                onPaymentChange = { selectedPayment = it },
-                onBack = { orderStage = 0 },
-                onConfirm = { orderStage = 2 }
-            )
+            1 -> selectedDistributor?.let { dist ->
+                PaymentStage(
+                    capacity = selectedCapacity,
+                    distributor = dist,
+                    address = deliveryAddress,
+                    onAddressChange = { deliveryAddress = it },
+                    selectedPayment = selectedPayment,
+                    onPaymentChange = { selectedPayment = it },
+                    onBack = { orderStage = 0 },
+                    onConfirm = { orderStage = 2 }
+                )
+            }
 
-            else -> ReceptionStage(
-                capacity = selectedCapacity,
-                distributor = selectedDistributor,
-                address = deliveryAddress,
-                onTrackOrder = onNavigateToTracking,
-                onFinish = { orderStage = 0 }
-            )
+            else -> selectedDistributor?.let { dist ->
+                ReceptionStage(
+                    capacity = selectedCapacity,
+                    distributor = dist,
+                    address = deliveryAddress,
+                    onTrackOrder = onNavigateToTracking,
+                    onFinish = { orderStage = 0 }
+                )
+            }
         }
     }
 }

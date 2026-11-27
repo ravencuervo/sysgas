@@ -10,6 +10,7 @@ import {
   mapNotification,
   mapOrder,
 } from '../lib/mappers.js'
+import HeroWaveGrid from '../components/HeroWaveGrid.jsx'
 import AdminCharts from './admin/AdminCharts.jsx'
 import AdminCrudModal from './admin/AdminCrudModal.jsx'
 import { mapsUrl } from './admin/adminData.js'
@@ -225,6 +226,7 @@ export default function AdminPanel() {
 
   return (
     <div className="adm">
+      <HeroWaveGrid variant="panel" />
       {menuOpen && (
         <div
           className="adm__sidebar-backdrop"

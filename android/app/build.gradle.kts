@@ -21,9 +21,10 @@ android {
             useSupportLibrary = true
         }
 
-        // URL del backend Supabase en Puno
-        buildConfigField("String", "SUPABASE_URL", "\"https://tsegodcutcgchvyurvik.supabase.co\"")
-        buildConfigField("String", "SUPABASE_ANON_KEY", "\"\"")
+        // Conexión oficial a Supabase SYSGAS y Backend
+        buildConfigField("String", "SUPABASE_URL", "\"https://ytqducmsadgfairtvuyd.supabase.co\"")
+        buildConfigField("String", "SUPABASE_ANON_KEY", "\"sb_publishable_8UARzW7tlk7UIHNm5CWmQw_roZKBAZp\"")
+        buildConfigField("String", "BACKEND_API_URL", "\"https://sysgas.onrender.com\"")
     }
 
     buildTypes {

@@ -55,6 +55,9 @@ fun OrderHistoryScreen(
 ) {
     val orderRepository = remember { OrderRepository() }
     val orders by orderRepository.orders.collectAsState()
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        orderRepository.refreshOrders()
+    }
 
     LazyColumn(
         modifier = Modifier

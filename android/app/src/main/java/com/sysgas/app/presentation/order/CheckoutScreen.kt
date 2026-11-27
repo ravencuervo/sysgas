@@ -76,21 +76,45 @@ fun CheckoutScreen(
 ) {
     val coroutineScope = rememberCoroutineScope()
     val orderRepository = remember { OrderRepository() }
+    val catalogRepository = remember { com.sysgas.app.data.repository.CatalogRepository() }
 
-    val product = remember(capacity) {
-        CylinderProduct.DEFAULT_PRODUCTS.find { it.capacity.contains(capacity.filter { it.isDigit() }) }
-            ?: CylinderProduct.DEFAULT_PRODUCTS[1]
+    val initialPrice = when {
+        capacity.contains("5") -> 28.50
+        capacity.contains("45") -> 185.00
+        else -> 48.00
+    }
+    var product by remember(capacity) {
+        mutableStateOf(
+            CylinderProduct(
+                id = "loading",
+                capacity = capacity,
+                commercialName = "Balón $capacity",
+                netGasKg = capacity.filter { it.isDigit() }.toDoubleOrNull() ?: 10.0,
+                tareKg = 11.5,
+                pricePen = initialPrice,
+                dimensions = "",
+                description = ""
+            )
+        )
     }
 
-    var customerName by remember { mutableStateOf("Mamá Juana / Wilson Cuervo") }
-    var customerPhone by remember { mutableStateOf("951667696") }
-    var addressText by remember { mutableStateOf("Jr. Arequipa 520, Puno (Centro)") }
-    var addressReference by remember { mutableStateOf("Frente al Colegio San Carlos, cerca a Plaza de Armas") }
+    androidx.compose.runtime.LaunchedEffect(capacity) {
+        catalogRepository.getCatalog().onSuccess { list ->
+            val digits = capacity.filter { it.isDigit() }
+            list.find { it.capacity.contains(digits) }?.let { product = it }
+        }
+    }
+
+    var customerName by remember { mutableStateOf("") }
+    var customerPhone by remember { mutableStateOf("") }
+    var addressText by remember { mutableStateOf("") }
+    var addressReference by remember { mutableStateOf("") }
     val selectedCity = "Puno"
     var selectedPayment by remember { mutableStateOf(PaymentMethod.YAPE) }
     var isYapeSimulatedApproved by remember { mutableStateOf(false) }
     var quantity by remember { mutableIntStateOf(1) }
     var isSubmitting by remember { mutableStateOf(false) }
+    var submitError by remember { mutableStateOf<String?>(null) }
 
     val subtotal = product.pricePen * quantity
     val deliveryFee = 0.0 // Envío en moto gratuito en Puno
@@ -429,7 +453,15 @@ fun CheckoutScreen(
                                         }
                                     }
                                 } else {
-                                    Button(
+                                    if (submitError != null) {
+                    Text(
+                        text = submitError!!,
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFFB91C1C)),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
+                Button(
                                         onClick = { isYapeSimulatedApproved = true },
                                         modifier = Modifier.fillMaxWidth(),
                                         shape = RoundedCornerShape(10.dp),
@@ -488,11 +520,20 @@ fun CheckoutScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                if (submitError != null) {
+                    Text(
+                        text = submitError!!,
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFFB91C1C)),
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                }
+
                 Button(
                     onClick = {
                         if (!isSubmitting) {
                             isSubmitting = true
                             coroutineScope.launch {
+                                submitError = null
                                 val result = orderRepository.createOrder(
                                     customerName = customerName,
                                     customerPhone = "+51$customerPhone",
@@ -507,6 +548,8 @@ fun CheckoutScreen(
                                 isSubmitting = false
                                 result.onSuccess { newOrder ->
                                     onOrderPlaced(newOrder.ticketCode)
+                                }.onFailure { err ->
+                                    submitError = err.message ?: "No se pudo registrar el pedido."
                                 }
                             }
                         }

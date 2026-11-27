@@ -78,8 +78,19 @@ fun OrderTrackingScreen(
     val trackingRepository = remember { TrackingRepository() }
 
     val activeOrder by orderRepository.activeOrder.collectAsState()
-    val truckLocation by trackingRepository.observeTruckLocation("ord-001")
-        .collectAsState(initial = TruckLocation(orderId = "ord-001"))
+    androidx.compose.runtime.LaunchedEffect(Unit) {
+        orderRepository.refreshOrders()
+    }
+    val liveTruck by trackingRepository.observeTruckLocation(activeOrder?.id ?: "")
+        .collectAsState(initial = null)
+    val truckLocation = liveTruck ?: TruckLocation(
+        orderId = activeOrder?.id ?: "",
+        driverName = "Por asignar",
+        driverPhone = "",
+        plateNumber = "Pendiente",
+        truckModel = "Esperando despacho de planta",
+        lastUpdateIso = "Sin señal GPS aún"
+    )
 
     val pulseTransition = rememberInfiniteTransition(label = "pulse")
     val pulseAlpha by pulseTransition.animateFloat(

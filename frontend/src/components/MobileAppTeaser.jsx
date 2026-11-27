@@ -6,9 +6,9 @@ export default function MobileAppTeaser() {
     <section className="section px-app section--white" id="app-movil">
       <div className="container">
         <div className="px-app__header reveal">
-          <h2 className="section-title">SYSGAS también llegará a tu celular.</h2>
+          <h2 className="section-title">SYSGAS también en tu celular.</h2>
           <p className="section-desc">
-            La aplicación Android está planificada para clientes, motorizados y operadores. Por ahora puedes utilizar SYSGAS desde el navegador de tu celular.
+            Descarga el aplicativo oficial para Android (APK) y realiza pedidos, escanea el QR de tu balón y sigue tu entrega desde tu teléfono.
           </p>
         </div>
 
@@ -47,17 +47,22 @@ export default function MobileAppTeaser() {
             </div>
 
             <div className="px-app__web-cta">
-              <h3 className="px-app__download-title">Continúa desde la web</h3>
+              <h3 className="px-app__download-title">Descargar aplicativo Android (APK)</h3>
               <p className="px-app__download-desc">
-                No hay una APK publicada todavía. Realiza tu pedido y consulta los códigos QR desde esta web adaptable a celular.
+                Instalación directa sin Play Store. Descarga el archivo APK oficial de SYSGAS para Android o continúa desde la web.
               </p>
               <div className="px-app__download-actions">
-                <a href="#contacto" className="btn btn-primary">
-                  <span>Pedir desde la web</span>
-                  <i className="bi bi-arrow-right" />
+                <a
+                  href="/downloads/sysgas-app.apk"
+                  download="SYSGAS.apk"
+                  className="btn btn-primary"
+                >
+                  <i className="bi bi-android2" />
+                  <span>Descargar APK</span>
+                  <i className="bi bi-download" />
                 </a>
-                <a href="#qr-demo" className="px-app__secondary-link">
-                  Ver pasaporte QR
+                <a href="#contacto" className="px-app__secondary-link">
+                  Pedir desde la web
                 </a>
               </div>
             </div>

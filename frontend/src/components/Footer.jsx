@@ -14,6 +14,26 @@ export default function Footer() {
             </p>
 
             {/* Sello Circular Oficial de Certificación */}
+            <div className="px-footer-ref__seal-box">
+              <div className="px-footer-ref__seal-ring">
+                <svg viewBox="0 0 100 100" className="px-footer-ref__seal-svg">
+                  <path
+                    id="sealCirclePath"
+                    d="M 50, 50 m -37, 0 a 37,37 0 1,1 74,0 a 37,37 0 1,1 -74,0"
+                    fill="none"
+                  />
+                  <text className="px-footer-ref__seal-text">
+                    <textPath href="#sealCirclePath" startOffset="50%" textAnchor="middle">
+                      CERTIFICACIÓN ISO 9001 · ISO 4706 · OSINERGMIN
+                    </textPath>
+                  </text>
+                </svg>
+                <div className="px-footer-ref__seal-center">
+                  <i className="bi bi-patch-check-fill" />
+                  <span className="px-footer-ref__seal-sub">PUNO · 100% SEGURO</span>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Columna Central: Gran Emblema Oficial + Lema Institucional */}

@@ -112,6 +112,8 @@ fun PassportScannerScreen() {
 
     var scannedPassport by remember { mutableStateOf<PassportData?>(null) }
     var lastScannedCode by remember { mutableStateOf<String?>(null) }
+    var manualCode by remember { mutableStateOf("") }
+    var scanError by remember { mutableStateOf<String?>(null) }
 
     val scanTransition = rememberInfiniteTransition(label = "scanLaser")
     val laserOffset by scanTransition.animateFloat(
@@ -189,7 +191,18 @@ fun PassportScannerScreen() {
                                 if (rawValue != lastScannedCode) {
                                     lastScannedCode = rawValue
                                     coroutineScope.launch {
-                                        scannedPassport = repository.getPassportByCode(rawValue)
+                                        scanError = null
+                                        repository.getPassportByCode(rawValue)
+                                            .onSuccess { found ->
+                                                scannedPassport = found
+                                                if (found == null) {
+                                                    scanError = "No se encontró el cilindro $rawValue en la base de datos."
+                                                }
+                                            }
+                                            .onFailure {
+                                                scannedPassport = null
+                                                scanError = "No se pudo consultar el pasaporte en Supabase."
+                                            }
                                     }
                                 }
                             }
@@ -246,26 +259,51 @@ fun PassportScannerScreen() {
             }
         }
 
-        // ─── 2. Botón de Demostración ───
+        // ─── 2. Consulta manual de código QR ───
         item {
-            OutlinedButton(
-                onClick = {
-                    coroutineScope.launch {
-                        scannedPassport = repository.getPassportByCode("CIL-PU-10-84920")
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp),
-                shape = RoundedCornerShape(12.dp),
-                border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Icon(Icons.Outlined.QrCode, contentDescription = null, tint = Color(0xFF0F172A))
-                Spacer(modifier = Modifier.width(8.dp))
+                androidx.compose.material3.OutlinedTextField(
+                    value = manualCode,
+                    onValueChange = { manualCode = it.uppercase() },
+                    label = { Text("Código QR o serie del balón") },
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    shape = RoundedCornerShape(12.dp)
+                )
+                Button(
+                    onClick = {
+                        coroutineScope.launch {
+                            scanError = null
+                            repository.getPassportByCode(manualCode)
+                                .onSuccess { found ->
+                                    scannedPassport = found
+                                    if (found == null) {
+                                        scanError = "No se encontró el cilindro $manualCode en la base de datos."
+                                    }
+                                }
+                                .onFailure {
+                                    scannedPassport = null
+                                    scanError = "Error al consultar la base de datos."
+                                }
+                        }
+                    },
+                    enabled = manualCode.isNotBlank(),
+                    modifier = Modifier.height(52.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(containerColor = JadePrimary)
+                ) {
+                    Text("Buscar", color = Color.White, fontWeight = FontWeight.Bold)
+                }
+            }
+            if (scanError != null) {
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
-                    text = "Simular lectura QR",
-                    fontWeight = FontWeight.SemiBold,
-                    color = Color(0xFF0F172A)
+                    text = scanError!!,
+                    style = MaterialTheme.typography.bodySmall.copy(color = Color(0xFFB91C1C))
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))

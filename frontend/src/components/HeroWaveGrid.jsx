@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react'
 
-export default function HeroWaveGrid() {
+export default function HeroWaveGrid({ variant = 'hero' }) {
   const canvasRef = useRef(null)
 
   useEffect(() => {
@@ -9,23 +9,45 @@ export default function HeroWaveGrid() {
     const ctx = canvas.getContext('2d')
     if (!ctx) return
 
-    let animationFrameId
+    const isPanel = variant === 'panel'
+    let animationFrameId = 0
     let width = 0
     let height = 0
     let dpr = 1
+    let particles = []
 
-    // Posición del mouse para interacción reactiva
-    let mouse = { x: -1000, y: -1000, targetX: -1000, targetY: -1000 }
+    const pointer = { x: -1000, y: -1000, active: false }
+
+    const createParticles = (w, h) => {
+      const area = w * h
+      const targetCount = isPanel
+        ? Math.min(52, Math.max(24, Math.floor(area / 28000)))
+        : Math.min(72, Math.max(32, Math.floor(area / 19000)))
+
+      return Array.from({ length: targetCount }, (_, i) => {
+        const isAccent = i % 4 === 0
+        return {
+          x: Math.random() * w,
+          y: Math.random() * h,
+          vx: (Math.random() - 0.5) * (isPanel ? 0.28 : 0.42),
+          vy: (Math.random() - 0.5) * (isPanel ? 0.28 : 0.42),
+          r: isAccent ? (isPanel ? 2.1 : 2.5) : (isPanel ? 1.3 : 1.6),
+          accent: isAccent,
+          phase: Math.random() * Math.PI * 2,
+        }
+      })
+    }
 
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2)
       width = canvas.parentElement ? canvas.parentElement.clientWidth : window.innerWidth
       height = canvas.parentElement ? canvas.parentElement.clientHeight : window.innerHeight
-      canvas.width = width * dpr
-      canvas.height = height * dpr
+      canvas.width = Math.max(1, Math.floor(width * dpr))
+      canvas.height = Math.max(1, Math.floor(height * dpr))
       canvas.style.width = `${width}px`
       canvas.style.height = `${height}px`
-      ctx.scale(dpr, dpr)
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      particles = createParticles(width, height)
     }
 
     resize()
@@ -33,81 +55,100 @@ export default function HeroWaveGrid() {
 
     const onPointerMove = (e) => {
       const rect = canvas.getBoundingClientRect()
-      mouse.targetX = e.clientX - rect.left
-      mouse.targetY = e.clientY - rect.top
+      pointer.x = e.clientX - rect.left
+      pointer.y = e.clientY - rect.top
+      pointer.active = true
     }
 
     const onPointerLeave = () => {
-      mouse.targetX = -1000
-      mouse.targetY = -1000
+      pointer.active = false
+      pointer.x = -1000
+      pointer.y = -1000
     }
 
     window.addEventListener('pointermove', onPointerMove, { passive: true })
     document.addEventListener('mouseleave', onPointerLeave)
 
-    // Configuración de la cuadrícula
-    const spacing = 32 // Distancia entre puntos
-    let time = 0
+    const linkDist = isPanel ? 135 : 150
+    const mouseDist = 170
+    let tick = 0
 
     const render = () => {
-      time += 0.02
-
-      // Suavizado del mouse
-      mouse.x += (mouse.targetX - mouse.x) * 0.1
-      mouse.y += (mouse.targetY - mouse.y) * 0.1
-
+      tick += 0.018
       ctx.clearRect(0, 0, width, height)
 
-      const cols = Math.ceil(width / spacing) + 1
-      const rows = Math.ceil(height / spacing) + 1
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i]
+        p.x += p.vx
+        p.y += p.vy
 
-      for (let r = 0; r < rows; r++) {
-        const baseY = r * spacing
+        if (p.x < 0) p.x = width
+        if (p.x > width) p.x = 0
+        if (p.y < 0) p.y = height
+        if (p.y > height) p.y = 0
 
-        for (let c = 0; c < cols; c++) {
-          const baseX = c * spacing
-
-          // 1. Onda matemática diagonal fluida (flujo continuo de presión / energía)
-          const wave1 = Math.sin(baseX * 0.012 + baseY * 0.014 + time * 1.6)
-          const wave2 = Math.cos(baseX * 0.008 - baseY * 0.01 + time * 1.2)
-          const combinedWave = (wave1 + wave2) * 0.5 // Valor entre -1 y 1
-
-          // 2. Interacción sutil con el cursor (efecto onda expansiva)
-          const dx = baseX - mouse.x
-          const dy = baseY - mouse.y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          const mouseInfluence = dist < 180 ? Math.cos((dist / 180) * (Math.PI / 2)) : 0
-
-          // Desplazamiento orgánico
-          const offsetX = combinedWave * 2.5 + (dx / (dist + 1)) * mouseInfluence * 6
-          const offsetY = combinedWave * 3.5 + (dy / (dist + 1)) * mouseInfluence * 6
-          const currentX = baseX + offsetX
-          const currentY = baseY + offsetY
-
-          // Escala dinámica del punto
-          const radius = Math.max(0.8, 1.25 + combinedWave * 0.75 + mouseInfluence * 1.5)
-
-          // Opacidad y color
-          // En picos de onda: blanco puro brillante (#FFFFFF)
-          // En valles: blanco translúcido sutil
-          const opacity = Math.min(0.85, Math.max(0.12, 0.22 + combinedWave * 0.25 + mouseInfluence * 0.45))
-
-          ctx.beginPath()
-          ctx.arc(currentX, currentY, radius, 0, Math.PI * 2)
-
-          if (mouseInfluence > 0.3) {
-            // Cerca del cursor emite un destello verde jade
-            ctx.fillStyle = `rgba(0, 255, 209, ${opacity})`
-          } else if (combinedWave > 0.4) {
-            // Crestas de onda más iluminadas
-            ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`
-          } else {
-            // Reposo
-            ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`
+        if (pointer.active) {
+          const dx = p.x - pointer.x
+          const dy = p.y - pointer.y
+          const dist = Math.hypot(dx, dy)
+          if (dist > 0 && dist < mouseDist) {
+            const push = (1 - dist / mouseDist) * 0.45
+            p.x += (dx / dist) * push
+            p.y += (dy / dist) * push
           }
-
-          ctx.fill()
         }
+      }
+
+      // Enlaces geométricos finos (Swiss hairline network)
+      ctx.lineWidth = isPanel ? 0.75 : 0.9
+      for (let i = 0; i < particles.length; i++) {
+        const a = particles[i]
+        for (let j = i + 1; j < particles.length; j++) {
+          const b = particles[j]
+          const dx = a.x - b.x
+          const dy = a.y - b.y
+          const dist = Math.hypot(dx, dy)
+          if (dist < linkDist) {
+            const alpha = (1 - dist / linkDist) * (isPanel ? 0.14 : 0.24)
+            ctx.strokeStyle = isPanel
+              ? `rgba(0, 122, 87, ${alpha})`
+              : `rgba(255, 255, 255, ${alpha})`
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(b.x, b.y)
+            ctx.stroke()
+          }
+        }
+
+        if (pointer.active) {
+          const dx = a.x - pointer.x
+          const dy = a.y - pointer.y
+          const dist = Math.hypot(dx, dy)
+          if (dist < mouseDist) {
+            const alpha = (1 - dist / mouseDist) * (isPanel ? 0.22 : 0.36)
+            ctx.strokeStyle = isPanel
+              ? `rgba(0, 168, 120, ${alpha})`
+              : `rgba(163, 245, 220, ${alpha})`
+            ctx.beginPath()
+            ctx.moveTo(a.x, a.y)
+            ctx.lineTo(pointer.x, pointer.y)
+            ctx.stroke()
+          }
+        }
+      }
+
+      // Nodos de partículas
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i]
+        const pulse = 0.75 + Math.sin(tick + p.phase) * 0.25
+        ctx.beginPath()
+        ctx.arc(p.x, p.y, p.r * pulse, 0, Math.PI * 2)
+        if (isPanel) {
+          ctx.fillStyle = p.accent ? 'rgba(0, 168, 120, 0.32)' : 'rgba(0, 77, 54, 0.18)'
+        } else {
+          ctx.fillStyle = p.accent ? 'rgba(163, 245, 220, 0.78)' : 'rgba(255, 255, 255, 0.58)'
+        }
+        ctx.fill()
       }
 
       animationFrameId = requestAnimationFrame(render)
@@ -121,22 +162,21 @@ export default function HeroWaveGrid() {
       window.removeEventListener('pointermove', onPointerMove)
       document.removeEventListener('mouseleave', onPointerLeave)
     }
-  }, [])
+  }, [variant])
 
   return (
     <canvas
       ref={canvasRef}
       style={{
-        position: 'absolute',
+        position: variant === 'panel' ? 'fixed' : 'absolute',
         top: 0,
         left: 0,
         width: '100%',
         height: '100%',
         pointerEvents: 'none',
-        zIndex: 1,
+        zIndex: variant === 'panel' ? 0 : 1,
       }}
       aria-hidden="true"
     />
   )
 }
-

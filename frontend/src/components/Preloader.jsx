@@ -6,15 +6,19 @@ export default function Preloader({ label = 'Cargando SYSGAS…', overlay = fals
       aria-live="polite"
     >
       <div className="sys-preloader__inner">
-        <div className="sys-preloader__ring" aria-hidden="true">
-          <span className="sys-preloader__arc" />
-          <img
-            src="/images/logos/sysgas_emblem.png"
-            alt=""
-            className="sys-preloader__logo"
-          />
+        <img
+          src="/images/logos/sysgas_logo_monochrome_white.png"
+          alt="SYSGAS"
+          className="sys-preloader__logo"
+        />
+
+        <div className="sys-preloader__dots" aria-hidden="true">
+          <span />
+          <span />
+          <span />
         </div>
-        <p className="sys-preloader__label">{label}</p>
+
+        {label ? <p className="sys-preloader__label">{label}</p> : null}
       </div>
     </div>
   )

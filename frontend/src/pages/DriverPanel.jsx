@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { apiFetch } from '../lib/api.js'
 import { db } from '../lib/supabase.js'
 import { mapBatch, mapNotification, mapOrder } from '../lib/mappers.js'
+import HeroWaveGrid from '../components/HeroWaveGrid.jsx'
 import { mapsUrl } from './admin/adminData.js'
 import './AdminPanel.css'
 
@@ -143,6 +144,7 @@ export default function DriverPanel() {
 
   return (
     <div className="adm">
+      <HeroWaveGrid variant="panel" />
       {menuOpen && (
         <div
           className="adm__sidebar-backdrop"

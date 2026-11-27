@@ -35,6 +35,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -42,15 +44,27 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.sysgas.app.core.network.SupabaseClientProvider
 import com.sysgas.app.ui.theme.JadeDark
 import com.sysgas.app.ui.theme.JadeMint
 import com.sysgas.app.ui.theme.JadePrimary
+import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.launch
+import kotlinx.serialization.json.jsonPrimitive
 
 @Composable
 fun ProfileScreen(
     onBack: () -> Unit,
     onLogout: () -> Unit
 ) {
+    val client = remember { SupabaseClientProvider.client }
+    val user = remember { client.auth.currentUserOrNull() }
+    val coroutineScope = rememberCoroutineScope()
+    val metaName = user?.userMetadata?.get("full_name")?.jsonPrimitive?.content
+        ?: user?.userMetadata?.get("nombres")?.jsonPrimitive?.content
+        ?: "Cliente SYSGAS"
+    val userEmail = user?.email ?: "Sin correo registrado"
+    val userPhone = user?.userMetadata?.get("telefono")?.jsonPrimitive?.content ?: "No registrado"
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -120,7 +134,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = "Wilson Emanuel Cuervo",
+                        text = metaName,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F2E22)
@@ -128,7 +142,7 @@ fun ProfileScreen(
                     )
 
                     Text(
-                        text = "cuervo@sysgas.pe",
+                        text = userEmail,
                         style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
                     )
 
@@ -150,7 +164,7 @@ fun ProfileScreen(
                             )
                             Spacer(modifier = Modifier.width(6.dp))
                             Text(
-                                text = "Cuenta Google Verificada",
+                                text = "Sesión Conectada a Supabase",
                                 style = MaterialTheme.typography.labelSmall.copy(
                                     color = Color(0xFF2E7D32),
                                     fontWeight = FontWeight.SemiBold
@@ -196,7 +210,7 @@ fun ProfileScreen(
                                 style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
                             )
                             Text(
-                                text = "+51 951 667 696",
+                                text = userPhone,
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF1E293B)
@@ -217,19 +231,15 @@ fun ProfileScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column {
                             Text(
-                                text = "Dirección de Entrega en Puno",
+                                text = "Zona de Cobertura",
                                 style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
                             )
                             Text(
-                                text = "Jr. Arequipa 520, Puno (Centro)",
+                                text = "Puno · Cobertura SYSGAS",
                                 style = MaterialTheme.typography.bodyMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF1E293B)
                                 )
-                            )
-                            Text(
-                                text = "Ref: Frente al Colegio San Carlos",
-                                style = MaterialTheme.typography.labelSmall.copy(color = Color.DarkGray)
                             )
                         }
                     }
@@ -310,7 +320,12 @@ fun ProfileScreen(
         item {
             Spacer(modifier = Modifier.height(24.dp))
             Button(
-                onClick = onLogout,
+                onClick = {
+                    coroutineScope.launch {
+                        runCatching { client.auth.signOut() }
+                        onLogout()
+                    }
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
