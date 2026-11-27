@@ -23,7 +23,7 @@ export default function Navbar() {
     { href: '#app-movil', label: 'App Móvil' },
     { href: '#empresas', label: 'Empresas B2B' },
     { href: '#como-funciona', label: 'Cómo Funciona' },
-    { href: '#contacto', label: 'Pedir Balón' },
+    { href: '#app-movil', label: 'Pedir Balón' },
   ]
 
   return (
@@ -46,7 +46,7 @@ export default function Navbar() {
         <nav className={`sys-nav__menu ${menuOpen ? 'sys-nav__menu--open' : ''}`}>
           <ul className="sys-nav__list">
             {navLinks.map((item) => (
-              <li key={item.href} className="sys-nav__item">
+              <li key={item.label} className="sys-nav__item">
                 <a
                   href={item.href}
                   className={`sys-nav__link ${item.active ? 'sys-nav__link--active' : ''}`}

@@ -70,7 +70,7 @@ export default function Phone3DModel() {
     })
 
     const drawCoverImage = (img, offsetX = 0, alpha = 1) => {
-      if (!img.complete || img.naturalWidth === 0) return
+      if (!img || !img.complete || img.naturalWidth === 0) return
       ctx.save()
       ctx.globalAlpha = alpha
       const imgRatio = img.naturalWidth / img.naturalHeight
@@ -98,8 +98,9 @@ export default function Phone3DModel() {
       ctx.fillStyle = '#062118'
       ctx.fillRect(0, 0, screenWidth, screenHeight)
 
+      const safeElapsed = Number.isFinite(elapsed) && elapsed >= 0 ? elapsed : 0
       const total = screenImages.length
-      const cyclePos = elapsed / slideDuration
+      const cyclePos = safeElapsed / slideDuration
       const currentIdx = Math.floor(cyclePos) % total
       const nextIdx = (currentIdx + 1) % total
       const slideTime = (cyclePos - Math.floor(cyclePos)) * slideDuration

@@ -7,6 +7,8 @@
 }
 
 .login-split__brand {
+  position: relative;
+  overflow: hidden;
   background-color: var(--bg-jade);
   color: #FFFFFF;
   padding: clamp(32px, 5vw, 64px);
@@ -14,6 +16,13 @@
   flex-direction: column;
   justify-content: space-between;
   gap: 40px;
+}
+
+.login-split__logo,
+.login-split__hero,
+.login-split__back {
+  position: relative;
+  z-index: 2;
 }
 
 .login-split__logo {
@@ -66,15 +75,18 @@
 .login-split__points li {
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   font-size: 0.94rem;
   font-weight: 600;
   color: rgba(255, 255, 255, 0.95);
+  cursor: default;
 }
 
+.login-split__point-icon,
 .login-split__points i {
   color: #A3F5DC;
   font-size: 1.1rem;
+  flex-shrink: 0;
 }
 
 .login-split__back {
@@ -140,14 +152,105 @@
   margin: 0;
 }
 
-.login-form-wrap__links a {
+.login-form-wrap__links a,
+.login-form-wrap__aff-btn {
   color: var(--jade-dark);
   font-weight: 700;
   text-decoration: none;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: inherit;
+  font-size: inherit;
+  cursor: pointer;
 }
 
-.login-form-wrap__links a:hover {
+.login-form-wrap__links a:hover,
+.login-form-wrap__aff-btn:hover {
   text-decoration: underline;
+}
+
+/* Tarjeta de sesión activa */
+.login-session-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 14px 16px;
+  margin-bottom: 24px;
+  background-color: var(--jade-mint);
+  border: 1px solid var(--jade-primary);
+  border-radius: var(--radius-md);
+}
+
+.login-session-card__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.login-session-card__kicker {
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--jade-dark);
+}
+
+.login-session-card__email {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: var(--text-title);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.login-session-card__role {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.login-session-card__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border: none;
+  border-radius: var(--radius-sm);
+  background-color: var(--jade-primary);
+  color: #FFFFFF;
+  font-weight: 700;
+  font-size: 0.85rem;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background-color var(--trans-fast);
+}
+
+.login-session-card__btn:hover {
+  background-color: var(--jade-dark);
+}
+
+.login-card__caps {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--jade-dark);
+}
+
+.login-card__alert--success {
+  background-color: var(--jade-mint) !important;
+  color: var(--jade-deepest) !important;
+  border: 1px solid var(--jade-primary) !important;
+}
+
+.login-card__alert--error {
+  background-color: #FEF2F2 !important;
+  color: #991B1B !important;
+  border: 1px solid #FECACA !important;
 }
 
 /* ─── Layout compartido para /registro y /recuperar ─── */

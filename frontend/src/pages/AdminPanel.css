@@ -880,10 +880,41 @@
   border-radius: var(--radius-md);
   border: 1px solid #D6E4DC;
   background: transparent;
+  color: var(--text-title);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  transition:
+    border-color 0.22s ease,
+    background-color 0.22s ease,
+    color 0.22s ease,
+    transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.adm-modal__close i,
+.adm-modal__close svg {
+  transition: transform 0.32s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.adm-modal__close:hover {
+  border-color: var(--jade-primary);
+  background-color: var(--jade-mint);
+  color: var(--jade-deepest);
+}
+
+.adm-modal__close:hover i,
+.adm-modal__close:hover svg {
+  transform: rotate(90deg) scale(1.1);
+}
+
+.adm-modal__close:active {
+  transform: scale(0.92);
+}
+
+.adm-modal__close:focus-visible {
+  outline: 2px solid var(--jade-primary);
+  outline-offset: 2px;
 }
 
 .adm-modal__form {

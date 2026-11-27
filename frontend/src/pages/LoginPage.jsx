@@ -1,17 +1,61 @@
 import { friendlyError } from '../lib/forms'
 import { db } from '../lib/supabase'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import AffiliationModal from '../components/AffiliationModal.jsx'
+import HeroWaveGrid from '../components/HeroWaveGrid.jsx'
+import MorphIcon from '../components/MorphIcon.jsx'
 import Preloader from '../components/Preloader.jsx'
 import './LoginPage.css'
+
+const ROLE_ROUTES = {
+  super_admin: { path: '/admin', label: 'Panel Administrador' },
+  empresa_admin: { path: '/panel', label: 'Panel de Empresa' },
+  chofer_repartidor: { path: '/gasero', label: 'Panel de Reparto' },
+  planta_operador: { path: '/gasero', label: 'Panel de Planta' },
+}
 
 export default function LoginPage() {
   const navigate = useNavigate()
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [showPass, setShowPass] = useState(false)
+  const [capsLock, setCapsLock] = useState(false)
   const [loading, setLoading] = useState(false)
   const [msg, setMsg] = useState('')
+  const [msgType, setMsgType] = useState('error')
+  const [activeSession, setActiveSession] = useState(null)
+  const [affiliationOpen, setAffiliationOpen] = useState(false)
+
+  useEffect(() => {
+    let active = true
+    ;(async () => {
+      try {
+        const { data } = await db().auth.getSession()
+        const sessionUser = data.session?.user
+        if (!sessionUser) return
+        const { data: perfil } = await db()
+          .from('perfiles')
+          .select('rol,activo')
+          .eq('id', sessionUser.id)
+          .single()
+        if (!active || !perfil?.activo) return
+        const target = ROLE_ROUTES[perfil.rol]
+        if (target) {
+          setActiveSession({
+            email: sessionUser.email,
+            path: target.path,
+            roleLabel: target.label,
+          })
+        }
+      } catch {
+        // Sin sesión previa activa
+      }
+    })()
+    return () => {
+      active = false
+    }
+  }, [])
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -33,6 +77,7 @@ export default function LoginPage() {
       else if (perfil.rol === 'chofer_repartidor' || perfil.rol === 'planta_operador') navigate('/gasero')
       else navigate('/')
     } catch (err) {
+      setMsgType('error')
       setMsg(friendlyError(err))
     } finally {
       setLoading(false)
@@ -41,6 +86,7 @@ export default function LoginPage() {
 
   const recover = async () => {
     if (!email.trim()) {
+      setMsgType('error')
       setMsg('Escribe tu correo para recuperar tu contraseña.')
       return
     }
@@ -49,16 +95,27 @@ export default function LoginPage() {
         redirectTo: `${window.location.origin}/recuperar`,
       })
       if (error) throw error
-      setMsg('Revisa tu correo para continuar.')
+      setMsgType('success')
+      setMsg('Revisa tu correo para continuar con el restablecimiento.')
     } catch (err) {
+      setMsgType('error')
       setMsg(friendlyError(err))
+    }
+  }
+
+  const checkCaps = (e) => {
+    if (typeof e.getModifierState === 'function') {
+      setCapsLock(e.getModifierState('CapsLock'))
     }
   }
 
   return (
     <div className="login-split">
       {loading && <Preloader overlay label="Ingresando al sistema SYSGAS…" />}
+
       <aside className="login-split__brand">
+        <HeroWaveGrid variant="hero" />
+
         <Link to="/" className="login-split__logo">
           <img
             src="/images/logos/sysgas_logo_monochrome_white.png"
@@ -74,9 +131,18 @@ export default function LoginPage() {
             Distribuidoras afiliadas y repartidores ingresan desde aquí a su panel operativo.
           </p>
           <ul className="login-split__points">
-            <li><i className="bi bi-check2" /> Control de inventario y trazabilidad QR</li>
-            <li><i className="bi bi-check2" /> Gestión de pedidos, rutas y cobros</li>
-            <li><i className="bi bi-check2" /> Operación de flota y entregas en ruta</li>
+            <li className="sys-morph-trigger">
+              <MorphIcon base="bi-qr-code" active="bi-qr-code-scan" className="login-split__point-icon" />
+              <span>Control de inventario y trazabilidad QR</span>
+            </li>
+            <li className="sys-morph-trigger">
+              <MorphIcon base="bi-clipboard-check" active="bi-clipboard2-check-fill" className="login-split__point-icon" />
+              <span>Gestión de pedidos, rutas y cobros</span>
+            </li>
+            <li className="sys-morph-trigger">
+              <MorphIcon base="bi-truck" active="bi-truck-front-fill" className="login-split__point-icon" />
+              <span>Operación de flota y entregas en ruta</span>
+            </li>
           </ul>
         </div>
 
@@ -88,6 +154,24 @@ export default function LoginPage() {
 
       <main className="login-split__main">
         <div className="login-form-wrap">
+          {activeSession && (
+            <div className="login-session-card">
+              <div className="login-session-card__info">
+                <span className="login-session-card__kicker">Sesión activa</span>
+                <strong className="login-session-card__email">{activeSession.email}</strong>
+                <span className="login-session-card__role">{activeSession.roleLabel}</span>
+              </div>
+              <button
+                type="button"
+                className="login-session-card__btn"
+                onClick={() => navigate(activeSession.path)}
+              >
+                <span>Continuar</span>
+                <i className="bi bi-arrow-right" />
+              </button>
+            </div>
+          )}
+
           <div className="login-form-wrap__head">
             <h1 className="login-form-wrap__title">Iniciar sesión</h1>
             <p className="login-form-wrap__sub">
@@ -134,6 +218,8 @@ export default function LoginPage() {
                   placeholder="••••••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
+                  onKeyUp={checkCaps}
+                  onKeyDown={checkCaps}
                   required
                 />
                 <button
@@ -145,11 +231,22 @@ export default function LoginPage() {
                   <i className={`bi ${showPass ? 'bi-eye-slash' : 'bi-eye'}`} />
                 </button>
               </div>
+              {capsLock && (
+                <p className="login-card__caps" role="status">
+                  <i className="bi bi-capslock-fill" />
+                  <span>Bloq Mayús activado</span>
+                </p>
+              )}
             </div>
 
             {msg && (
-              <div className="login-card__alert" role="status">
-                <i className="bi bi-info-circle-fill" />
+              <div
+                className={`login-card__alert ${
+                  msgType === 'success' ? 'login-card__alert--success' : 'login-card__alert--error'
+                }`}
+                role="status"
+              >
+                <i className={`bi ${msgType === 'success' ? 'bi-check-circle-fill' : 'bi-exclamation-circle-fill'}`} />
                 <span>{msg}</span>
               </div>
             )}
@@ -168,11 +265,22 @@ export default function LoginPage() {
 
           <div className="login-form-wrap__links">
             <p>
-              ¿Tu empresa aún no está afiliada? <Link to="/#empresas">Solicitar afiliación</Link>
+              ¿Tu empresa aún no está afiliada?{' '}
+              <button
+                type="button"
+                className="login-form-wrap__aff-btn"
+                onClick={() => setAffiliationOpen(true)}
+              >
+                Solicitar afiliación
+              </button>
             </p>
           </div>
         </div>
       </main>
+
+      {affiliationOpen && (
+        <AffiliationModal onClose={() => setAffiliationOpen(false)} />
+      )}
     </div>
   )
 }

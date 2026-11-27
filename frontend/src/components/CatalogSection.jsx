@@ -6,9 +6,9 @@ export default function CatalogSection({ onSelectProduct }) {
   const { products, error, loading } = useCatalog()
   const handleSelect = (capacity) => {
     if (onSelectProduct) onSelectProduct(capacity)
-    const contactEl = document.getElementById('contacto')
-    if (contactEl) {
-      contactEl.scrollIntoView({ behavior: 'smooth' })
+    const appEl = document.getElementById('app-movil')
+    if (appEl) {
+      appEl.scrollIntoView({ behavior: 'smooth' })
     }
   }
 

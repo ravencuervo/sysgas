@@ -49,7 +49,7 @@ export default function LifecycleTimeline() {
         </div>
 
         <div className="px-steps__cta reveal reveal-delay-4">
-          <a href="#contacto" className="btn btn-primary">
+          <a href="#app-movil" className="btn btn-primary">
             <span>Pedir Mi Balón Ahora</span>
             <i className="bi bi-arrow-right" />
           </a>
