@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react'
 import { Link, Routes, Route, useLocation } from 'react-router-dom'
 import ProtectedRoute from './components/ProtectedRoute.jsx'
 import Preloader from './components/Preloader.jsx'
+import ScrollProgressBar from './components/ScrollProgressBar.jsx'
 const Landing = lazy(() => import('./pages/Landing.jsx'))
 const Register = lazy(() => import('./pages/Register.jsx'))
 const CompanyPanel = lazy(() => import('./pages/CompanyPanel.jsx'))
@@ -26,6 +27,7 @@ export default function App() {
 
   return (
     <Suspense fallback={<Preloader label="Cargando SYSGAS…" />}>
+      <ScrollProgressBar />
       <div key={location.pathname} className="route-transition">
         <Routes location={location}>
           <Route path="/" element={<Landing />} />

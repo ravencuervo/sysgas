@@ -1,7 +1,10 @@
-import { useState } from 'react'
-import EnterpriseTruck3D from './EnterpriseTruck3D.jsx'
+import { lazy, useState } from 'react'
 import AffiliationModal from './AffiliationModal.jsx'
+import Lazy3DStage from './Lazy3DStage.jsx'
+import MorphIcon from './MorphIcon.jsx'
 import './EnterpriseSection.css'
+
+const EnterpriseTruck3D = lazy(() => import('./EnterpriseTruck3D.jsx'))
 
 export default function EnterpriseSection() {
   const [modalOpen, setModalOpen] = useState(false)
@@ -18,7 +21,7 @@ export default function EnterpriseSection() {
 
         <div className="px-enterprise__grid">
           <div className="px-enterprise__module reveal reveal-delay-1">
-            <i className="bi bi-truck-front-fill px-enterprise__icon" />
+            <MorphIcon base="bi-truck" active="bi-truck-front-fill" className="px-enterprise__icon" />
             <h3 className="px-enterprise__card-title">Despacho y telemetría en ruta</h3>
             <p className="px-enterprise__card-desc">
               Asigna pedidos a tus repartidores y consulta la ubicación que comparten durante una entrega activa.
@@ -31,7 +34,7 @@ export default function EnterpriseSection() {
           </div>
 
           <div className="px-enterprise__module reveal reveal-delay-2">
-            <i className="bi bi-qr-code-scan px-enterprise__icon" />
+            <MorphIcon base="bi-qr-code" active="bi-qr-code-scan" className="px-enterprise__icon" />
             <h3 className="px-enterprise__card-title">Trazabilidad anti-pérdidas</h3>
             <p className="px-enterprise__card-desc">
               Cada balón posee un número de serie y QR único para auditar quién cargó el cilindro, a quién se entregó y si el vacío fue recuperado.
@@ -44,7 +47,7 @@ export default function EnterpriseSection() {
           </div>
 
           <div className="px-enterprise__module reveal reveal-delay-3">
-            <i className="bi bi-receipt-cutoff px-enterprise__icon" />
+            <MorphIcon base="bi-receipt" active="bi-receipt-cutoff" className="px-enterprise__icon" />
             <h3 className="px-enterprise__card-title">Panel web de reparto y cobros</h3>
             <p className="px-enterprise__card-desc">
               Tus repartidores registran el peso medido desde el panel web, consultan entregas y generan notas de venta internas.
@@ -59,7 +62,9 @@ export default function EnterpriseSection() {
 
         <div className="px-enterprise__pilot-row reveal">
           <div className="px-enterprise__truck-stage">
-            <EnterpriseTruck3D />
+            <Lazy3DStage minHeight={360}>
+              <EnterpriseTruck3D />
+            </Lazy3DStage>
             <div className="px-enterprise__3d-hint">
               <i className="bi bi-arrow-repeat" />
               <span>Gira el camión de flota en 3D</span>

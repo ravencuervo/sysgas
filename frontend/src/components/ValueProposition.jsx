@@ -1,20 +1,24 @@
+import MorphIcon from './MorphIcon.jsx'
 import './ValueProposition.css'
 
 const FEATURES = [
   {
-    icon: 'bi-speedometer2',
+    baseIcon: 'bi-speedometer',
+    activeIcon: 'bi-speedometer2',
     title: 'Registro de peso en la entrega',
     desc: 'Consulta la tara y el peso registrado por el repartidor al entregar tu balón.',
     highlight: 'Peso neto calculado',
   },
   {
-    icon: 'bi-shield-fill-check',
+    baseIcon: 'bi-shield-check',
+    activeIcon: 'bi-shield-fill-check',
     title: 'Historial del balón',
     desc: 'Consulta los eventos de llenado, inspección y entrega registrados por la distribuidora.',
     highlight: 'Consulta mediante QR',
   },
   {
-    icon: 'bi-lightning-charge-fill',
+    baseIcon: 'bi-lightning-charge',
+    activeIcon: 'bi-lightning-charge-fill',
     title: 'Despacho rápido a tu zona',
     desc: 'La empresa recibe tu pedido y asigna un repartidor para coordinar la entrega.',
     highlight: 'Atención según cobertura',
@@ -39,7 +43,11 @@ export default function ValueProposition() {
                 key={item.title}
                 className={`px-value__row reveal reveal-delay-${idx + 1}`}
               >
-                <i className={`bi ${item.icon} px-value__icon`} />
+                <MorphIcon
+                  base={item.baseIcon}
+                  active={item.activeIcon}
+                  className="px-value__icon"
+                />
                 <div className="px-value__content">
                   <div className="px-value__row-head">
                     <h3 className="px-value__title">{item.title}</h3>

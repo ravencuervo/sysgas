@@ -1,5 +1,9 @@
-import Phone3DModel from './Phone3DModel.jsx'
+import { lazy } from 'react'
+import Lazy3DStage from './Lazy3DStage.jsx'
+import MorphIcon from './MorphIcon.jsx'
 import './MobileAppTeaser.css'
+
+const Phone3DModel = lazy(() => import('./Phone3DModel.jsx'))
 
 export default function MobileAppTeaser() {
   return (
@@ -16,7 +20,7 @@ export default function MobileAppTeaser() {
           <div className="px-app__info reveal reveal-delay-1">
             <div className="px-app__feature-list">
               <div className="px-app__feature-item">
-                <i className="bi bi-geo-alt-fill px-app__feature-icon" />
+                <MorphIcon base="bi-geo-alt" active="bi-geo-alt-fill" className="px-app__feature-icon" />
                 <div>
                   <h3 className="px-app__feature-title">Seguimiento del pedido</h3>
                   <p className="px-app__feature-desc">
@@ -26,7 +30,7 @@ export default function MobileAppTeaser() {
               </div>
 
               <div className="px-app__feature-item">
-                <i className="bi bi-fingerprint px-app__feature-icon" />
+                <MorphIcon base="bi-clock-history" active="bi-journal-check" className="px-app__feature-icon" />
                 <div>
                   <h3 className="px-app__feature-title">Historial de pedidos</h3>
                   <p className="px-app__feature-desc">
@@ -36,7 +40,7 @@ export default function MobileAppTeaser() {
               </div>
 
               <div className="px-app__feature-item">
-                <i className="bi bi-patch-check-fill px-app__feature-icon" />
+                <MorphIcon base="bi-patch-check" active="bi-patch-check-fill" className="px-app__feature-icon" />
                 <div>
                   <h3 className="px-app__feature-title">Registro de pesaje</h3>
                   <p className="px-app__feature-desc">
@@ -70,7 +74,9 @@ export default function MobileAppTeaser() {
 
           <div className="px-app__phone-col reveal reveal-delay-2">
             <div className="px-app__3d-container">
-              <Phone3DModel />
+              <Lazy3DStage minHeight={520}>
+                <Phone3DModel />
+              </Lazy3DStage>
               <div className="px-app__3d-hint">
                 <i className="bi bi-arrow-repeat" />
                 <span>Gira el teléfono en 3D</span>

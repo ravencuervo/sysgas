@@ -1,6 +1,8 @@
-import GasCylinderModel from './GasCylinderModel.jsx'
+import { lazy, Suspense } from 'react'
 import HeroWaveGrid from './HeroWaveGrid.jsx'
 import './HeroSection.css'
+
+const GasCylinderModel = lazy(() => import('./GasCylinderModel.jsx'))
 
 export default function HeroSection() {
   return (
@@ -18,7 +20,9 @@ export default function HeroSection() {
         <div className="sys-hero__stage">
           <div className="sys-hero__cylinder-wrapper">
             <div className="sys-hero__3d-box">
-              <GasCylinderModel />
+              <Suspense fallback={null}>
+                <GasCylinderModel />
+              </Suspense>
             </div>
           </div>
         </div>

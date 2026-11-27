@@ -424,3 +424,86 @@
   }
 }
 
+
+
+/* Barra de Progreso de Scroll Superior */
+.sys-scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 3px;
+  z-index: 9999;
+  pointer-events: none;
+  background-color: transparent;
+}
+
+.sys-scroll-progress__fill {
+  width: 100%;
+  height: 100%;
+  background-color: var(--bg-white);
+  transform-origin: left center;
+  transform: scaleX(0);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  will-change: transform;
+}
+
+/* Iconos con Morphing Suave al Hover */
+.sys-morph-icon {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25em;
+  height: 1.25em;
+  line-height: 1;
+}
+
+.sys-morph-icon__layer {
+  position: absolute;
+  inset: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition:
+    opacity 0.28s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.34s cubic-bezier(0.34, 1.56, 0.64, 1);
+  will-change: transform, opacity;
+}
+
+.sys-morph-icon__layer--base {
+  opacity: 1;
+  transform: scale(1) rotate(0deg);
+}
+
+.sys-morph-icon__layer--active {
+  opacity: 0;
+  transform: scale(0.76) rotate(-10deg);
+}
+
+.px-value__row:hover .sys-morph-icon__layer--base,
+.px-app__feature-item:hover .sys-morph-icon__layer--base,
+.px-enterprise__module:hover .sys-morph-icon__layer--base,
+.sys-morph-trigger:hover .sys-morph-icon__layer--base {
+  opacity: 0;
+  transform: scale(0.78) rotate(8deg);
+}
+
+.px-value__row:hover .sys-morph-icon__layer--active,
+.px-app__feature-item:hover .sys-morph-icon__layer--active,
+.px-enterprise__module:hover .sys-morph-icon__layer--active,
+.sys-morph-trigger:hover .sys-morph-icon__layer--active {
+  opacity: 1;
+  transform: scale(1.1) rotate(0deg);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .sys-morph-icon__layer,
+  .sys-preloader__logo,
+  .sys-preloader__dots span {
+    animation: none !important;
+    transition: none !important;
+  }
+}
