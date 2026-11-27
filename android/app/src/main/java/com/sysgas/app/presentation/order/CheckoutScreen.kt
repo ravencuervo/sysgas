@@ -105,10 +105,24 @@ fun CheckoutScreen(
         }
     }
 
-    var customerName by remember { mutableStateOf("") }
-    var customerPhone by remember { mutableStateOf("") }
-    var addressText by remember { mutableStateOf("") }
-    var addressReference by remember { mutableStateOf("") }
+    val userMeta = remember {
+        com.sysgas.app.core.network.SupabaseClientProvider.client.pluginManager
+            .getPluginOrNull(io.github.jan.supabase.auth.Auth)
+            ?.currentUserOrNull()
+            ?.userMetadata
+    }
+    var customerName by remember {
+        mutableStateOf(userMeta?.get("full_name")?.toString()?.trim('"') ?: "")
+    }
+    var customerPhone by remember {
+        mutableStateOf(userMeta?.get("telefono")?.toString()?.trim('"') ?: "")
+    }
+    var addressText by remember {
+        mutableStateOf(userMeta?.get("direccion")?.toString()?.trim('"') ?: "")
+    }
+    var addressReference by remember {
+        mutableStateOf(userMeta?.get("referencia")?.toString()?.trim('"') ?: "")
+    }
     val selectedCity = "Puno"
     var selectedPayment by remember { mutableStateOf(PaymentMethod.YAPE) }
     var isYapeSimulatedApproved by remember { mutableStateOf(false) }

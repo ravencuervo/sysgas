@@ -296,7 +296,7 @@ private fun HomeOverviewStage(
                     icon = Icons.Outlined.Storefront,
                     label = "Empresas",
                     highlighted = false,
-                    onClick = { onOrderWithDistributor(distributors.first()) }
+                    onClick = onQuickOrder
                 )
                 QuickCircleAction(
                     icon = Icons.Outlined.ReceiptLong,

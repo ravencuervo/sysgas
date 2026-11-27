@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.ExitToApp
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Payments
@@ -32,11 +33,16 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -49,8 +55,11 @@ import com.sysgas.app.ui.theme.JadeDark
 import com.sysgas.app.ui.theme.JadeMint
 import com.sysgas.app.ui.theme.JadePrimary
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.jsonPrimitive
+import kotlinx.serialization.json.put
 
 @Composable
 fun ProfileScreen(
@@ -60,11 +69,21 @@ fun ProfileScreen(
     val client = remember { SupabaseClientProvider.client }
     val user = remember { client.auth.currentUserOrNull() }
     val coroutineScope = rememberCoroutineScope()
-    val metaName = user?.userMetadata?.get("full_name")?.jsonPrimitive?.content
+    val initialName = user?.userMetadata?.get("full_name")?.jsonPrimitive?.content
         ?: user?.userMetadata?.get("nombres")?.jsonPrimitive?.content
         ?: "Cliente SYSGAS"
     val userEmail = user?.email ?: "Sin correo registrado"
-    val userPhone = user?.userMetadata?.get("telefono")?.jsonPrimitive?.content ?: "No registrado"
+    val initialPhone = user?.userMetadata?.get("telefono")?.jsonPrimitive?.content ?: ""
+    val initialAddress = user?.userMetadata?.get("direccion")?.jsonPrimitive?.content ?: ""
+    val initialReference = user?.userMetadata?.get("referencia")?.jsonPrimitive?.content ?: ""
+
+    var displayName by remember { mutableStateOf(initialName) }
+    var displayPhone by remember { mutableStateOf(initialPhone) }
+    var displayAddress by remember { mutableStateOf(initialAddress) }
+    var displayReference by remember { mutableStateOf(initialReference) }
+    var isEditing by remember { mutableStateOf(false) }
+    var isSaving by remember { mutableStateOf(false) }
+    var saveMessage by remember { mutableStateOf<String?>(null) }
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -134,7 +153,7 @@ fun ProfileScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = metaName,
+                        text = displayName,
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F2E22)
@@ -176,18 +195,44 @@ fun ProfileScreen(
             }
         }
 
-        // ─── Datos de Contacto y Entrega ───
+        // ─── Datos de Contacto y Entrega (Editables) ───
         item {
             Spacer(modifier = Modifier.height(20.dp))
-            Text(
-                text = "DATOS PARA EL MOTORIZADO EN PUNO",
-                style = MaterialTheme.typography.labelMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color.Gray,
-                    letterSpacing = 1.sp
-                ),
-                modifier = Modifier.padding(start = 4.dp, bottom = 8.dp)
-            )
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 4.dp, vertical = 4.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = "DATOS PARA EL MOTORIZADO EN PUNO",
+                    style = MaterialTheme.typography.labelMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Gray,
+                        letterSpacing = 1.sp
+                    )
+                )
+                androidx.compose.material3.TextButton(
+                    onClick = {
+                        isEditing = !isEditing
+                        saveMessage = null
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Edit,
+                        contentDescription = null,
+                        tint = JadePrimary,
+                        modifier = Modifier.size(16.dp)
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = if (isEditing) "Cancelar" else "Editar",
+                        color = JadeDark,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            }
 
             Card(
                 shape = RoundedCornerShape(16.dp),
@@ -196,52 +241,160 @@ fun ProfileScreen(
                 modifier = Modifier.fillMaxWidth()
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Phone,
-                            contentDescription = null,
-                            tint = JadePrimary,
-                            modifier = Modifier.size(20.dp)
+                    if (isEditing) {
+                        OutlinedTextField(
+                            value = displayName,
+                            onValueChange = { displayName = it },
+                            label = { Text("Nombre completo") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        OutlinedTextField(
+                            value = displayPhone,
+                            onValueChange = { displayPhone = it.filter { c -> c.isDigit() || c == '+' }.take(15) },
+                            label = { Text("Celular de contacto") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        OutlinedTextField(
+                            value = displayAddress,
+                            onValueChange = { displayAddress = it },
+                            label = { Text("Dirección de entrega") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        Spacer(modifier = Modifier.height(10.dp))
+                        OutlinedTextField(
+                            value = displayReference,
+                            onValueChange = { displayReference = it },
+                            label = { Text("Referencia") },
+                            singleLine = true,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp)
+                        )
+                        Spacer(modifier = Modifier.height(14.dp))
+                        Button(
+                            onClick = {
+                                if (isSaving) return@Button
+                                isSaving = true
+                                saveMessage = null
+                                coroutineScope.launch {
+                                    runCatching {
+                                        val cleanName = displayName.trim().ifBlank { "Cliente SYSGAS" }
+                                        val parts = cleanName.split(" ", limit = 2)
+                                        client.auth.updateUser {
+                                            data = buildJsonObject {
+                                                put("full_name", cleanName)
+                                                put("nombres", parts.getOrElse(0) { cleanName })
+                                                put("apellidos", parts.getOrElse(1) { "" })
+                                                put("telefono", displayPhone.trim())
+                                                put("direccion", displayAddress.trim())
+                                                put("referencia", displayReference.trim())
+                                            }
+                                        }
+                                        user?.id?.let { uid ->
+                                            client.from("perfiles").update(
+                                                mapOf(
+                                                    "nombres" to parts.getOrElse(0) { cleanName },
+                                                    "apellidos" to parts.getOrElse(1) { "" },
+                                                    "telefono" to displayPhone.trim()
+                                                )
+                                            ) {
+                                                filter { eq("id", uid) }
+                                            }
+                                        }
+                                    }.onSuccess {
+                                        isEditing = false
+                                        saveMessage = "Perfil actualizado correctamente."
+                                    }.onFailure {
+                                        saveMessage = "No se pudo guardar los cambios. Intenta nuevamente."
+                                    }
+                                    isSaving = false
+                                }
+                            },
+                            enabled = !isSaving,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(48.dp),
+                            shape = RoundedCornerShape(12.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = JadePrimary)
+                        ) {
                             Text(
-                                text = "Celular de Contacto",
-                                style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
+                                text = if (isSaving) "Guardando…" else "Guardar cambios",
+                                color = Color.White,
+                                fontWeight = FontWeight.Bold
                             )
-                            Text(
-                                text = userPhone,
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF1E293B)
+                        }
+                    } else {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Phone,
+                                contentDescription = null,
+                                tint = JadePrimary,
+                                modifier = Modifier.size(20.dp)
+                            )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "Celular de Contacto",
+                                    style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
                                 )
+                                Text(
+                                    text = displayPhone.ifBlank { "No registrado (toca Editar)" },
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF1E293B)
+                                    )
+                                )
+                            }
+                        }
+
+                        Spacer(modifier = Modifier.height(14.dp))
+
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Icon(
+                                imageVector = Icons.Default.Home,
+                                contentDescription = null,
+                                tint = JadePrimary,
+                                modifier = Modifier.size(20.dp)
                             )
+                            Spacer(modifier = Modifier.width(12.dp))
+                            Column {
+                                Text(
+                                    text = "Dirección de Entrega",
+                                    style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
+                                )
+                                Text(
+                                    text = displayAddress.ifBlank { "Puno · Cobertura SYSGAS" },
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color(0xFF1E293B)
+                                    )
+                                )
+                                if (displayReference.isNotBlank()) {
+                                    Text(
+                                        text = "Ref: $displayReference",
+                                        style = MaterialTheme.typography.labelSmall.copy(color = Color.DarkGray)
+                                    )
+                                }
+                            }
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(14.dp))
-
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Home,
-                            contentDescription = null,
-                            tint = JadePrimary,
-                            modifier = Modifier.size(20.dp)
+                    if (saveMessage != null) {
+                        Spacer(modifier = Modifier.height(10.dp))
+                        Text(
+                            text = saveMessage!!,
+                            style = MaterialTheme.typography.bodySmall.copy(
+                                color = JadeDark,
+                                fontWeight = FontWeight.SemiBold
+                            )
                         )
-                        Spacer(modifier = Modifier.width(12.dp))
-                        Column {
-                            Text(
-                                text = "Zona de Cobertura",
-                                style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
-                            )
-                            Text(
-                                text = "Puno · Cobertura SYSGAS",
-                                style = MaterialTheme.typography.bodyMedium.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color(0xFF1E293B)
-                                )
-                            )
-                        }
                     }
                 }
             }
