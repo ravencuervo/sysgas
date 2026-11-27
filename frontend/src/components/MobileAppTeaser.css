@@ -16,7 +16,6 @@
   align-items: center;
 }
 
-/* Lista de Características */
 .px-app__feature-list {
   display: flex;
   flex-direction: column;
@@ -26,29 +25,28 @@
 
 .px-app__feature-item {
   display: flex;
-  gap: 18px;
+  gap: 16px;
   align-items: flex-start;
 }
 
 .px-app__feature-icon {
-  width: 48px;
-  height: 48px;
-  border-radius: var(--radius-md);
-  background-color: var(--jade-mint);
-  border: 1px solid var(--jade-primary);
-  color: var(--jade-dark);
+  color: var(--jade-primary);
   font-size: 1.35rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   flex-shrink: 0;
+  margin-top: 2px;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), color 0.22s ease;
+}
+
+.px-app__feature-item:hover .px-app__feature-icon {
+  transform: translateY(-2px) scale(1.12);
+  color: var(--jade-dark);
 }
 
 .px-app__feature-title {
-  font-size: 1.15rem;
+  font-size: 1.1rem;
   font-weight: 800;
   color: var(--text-title);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .px-app__feature-desc {
@@ -57,162 +55,46 @@
   line-height: 1.6;
 }
 
-/* ─── Tarjeta de Descarga Oficial ─── */
-.px-app__download-card {
-  background-color: #F6FAF8;
-  border: 1.5px solid #D6E4DC;
-  border-radius: var(--radius-lg);
-  padding: clamp(28px, 3.5vw, 36px);
-  box-shadow: 0 12px 32px rgba(0, 77, 54, 0.05);
-}
-
-.px-app__download-header {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.px-app__download-version {
-  font-family: var(--font-mono);
-  font-size: 0.8rem;
-  font-weight: 800;
-  color: var(--jade-dark);
+.px-app__web-cta {
+  padding-top: 28px;
+  border-top: 1px solid #E2EDE7;
 }
 
 .px-app__download-title {
-  font-size: 1.35rem;
-  font-weight: 900;
+  font-size: 1.25rem;
+  font-weight: 800;
   color: var(--text-title);
   margin-bottom: 8px;
-  letter-spacing: -0.01em;
 }
 
 .px-app__download-desc {
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   color: var(--text-body);
   line-height: 1.6;
-  margin-bottom: 24px;
-}
-
-/* Botones de Tienda / Descarga Directa */
-.px-app__download-buttons {
-  display: flex;
-  gap: 14px;
-  flex-wrap: wrap;
   margin-bottom: 20px;
+  max-width: 540px;
 }
 
-.px-app__store-btn {
-  flex: 1;
-  min-width: 170px;
-  display: inline-flex;
-  align-items: center;
-  gap: 14px;
-  padding: 12px 20px;
-  border-radius: var(--radius-md);
-  text-decoration: none;
-  transition: all var(--trans-fast);
-  box-sizing: border-box;
-}
-
-.px-app__store-btn i {
-  font-size: 1.8rem;
-  flex-shrink: 0;
-}
-
-.px-app__store-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.px-app__store-sub {
-  font-family: var(--font-mono);
-  font-size: 0.64rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.px-app__store-name {
-  font-family: 'Montserrat', sans-serif;
-  font-size: 1rem;
-  font-weight: 800;
-  line-height: 1.1;
-}
-
-/* Estilo Play Store: Fondo Oscuro Titanio */
-.px-app__store-btn--play {
-  background-color: #0A1B14;
-  color: #FFFFFF;
-  border: 1.5px solid #0A1B14;
-}
-
-.px-app__store-btn--play i {
-  color: #00D294;
-}
-
-.px-app__store-btn--play .px-app__store-sub {
-  color: #A3F5DC;
-}
-
-.px-app__store-btn--play:hover {
-  background-color: #004D36;
-  border-color: #00A878;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 77, 54, 0.2);
-}
-
-/* Estilo Descarga Directa: Jade Sólido */
-.px-app__store-btn--direct {
-  background-color: var(--jade-primary);
-  color: #FFFFFF;
-  border: 1.5px solid var(--jade-primary);
-}
-
-.px-app__store-btn--direct i {
-  color: #FFFFFF;
-}
-
-.px-app__store-btn--direct .px-app__store-sub {
-  color: #E4F5EE;
-}
-
-.px-app__store-btn--direct:hover {
-  background-color: var(--jade-dark);
-  border-color: var(--jade-dark);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 168, 120, 0.25);
-}
-
-/* Insignias de Seguridad */
-.px-app__download-badges {
+.px-app__download-actions {
   display: flex;
   align-items: center;
   gap: 20px;
   flex-wrap: wrap;
-  padding-top: 14px;
-  border-top: 1px solid #D6E4DC;
-  font-family: var(--font-mono);
-  font-size: 0.74rem;
+}
+
+.px-app__secondary-link {
+  font-size: 0.92rem;
   font-weight: 700;
-  color: var(--text-muted);
+  color: var(--jade-dark);
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  transition: color var(--trans-fast);
 }
 
-.px-app__download-badges span {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.px-app__secondary-link:hover {
+  color: var(--jade-deepest);
 }
 
-.px-app__download-badges i {
-  color: var(--jade-primary);
-  font-size: 0.9rem;
-}
-
-/* ─── Columna Derecha: Modelo 3D con Three.js ─── */
 .px-app__phone-col {
   display: flex;
   justify-content: center;
@@ -226,37 +108,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  position: relative;
 }
 
 .px-app__3d-hint {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--jade-deepest);
-  background-color: var(--jade-mint);
-  border: 1px solid var(--jade-primary);
-  padding: 5px 14px;
-  border-radius: var(--radius-pill);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
   margin-top: 10px;
   pointer-events: none;
 }
 
 .px-app__3d-hint i {
   color: var(--jade-primary);
-  font-size: 0.85rem;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 992px) {
   .px-app__layout {
     grid-template-columns: 1fr;
-  }
-  .px-app__download-buttons {
-    flex-direction: column;
   }
 }

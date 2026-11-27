@@ -6,57 +6,61 @@
 }
 
 .px-steps__header {
-  margin-bottom: clamp(36px, 5vw, 56px);
+  margin-bottom: clamp(40px, 5vw, 64px);
 }
 
 .px-steps__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: clamp(24px, 3vw, 36px);
+  gap: clamp(28px, 4vw, 48px);
   margin-bottom: clamp(40px, 5vw, 56px);
 }
 
-.px-steps__card {
+.px-steps__item {
   display: flex;
   flex-direction: column;
-  padding: clamp(28px, 3.5vw, 40px);
-  background-color: #FFFFFF;
+  padding-top: 24px;
+  border-top: 2px solid #D6E4DC;
+  transition: border-color 0.22s ease;
+}
+
+.px-steps__item:hover {
+  border-top-color: var(--jade-primary);
 }
 
 .px-steps__top {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 24px;
+  align-items: baseline;
+  margin-bottom: 18px;
 }
 
 .px-steps__num {
-  font-family: var(--font-mono);
-  font-size: 1.5rem;
+  font-family: 'Montserrat', var(--font-main);
+  font-size: clamp(2rem, 3vw, 2.6rem);
   font-weight: 900;
   color: var(--jade-primary);
-  opacity: 0.9;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), color 0.22s ease;
 }
 
-.px-steps__icon-circle {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  background-color: var(--jade-mint);
-  border: 1px solid var(--jade-primary);
+.px-steps__item:hover .px-steps__num {
+  transform: translateX(4px);
   color: var(--jade-dark);
-  font-size: 1.6rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 24px;
+}
+
+.px-steps__meta {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--text-muted);
 }
 
 .px-steps__title {
-  font-size: clamp(1.2rem, 1.8vw, 1.45rem);
+  font-size: clamp(1.15rem, 1.7vw, 1.38rem);
   font-weight: 800;
   color: var(--text-title);
-  margin-bottom: 12px;
+  margin-bottom: 10px;
   line-height: 1.25;
 }
 
@@ -69,15 +73,11 @@
 
 .px-steps__cta {
   display: flex;
-  justify-content: center;
-  margin-top: 12px;
+  justify-content: flex-start;
 }
 
 @media (max-width: 992px) {
   .px-steps__grid {
     grid-template-columns: 1fr;
-    max-width: 500px;
-    margin-left: auto;
-    margin-right: auto;
   }
 }

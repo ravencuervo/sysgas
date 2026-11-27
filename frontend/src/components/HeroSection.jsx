@@ -20,10 +20,6 @@ export default function HeroSection() {
             <div className="sys-hero__3d-box">
               <GasCylinderModel />
             </div>
-            <div className="sys-hero__3d-hint">
-              <i className="bi bi-arrow-repeat" />
-              <span>Gira el balón 360°</span>
-            </div>
           </div>
         </div>
       </div>

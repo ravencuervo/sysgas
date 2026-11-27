@@ -11,7 +11,8 @@
 
 /* ─── 1. ZONA SUPERIOR: 3 COLUMNAS INSTITUCIONALES ─── */
 .px-footer-ref__top {
-  background-color: #062118; /* Verde oscuro profundo institucional */
+  background-color: #062118;
+  /* Verde oscuro profundo institucional */
   border-top: 2px solid #00A878;
   padding: clamp(54px, 7vw, 84px) 0 clamp(44px, 5vw, 68px) 0;
   color: #FFFFFF;
@@ -67,8 +68,13 @@
 }
 
 @keyframes rotateSeal {
-  from { transform: rotate(0deg); }
-  to   { transform: rotate(360deg); }
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 .px-footer-ref__seal-text {
@@ -209,7 +215,8 @@
 
 /* ─── 2. ZONA INFERIOR: FRANJA CONTRASTE PROFUNDO ─── */
 .px-footer-ref__bottom {
-  background-color: #030C08; /* Tono ultra oscuro de contraste */
+  background-color: #030C08;
+  /* Tono ultra oscuro de contraste */
   padding: 36px 0 28px 0;
   border-top: 1px solid rgba(255, 255, 255, 0.08);
   position: relative;
@@ -241,29 +248,7 @@
   user-select: none;
   cursor: default;
   display: inline-block;
-  text-shadow: none !important;
-  filter: none !important;
-  animation: sysgasFade 3.5s ease-in-out infinite;
-}
-
-@keyframes sysgasFade {
-  0%, 100% {
-    opacity: 0.2;
-    color: #007A57;
-    transform: scale(0.97);
-  }
-  50% {
-    opacity: 1;
-    color: #00D294;
-    transform: scale(1.01);
-  }
-}
-
-.px-footer-ref__brand-glow-text:hover {
-  animation-play-state: paused;
-  opacity: 1;
   color: #00D294;
-  text-shadow: none !important;
 }
 
 /* Líneas Legales Centrales */

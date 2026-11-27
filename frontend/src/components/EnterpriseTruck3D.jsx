@@ -56,9 +56,9 @@ export default function EnterpriseTruck3D() {
     })
 
     const darkCabMat = new THREE.MeshStandardMaterial({
-      color: 0x0A1B14,
+      color: 0x164A39,
       roughness: 0.35,
-      metalness: 0.4,
+      metalness: 0.35,
     })
 
     const windshieldMat = new THREE.MeshStandardMaterial({
@@ -68,9 +68,9 @@ export default function EnterpriseTruck3D() {
     })
 
     const chassisMat = new THREE.MeshStandardMaterial({
-      color: 0x151816,
-      roughness: 0.6,
-      metalness: 0.8,
+      color: 0x1D4D3D,
+      roughness: 0.55,
+      metalness: 0.5,
     })
 
     const tireMat = new THREE.MeshStandardMaterial({
@@ -228,9 +228,9 @@ export default function EnterpriseTruck3D() {
     // Plataforma Circular Tecnológica
     const basePlateGeo = new THREE.CylinderGeometry(2.8, 2.9, 0.08, 36)
     const basePlateMat = new THREE.MeshStandardMaterial({
-      color: 0x051C15,
-      roughness: 0.4,
-      metalness: 0.6,
+      color: 0x0A6849,
+      roughness: 0.45,
+      metalness: 0.3,
     })
     const basePlate = new THREE.Mesh(basePlateGeo, basePlateMat)
     basePlate.position.y = -0.04

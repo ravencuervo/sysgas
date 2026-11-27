@@ -15,59 +15,43 @@ export default function CatalogSection({ onSelectProduct }) {
   return (
     <section className="section px-catalog section--white" id="catalogo">
       <div className="container">
-        {/* Cabecera Limpia y Directa */}
         <div className="px-catalog__header reveal">
-          <div className="section-tag">
-            <span className="section-tag__num">01</span>
-            <span>CATÁLOGO SYSGAS</span>
-          </div>
           <h2 className="section-title">Elige tu cilindro y tu distribuidora.</h2>
           <p className="section-desc">
             Cada balón incluye garantía de peso exacto, precinto inviolable y pasaporte QR escaneable desde tu celular. Gira e inspecciona cada modelo en 3D con sus medidas oficiales.
           </p>
         </div>
 
-        {/* Grid de Productos Estilo Nike/Apple con Modelos 3D */}
         {loading && <p role="status">Cargando catálogo…</p>}
         {error && <p role="alert">{error}</p>}
         {!loading && !error && !products.length && <p>No hay productos disponibles por el momento.</p>}
+
         <div className="px-catalog__grid">
           {products.map((item, idx) => (
-            <div
+            <article
               key={item.capacity}
-              className={`px-catalog__card solid-card card-hover-lift reveal reveal-delay-${idx + 1} ${
-                item.popular ? 'px-catalog__card--popular' : ''
+              className={`px-catalog__item reveal reveal-delay-${idx + 1} ${
+                item.popular ? 'px-catalog__item--popular' : ''
               }`}
             >
-              {item.popular && (
-                <div className="px-catalog__ribbon">
-                  <span className="solid-badge solid-badge--jade"><i className="bi bi-star-fill" /> MÁS PEDIDO</span>
-                </div>
-              )}
-
-              <div className="px-catalog__card-top">
-                <div className="px-catalog__badge-icon">
-                  <i className={`bi ${item.icon}`} />
-                </div>
-                <div className="px-catalog__meta">
+              <div className="px-catalog__item-head">
+                <div>
                   <span className="px-catalog__capacity">{item.capacity}</span>
                   <span className="px-catalog__name">{item.name}</span>
                 </div>
+                {item.popular && <span className="px-catalog__popular-label">Más pedido</span>}
               </div>
 
-              {/* Visor 3D Interactivo con Medidas Reales Calibradas */}
-              <div className="px-catalog__3d-box">
+              <div className="px-catalog__3d-stage">
                 <div className="px-catalog__3d-canvas-wrap">
                   <CatalogCylinder3D capacity={item.capacity} />
                 </div>
-                <div className="px-catalog__3d-footer">
-                  <span className="px-catalog__3d-dim" title={`Medidas oficiales: ${item.dimensions}`}>
-                    <i className="bi bi-rulers" />
-                    <span>{item.dimensions}</span>
+                <div className="px-catalog__3d-meta">
+                  <span title={`Medidas oficiales: ${item.dimensions}`}>
+                    <i className="bi bi-rulers" /> {item.dimensions}
                   </span>
-                  <span className="px-catalog__3d-hint">
-                    <i className="bi bi-arrow-repeat" />
-                    <span>3D 360°</span>
+                  <span>
+                    <i className="bi bi-arrow-repeat" /> 3D 360°
                   </span>
                 </div>
               </div>
@@ -79,14 +63,14 @@ export default function CatalogSection({ onSelectProduct }) {
 
               <p className="px-catalog__ideal">{item.idealFor}</p>
 
-              <div className="px-catalog__specs-list">
+              <ul className="px-catalog__specs-list">
                 {item.specs.map((spec, i) => (
-                  <div key={i} className="px-catalog__spec-item">
-                    <i className="bi bi-check2-circle text-jade" />
+                  <li key={i} className="px-catalog__spec-item">
+                    <i className="bi bi-check2 text-jade" />
                     <span>{spec}</span>
-                  </div>
+                  </li>
                 ))}
-              </div>
+              </ul>
 
               <button
                 type="button"
@@ -96,11 +80,10 @@ export default function CatalogSection({ onSelectProduct }) {
                 <span>Pedir {item.capacity} Ahora</span>
                 <i className="bi bi-arrow-right" />
               </button>
-            </div>
+            </article>
           ))}
         </div>
 
-        {/* Barra de Confianza Apple-Style */}
         <div className="px-catalog__trust-bar reveal reveal-delay-4">
           <div className="px-catalog__trust-item">
             <i className="bi bi-clock-history text-jade" />

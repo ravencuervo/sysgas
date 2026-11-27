@@ -1,180 +1,94 @@
 import { useState } from 'react'
 import EnterpriseTruck3D from './EnterpriseTruck3D.jsx'
+import AffiliationModal from './AffiliationModal.jsx'
 import './EnterpriseSection.css'
 
 export default function EnterpriseSection() {
-  const [cylinderVolume, setCylinderVolume] = useState(2500)
-  const [whatsappUrl, setWhatsappUrl] = useState('')
-  function affiliate(e) {
-    e.preventDefault()
-    const fields = Object.fromEntries(new FormData(e.currentTarget))
-    const message = [
-      '¡Hola SYSGAS Puno! Deseo solicitar una prueba piloto para mi distribuidora.',
-      `Empresa: ${fields.nombre_empresa}`,
-      `Representante: ${fields.representante_nombre}`,
-      `Teléfono: ${fields.telefono}`,
-      `Correo: ${fields.correo}`,
-      `Volumen estimado: ${cylinderVolume} balones/mes.`,
-    ].join('\n')
-    setWhatsappUrl(`https://wa.me/51951667696?text=${encodeURIComponent(message)}`)
-  }
+  const [modalOpen, setModalOpen] = useState(false)
 
   return (
-    <section className="section px-enterprise section--alt" id="empresas">
+    <section className="section px-enterprise section--jade" id="empresas">
       <div className="container">
-        {/* Cabecera B2B */}
         <div className="px-enterprise__header reveal">
-          <div className="section-tag">
-            <span className="section-tag__num">04</span>
-            <span>PLATAFORMA B2B ENTERPRISE</span>
-          </div>
-          <h2 className="section-title">Impulsa tu distribuidora de gas con la tecnología SYSGAS.</h2>
+          <h2 className="section-title">Impulsa tu distribuidora de gas con SYSGAS.</h2>
           <p className="section-desc">
-            El sistema operativo para empresas distribuidoras, envasadoras y flotas de GLP en Puno y el sur del país. Controla tus camiones en tiempo real, elimina pérdidas de cilindros con pasaporte QR y digitaliza el cobro en puerta.
+            Sistema operativo para distribuidoras, envasadoras y flotas de GLP en Puno y el sur del país. Controla entregas, elimina pérdidas de cilindros con pasaporte QR y registra cobros en puerta.
           </p>
         </div>
 
-        {/* 3 Módulos de la Plataforma */}
         <div className="px-enterprise__grid">
-          {/* Card 1: Despacho y Telemetría */}
-          <div className="px-enterprise__card solid-card card-hover-lift reveal reveal-delay-1">
-            <div className="px-enterprise__icon-box">
-              <i className="bi bi-truck-front-fill" />
-            </div>
-            <h3 className="px-enterprise__card-title">Despacho &amp; Telemetría en Ruta</h3>
+          <div className="px-enterprise__module reveal reveal-delay-1">
+            <i className="bi bi-truck-front-fill px-enterprise__icon" />
+            <h3 className="px-enterprise__card-title">Despacho y telemetría en ruta</h3>
             <p className="px-enterprise__card-desc">
               Asigna pedidos a tus repartidores y consulta la ubicación que comparten durante una entrega activa.
             </p>
             <ul className="px-enterprise__bullet-list">
-              <li><i className="bi bi-check2-circle" /> Asignación de repartidor y vehículo</li>
-              <li><i className="bi bi-check2-circle" /> Ubicación durante la entrega</li>
-              <li><i className="bi bi-check2-circle" /> Registro de vehículos y fotos</li>
+              <li><i className="bi bi-check2" /> Asignación de repartidor y vehículo</li>
+              <li><i className="bi bi-check2" /> Ubicación durante la entrega</li>
+              <li><i className="bi bi-check2" /> Registro de vehículos y fotos</li>
             </ul>
           </div>
 
-          {/* Card 2: Control de Balones con QR */}
-          <div className="px-enterprise__card solid-card card-hover-lift reveal reveal-delay-2">
-            <div className="px-enterprise__icon-box">
-              <i className="bi bi-qr-code-scan" />
-            </div>
-            <h3 className="px-enterprise__card-title">Trazabilidad Anti-Pérdidas</h3>
+          <div className="px-enterprise__module reveal reveal-delay-2">
+            <i className="bi bi-qr-code-scan px-enterprise__icon" />
+            <h3 className="px-enterprise__card-title">Trazabilidad anti-pérdidas</h3>
             <p className="px-enterprise__card-desc">
-              Cada balón posee un número de serie y QR único. El sistema audita exactamente qué chofer cargó el cilindro, a qué cliente se entregó y si el cilindro vacío fue recuperado.
+              Cada balón posee un número de serie y QR único para auditar quién cargó el cilindro, a quién se entregó y si el vacío fue recuperado.
             </p>
             <ul className="px-enterprise__bullet-list">
-              <li><i className="bi bi-check2-circle" /> Registro de balones vacíos recuperados</li>
-              <li><i className="bi bi-check2-circle" /> Registro de fecha de prueba y tara de fábrica</li>
-              <li><i className="bi bi-check2-circle" /> Auditoría inmutable de inventario</li>
+              <li><i className="bi bi-check2" /> Registro de balones vacíos recuperados</li>
+              <li><i className="bi bi-check2" /> Fecha de prueba y tara de fábrica</li>
+              <li><i className="bi bi-check2" /> Auditoría de inventario</li>
             </ul>
           </div>
 
-          {/* Card 3: POS Móvil y Balanza Digital */}
-          <div className="px-enterprise__card solid-card card-hover-lift reveal reveal-delay-3">
-            <div className="px-enterprise__icon-box">
-              <i className="bi bi-receipt-cutoff" />
-            </div>
+          <div className="px-enterprise__module reveal reveal-delay-3">
+            <i className="bi bi-receipt-cutoff px-enterprise__icon" />
             <h3 className="px-enterprise__card-title">Panel web de reparto y cobros</h3>
             <p className="px-enterprise__card-desc">
-              Tus repartidores pueden registrar el peso medido desde el panel web. Consulta las entregas, registra los cobros recibidos y genera notas de venta internas.
+              Tus repartidores registran el peso medido desde el panel web, consultan entregas y generan notas de venta internas.
             </p>
             <ul className="px-enterprise__bullet-list">
-              <li><i className="bi bi-check2-circle" /> Validación obligatoria de peso antes de cobrar</li>
-              <li><i className="bi bi-check2-circle" /> Nota de venta interna</li>
-              <li><i className="bi bi-check2-circle" /> Reporte de cobros registrados</li>
+              <li><i className="bi bi-check2" /> Validación de peso antes de cobrar</li>
+              <li><i className="bi bi-check2" /> Nota de venta interna</li>
+              <li><i className="bi bi-check2" /> Reporte de cobros registrados</li>
             </ul>
           </div>
         </div>
 
-        {/* Módulo de Afiliación & Calculadora Interactiva de Rentabilidad (ROI) con Modelo 3D */}
-        <div className="px-enterprise__calculator reveal">
-          <div className="px-enterprise__calc-left">
-            <div className="px-enterprise__calc-header-tag">
-              <span className="status-pill">
-                <span className="status-dot" />
-                AFILIACIÓN DISPONIBLE EN PUNO
-              </span>
-              <span className="px-enterprise__tag-extra">RED GLP 2026</span>
-            </div>
-
-            <h3 className="px-enterprise__calc-title">Solicita tu afiliación a nuestro servicio</h3>
-            <p className="px-enterprise__calc-desc">
-              Conecta tu flota distribuidora al sistema inteligente de SYSGAS. Indica tu volumen mensual para preparar una prueba piloto con tu distribuidora.
-            </p>
-
-            {/* Modelo 3D del Camión de Distribución SYSGAS */}
-            <div className="px-enterprise__truck-3d-box">
-              <EnterpriseTruck3D cylinderVolume={cylinderVolume} />
-              <div className="px-enterprise__3d-hint">
-                <i className="bi bi-arrow-repeat" />
-                <span>Gira el camión de flota en 3D</span>
-              </div>
-            </div>
-
-            {/* Slider de Volumen */}
-            <div className="px-enterprise__slider-box">
-              <div className="px-enterprise__slider-label">
-                <span>Volumen mensual de tu flota:</span>
-                <strong className="px-enterprise__slider-val">{cylinderVolume.toLocaleString()} balones / mes</strong>
-              </div>
-              <input
-                type="range"
-                min="500"
-                max="10000"
-                step="250"
-                value={cylinderVolume}
-                onChange={(e) => setCylinderVolume(Number(e.target.value))}
-                className="px-enterprise__range"
-                aria-label="Volumen mensual de balones distribuidos"
-              />
-              <div className="px-enterprise__slider-ticks">
-                <span>500 balones</span>
-                <span>5,000 balones</span>
-                <span>10,000+ balones</span>
-              </div>
+        <div className="px-enterprise__pilot-row reveal">
+          <div className="px-enterprise__truck-stage">
+            <EnterpriseTruck3D />
+            <div className="px-enterprise__3d-hint">
+              <i className="bi bi-arrow-repeat" />
+              <span>Gira el camión de flota en 3D</span>
             </div>
           </div>
 
-          <div className="px-enterprise__calc-right">
-            <div className="px-enterprise__savings-box">
-              <h3>Prueba piloto con tu distribuidora</h3>
-              <p>Evaluaremos los balones recuperados, las entregas y los reclamos con datos de tu operación.</p>
-              <form className="px-enterprise__affiliation-form" onSubmit={affiliate}>
-                <div className="px-enterprise__form-field">
-                  <label htmlFor="affiliate-company">Empresa</label>
-                  <input id="affiliate-company" name="nombre_empresa" autoComplete="organization" required maxLength={150} />
-                </div>
-                <div className="px-enterprise__form-field">
-                  <label htmlFor="affiliate-representative">Representante</label>
-                  <input id="affiliate-representative" name="representante_nombre" autoComplete="name" required maxLength={120} />
-                </div>
-                <div className="px-enterprise__form-field">
-                  <label htmlFor="affiliate-phone">Teléfono</label>
-                  <input id="affiliate-phone" name="telefono" type="tel" autoComplete="tel" required maxLength={20} />
-                </div>
-                <div className="px-enterprise__form-field">
-                  <label htmlFor="affiliate-email">Correo</label>
-                  <input id="affiliate-email" name="correo" type="email" autoComplete="email" required maxLength={120} />
-                </div>
-                <button className="btn btn-primary px-enterprise__btn-affiliate" type="submit">
-                  <i className="bi bi-whatsapp" />
-                  <span>Preparar solicitud de afiliación</span>
-                </button>
-                {whatsappUrl && (
-                  <a className="btn btn-secondary px-enterprise__btn-whatsapp" href={whatsappUrl} target="_blank" rel="noopener noreferrer">
-                    Enviar solicitud por WhatsApp
-                    <i className="bi bi-arrow-up-right" />
-                  </a>
-                )}
-                <p className="px-enterprise__form-note" role="status" aria-live="polite">
-                  {whatsappUrl
-                    ? 'Revisa tus datos y continúa a WhatsApp para enviar la solicitud.'
-                    : 'Tus datos se incluirán en el mensaje de WhatsApp; este formulario no los guarda.'}
-                </p>
-              </form>
+          <div className="px-enterprise__pilot-info">
+            <h3 className="px-enterprise__calc-title">Afilia tu distribuidora a la red SYSGAS</h3>
+            <p className="px-enterprise__calc-desc">
+              Conecta tu flota al sistema para gestionar pedidos por zona, controlar el retorno de cilindros vacíos y emitir comprobantes internos desde un solo panel.
+            </p>
+
+            <div className="px-enterprise__cta-wrap">
+              <button
+                type="button"
+                className="btn px-enterprise__btn-affiliate"
+                onClick={() => setModalOpen(true)}
+              >
+                <span>Afiliar mi distribuidora</span>
+                <i className="bi bi-arrow-right" />
+              </button>
             </div>
           </div>
         </div>
       </div>
+
+      {modalOpen && (
+        <AffiliationModal onClose={() => setModalOpen(false)} />
+      )}
     </section>
   )
 }

@@ -5,29 +5,20 @@ export default function MobileAppTeaser() {
   return (
     <section className="section px-app section--white" id="app-movil">
       <div className="container">
-        {/* Cabecera Apple Style */}
         <div className="px-app__header reveal">
-          <div className="section-tag">
-            <span className="section-tag__num">03</span>
-            <span>PRÓXIMAMENTE EN ANDROID</span>
-          </div>
           <h2 className="section-title">SYSGAS también llegará a tu celular.</h2>
           <p className="section-desc">
             La aplicación Android está planificada para clientes, motorizados y operadores. Por ahora puedes utilizar SYSGAS desde el navegador de tu celular.
           </p>
         </div>
 
-        {/* Layout 2 Columnas: Beneficios + Teléfono 3D Three.js */}
         <div className="px-app__layout">
-          {/* Columna Izquierda: Características y Botones de Descarga */}
           <div className="px-app__info reveal reveal-delay-1">
             <div className="px-app__feature-list">
               <div className="px-app__feature-item">
-                <div className="px-app__feature-icon">
-                  <i className="bi bi-geo-alt-fill" />
-                </div>
+                <i className="bi bi-geo-alt-fill px-app__feature-icon" />
                 <div>
-                  <h4 className="px-app__feature-title">Seguimiento del pedido</h4>
+                  <h3 className="px-app__feature-title">Seguimiento del pedido</h3>
                   <p className="px-app__feature-desc">
                     Consulta en la web la última ubicación que tu repartidor comparta durante una entrega activa.
                   </p>
@@ -35,11 +26,9 @@ export default function MobileAppTeaser() {
               </div>
 
               <div className="px-app__feature-item">
-                <div className="px-app__feature-icon">
-                  <i className="bi bi-fingerprint" />
-                </div>
+                <i className="bi bi-fingerprint px-app__feature-icon" />
                 <div>
-                  <h4 className="px-app__feature-title">Historial de pedidos</h4>
+                  <h3 className="px-app__feature-title">Historial de pedidos</h3>
                   <p className="px-app__feature-desc">
                     Regístrate y consulta los pedidos asociados a tu cuenta desde el panel web.
                   </p>
@@ -47,11 +36,9 @@ export default function MobileAppTeaser() {
               </div>
 
               <div className="px-app__feature-item">
-                <div className="px-app__feature-icon">
-                  <i className="bi bi-patch-check-fill" />
-                </div>
+                <i className="bi bi-patch-check-fill px-app__feature-icon" />
                 <div>
-                  <h4 className="px-app__feature-title">Registro de pesaje</h4>
+                  <h3 className="px-app__feature-title">Registro de pesaje</h3>
                   <p className="px-app__feature-desc">
                     El repartidor registra la lectura de peso de la entrega. La conexión automática a balanzas se integrará por separado.
                   </p>
@@ -59,30 +46,23 @@ export default function MobileAppTeaser() {
               </div>
             </div>
 
-            {/* Caja de Descarga de la Aplicación */}
-            <div className="px-app__download-card">
-              <div className="px-app__download-header">
-                <span className="status-pill">
-                  <span className="status-dot" />
-                  VERSIÓN WEB DISPONIBLE
-                </span>
-                <span className="px-app__download-version">APK pendiente</span>
-              </div>
-
+            <div className="px-app__web-cta">
               <h3 className="px-app__download-title">Continúa desde la web</h3>
               <p className="px-app__download-desc">
-                No hay una APK publicada todavía. Realiza tu pedido y consulta los códigos QR desde esta web.
+                No hay una APK publicada todavía. Realiza tu pedido y consulta los códigos QR desde esta web adaptable a celular.
               </p>
-
-              <div className="px-app__download-buttons"><a href="#contacto" className="btn btn-primary">Pedir desde la web</a><a href="#qr-demo" className="btn btn-secondary">Consultar un balón</a></div>
-              <div className="px-app__download-badges">
-                <span><i className="bi bi-shield-check" /> Acceso según tu cuenta</span>
-                <span><i className="bi bi-phone" /> Web adaptable a celular</span>
+              <div className="px-app__download-actions">
+                <a href="#contacto" className="btn btn-primary">
+                  <span>Pedir desde la web</span>
+                  <i className="bi bi-arrow-right" />
+                </a>
+                <a href="#qr-demo" className="px-app__secondary-link">
+                  Ver pasaporte QR
+                </a>
               </div>
             </div>
           </div>
 
-          {/* Columna Derecha: Teléfono 3D Three.js */}
           <div className="px-app__phone-col reveal reveal-delay-2">
             <div className="px-app__3d-container">
               <Phone3DModel />

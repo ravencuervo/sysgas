@@ -13,7 +13,9 @@
 
   /* ─── Neutros Puros en Modo Claro / Blanco ─── */
   --bg-white:       #FFFFFF;   /* Fondo blanco puro */
-  --bg-primary:     #F6FAF8;   /* Fondo alternativo suave jade-blanco */
+  --bg-primary:     #EEF2F0;   /* Fondo blanco humo visible */
+  --bg-smoke:       #EEF2F0;   /* Blanco humo para alternar secciones */
+  --bg-jade:        #0d7d59;   /* Fondo verde jade consistente con el Hero */
   --bg-card:        #FFFFFF;   /* Superficie de cards */
   --bg-card-hover:  #F0F7F3;   /* Hover en cards */
   --bg-surface:     #E8F2EC;   /* Superficie de tabs, inputs y cajas */

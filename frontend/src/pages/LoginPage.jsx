@@ -2,6 +2,7 @@ import { friendlyError } from '../lib/forms'
 import { db } from '../lib/supabase'
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import Preloader from '../components/Preloader.jsx'
 import './LoginPage.css'
 
 export default function LoginPage() {
@@ -17,46 +18,84 @@ export default function LoginPage() {
     setLoading(true)
     setMsg('')
     try {
-      const { error } = await db().auth.signInWithPassword({ email: email.trim(), password })
+      const { data, error } = await db().auth.signInWithPassword({ email: email.trim(), password })
       if (error) throw error
-      navigate('/panel')
-    } catch (e) { setMsg(friendlyError(e)) }
-    finally { setLoading(false) }
+      const { data: perfil } = await db()
+        .from('perfiles')
+        .select('rol,activo')
+        .eq('id', data.user.id)
+        .single()
+      if (!perfil || !perfil.activo) {
+        throw new Error('Tu cuenta no está activa.')
+      }
+      if (perfil.rol === 'super_admin') navigate('/admin')
+      else if (perfil.rol === 'empresa_admin') navigate('/panel')
+      else if (perfil.rol === 'chofer_repartidor' || perfil.rol === 'planta_operador') navigate('/gasero')
+      else navigate('/')
+    } catch (err) {
+      setMsg(friendlyError(err))
+    } finally {
+      setLoading(false)
+    }
   }
 
   const recover = async () => {
-    if (!email) { setMsg('Escribe tu correo para recuperar tu contraseña.'); return }
+    if (!email.trim()) {
+      setMsg('Escribe tu correo para recuperar tu contraseña.')
+      return
+    }
     try {
-      const { error } = await db().auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/recuperar` })
+      const { error } = await db().auth.resetPasswordForEmail(email.trim(), {
+        redirectTo: `${window.location.origin}/recuperar`,
+      })
       if (error) throw error
       setMsg('Revisa tu correo para continuar.')
-    } catch (e) { setMsg(friendlyError(e)) }
+    } catch (err) {
+      setMsg(friendlyError(err))
+    }
   }
 
   return (
-    <div className="login-page">
-      {/* Contenedor Central */}
-      <main className="login-page__main">
-        <div className="login-card">
-          {/* Header del Card con Logo Oficial SYSGAS */}
-          <div className="login-card__header">
-            <Link to="/" className="login-card__icon-box" title="Volver a SYSGAS">
-              <img
-                src="/images/logos/sysgas_emblem.png"
-                alt="SYSGAS Logo"
-                className="login-card__logo-img"
-              />
-            </Link>
-            <h1 className="login-card__title">Acceso a la Plataforma</h1>
-            <p className="login-card__subtitle">
-              Acceso para clientes, empresas y trabajadores de SYSGAS
+    <div className="login-split">
+      {loading && <Preloader overlay label="Ingresando al sistema SYSGAS…" />}
+      <aside className="login-split__brand">
+        <Link to="/" className="login-split__logo">
+          <img
+            src="/images/logos/sysgas_logo_monochrome_white.png"
+            alt="SYSGAS"
+            className="login-split__logo-img"
+          />
+          <span>SYSGAS</span>
+        </Link>
+
+        <div className="login-split__hero">
+          <h2 className="login-split__headline">Un solo acceso para toda la operación.</h2>
+          <p className="login-split__copy">
+            Distribuidoras afiliadas y repartidores ingresan desde aquí a su panel operativo.
+          </p>
+          <ul className="login-split__points">
+            <li><i className="bi bi-check2" /> Control de inventario y trazabilidad QR</li>
+            <li><i className="bi bi-check2" /> Gestión de pedidos, rutas y cobros</li>
+            <li><i className="bi bi-check2" /> Operación de flota y entregas en ruta</li>
+          </ul>
+        </div>
+
+        <Link to="/" className="login-split__back">
+          <i className="bi bi-arrow-left" />
+          <span>Volver a la página principal</span>
+        </Link>
+      </aside>
+
+      <main className="login-split__main">
+        <div className="login-form-wrap">
+          <div className="login-form-wrap__head">
+            <h1 className="login-form-wrap__title">Iniciar sesión</h1>
+            <p className="login-form-wrap__sub">
+              Acceso exclusivo para distribuidoras afiliadas y repartidores.
             </p>
           </div>
 
-          <p className="login-card__subtitle">Tu panel se adapta al rol de tu cuenta.</p>
-
-          {/* Formulario */}
-          <form onSubmit={handleSubmit} className="login-card__form">
+          <form onSubmit={handleSubmit} className="login-form-wrap__form">
             <div className="login-card__field">
               <label className="login-card__label" htmlFor="login-email">
                 Correo electrónico
@@ -79,7 +118,7 @@ export default function LoginPage() {
             <div className="login-card__field">
               <div className="login-card__label-row">
                 <label className="login-card__label" htmlFor="login-pass">
-                  Contraseña de acceso
+                  Contraseña
                 </label>
                 <button type="button" onClick={recover} className="login-card__forgot-link">
                   ¿Olvidaste tu clave?
@@ -110,36 +149,26 @@ export default function LoginPage() {
 
             {msg && (
               <div className="login-card__alert" role="status">
-                <i className="bi bi-check-circle-fill" />
+                <i className="bi bi-info-circle-fill" />
                 <span>{msg}</span>
               </div>
             )}
 
             <button type="submit" className="login-card__submit-btn" disabled={loading}>
               {loading ? (
-                <span>Validando credenciales...</span>
+                <span>Validando credenciales…</span>
               ) : (
                 <>
-                  <span>Ingresar al Sistema SYSGAS</span>
+                  <span>Ingresar al sistema</span>
                   <i className="bi bi-arrow-right" />
                 </>
               )}
             </button>
           </form>
 
-          <p>¿Quieres consultar tus pedidos? <Link to="/registro">Crea tu cuenta de cliente</Link></p>
-          {/* Footer de la tarjeta */}
-          <div className="login-card__footer">
+          <div className="login-form-wrap__links">
             <p>
-              ¿Tu empresa distribuidora aún no usa SYSGAS?{' '}
-              <Link to="/#empresas" className="login-card__partner-link">
-                Solicita una afiliación
-              </Link>
-            </p>
-            <p className="login-card__back-home">
-              <Link to="/">
-                <i className="bi bi-arrow-left" /> Volver a la página principal
-              </Link>
+              ¿Tu empresa aún no está afiliada? <Link to="/#empresas">Solicitar afiliación</Link>
             </p>
           </div>
         </div>
@@ -147,4 +176,3 @@ export default function LoginPage() {
     </div>
   )
 }
-

@@ -12,147 +12,94 @@
 .px-catalog__grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: clamp(20px, 3vw, 32px);
+  gap: clamp(28px, 4vw, 48px);
   margin-bottom: clamp(48px, 6vw, 72px);
 }
 
-.px-catalog__card {
+.px-catalog__item {
   display: flex;
   flex-direction: column;
-  position: relative;
-  background-color: #FFFFFF;
-  border: 1.5px solid #D6E4DC;
-  border-radius: var(--radius-lg);
-  padding: clamp(24px, 3vw, 36px);
-  transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+  padding-top: 24px;
+  border-top: 2px solid #D6E4DC;
+  transition: border-color 0.22s ease;
 }
 
-.px-catalog__card--popular {
-  border-color: var(--jade-primary);
-  box-shadow: 0 12px 32px rgba(0, 168, 120, 0.1);
+.px-catalog__item:hover,
+.px-catalog__item--popular {
+  border-top-color: var(--jade-primary);
 }
 
-.px-catalog__ribbon {
-  position: absolute;
-  top: 18px;
-  right: 18px;
-}
-
-.px-catalog__card-top {
+.px-catalog__item-head {
   display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 20px;
-}
-
-.px-catalog__badge-icon {
-  width: 52px;
-  height: 52px;
-  border-radius: var(--radius-md);
-  background-color: var(--jade-mint);
-  border: 1px solid var(--jade-primary);
-  color: var(--jade-dark);
-  font-size: 1.5rem;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.px-catalog__meta {
-  display: flex;
-  flex-direction: column;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
 }
 
 .px-catalog__capacity {
-  font-family: 'Montserrat', 'Inter', sans-serif;
-  font-size: clamp(1.8rem, 2.5vw, 2.4rem);
+  display: block;
+  font-family: 'Montserrat', var(--font-main);
+  font-size: clamp(1.9rem, 2.6vw, 2.5rem);
   font-weight: 900;
   color: var(--text-title);
   line-height: 1;
+  font-variant-numeric: tabular-nums;
 }
 
 .px-catalog__name {
-  font-size: 0.88rem;
-  font-weight: 700;
+  display: block;
+  font-size: 0.92rem;
+  font-weight: 600;
   color: var(--text-muted);
   margin-top: 4px;
 }
 
-/* Visor 3D del Cilindro en la Card del Catálogo */
-.px-catalog__3d-box {
+.px-catalog__popular-label {
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--jade-dark);
+  white-space: nowrap;
+}
+
+.px-catalog__3d-stage {
   width: 100%;
-  position: relative;
-  background: radial-gradient(circle at 50% 35%, #FFFFFF 0%, #F1F7F4 100%);
-  border: 1.5px solid #D6E4DC;
+  background-color: var(--bg-primary);
   border-radius: var(--radius-md);
   margin-bottom: 20px;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: border-color var(--trans-fast), box-shadow var(--trans-fast);
-}
-
-.px-catalog__card:hover .px-catalog__3d-box {
-  border-color: #00A878;
-  box-shadow: 0 8px 24px rgba(0, 168, 120, 0.12);
 }
 
 .px-catalog__3d-canvas-wrap {
   width: 100%;
-  height: 235px;
+  height: 240px;
   position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
-.px-catalog__3d-footer {
+.px-catalog__3d-meta {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 12px;
-  background-color: rgba(255, 255, 255, 0.95);
+  padding: 10px 14px;
   border-top: 1px solid #E2EDE7;
-  font-family: var(--font-mono);
-  font-size: 0.73rem;
-  font-weight: 700;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  font-variant-numeric: tabular-nums;
 }
 
-.px-catalog__3d-dim {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--text-title);
-  letter-spacing: -0.01em;
-}
-
-.px-catalog__3d-dim i {
+.px-catalog__3d-meta i {
   color: var(--jade-primary);
-  font-size: 0.85rem;
-}
-
-.px-catalog__3d-hint {
-  display: inline-flex;
-  align-items: center;
-  gap: 5px;
-  color: var(--jade-dark);
-  background-color: var(--jade-mint);
-  border: 1px solid rgba(0, 168, 120, 0.3);
-  padding: 3px 8px;
-  border-radius: var(--radius-pill);
-  font-size: 0.68rem;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-}
-
-.px-catalog__3d-hint i {
-  font-size: 0.75rem;
-  color: var(--jade-primary);
+  margin-right: 4px;
 }
 
 .px-catalog__price-box {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
   display: flex;
   align-items: baseline;
   gap: 8px;
@@ -160,10 +107,10 @@
 }
 
 .px-catalog__price {
-  font-family: var(--font-mono);
   font-size: clamp(1.6rem, 2.2vw, 2.1rem);
   font-weight: 900;
   color: var(--jade-deepest);
+  font-variant-numeric: tabular-nums;
 }
 
 .px-catalog__price-sub {
@@ -173,20 +120,21 @@
 }
 
 .px-catalog__ideal {
-  font-size: 0.92rem;
+  font-size: 0.94rem;
   line-height: 1.55;
   color: var(--text-body);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
   min-height: 44px;
 }
 
 .px-catalog__specs-list {
+  list-style: none;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-bottom: 32px;
-  padding-top: 20px;
-  border-top: 1px dashed #E2EDE7;
+  gap: 10px;
+  margin-bottom: 28px;
+  padding-top: 16px;
+  border-top: 1px solid #E2EDE7;
   flex-grow: 1;
 }
 
@@ -198,8 +146,9 @@
   color: var(--text-body);
   font-weight: 600;
 }
+
 .px-catalog__spec-item i {
-  font-size: 1.1rem;
+  font-size: 1.05rem;
   flex-shrink: 0;
 }
 
@@ -209,34 +158,41 @@
   font-size: 0.92rem;
 }
 
-/* Barra de Confianza Inferior */
 .px-catalog__trust-bar {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
-  background-color: var(--bg-primary);
-  border: 1px solid #D6E4DC;
-  border-radius: var(--radius-lg);
-  padding: clamp(20px, 3vw, 28px);
+  gap: 32px;
+  padding-top: clamp(28px, 4vw, 40px);
+  border-top: 1px solid #E2EDE7;
 }
 
 .px-catalog__trust-item {
   display: flex;
-  align-items: center;
-  gap: 16px;
+  align-items: flex-start;
+  gap: 14px;
 }
+
 .px-catalog__trust-item i {
-  font-size: 1.8rem;
+  font-size: 1.5rem;
   flex-shrink: 0;
+  margin-top: 2px;
+  transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), color 0.22s ease;
 }
+
+.px-catalog__trust-item:hover i {
+  transform: translateY(-3px) scale(1.1);
+  color: var(--jade-dark);
+}
+
 .px-catalog__trust-item strong {
   display: block;
   font-size: 0.95rem;
   color: var(--text-title);
   margin-bottom: 2px;
 }
+
 .px-catalog__trust-item span {
-  font-size: 0.82rem;
+  font-size: 0.84rem;
   color: var(--text-muted);
 }
 
@@ -249,6 +205,6 @@
   }
   .px-catalog__trust-bar {
     grid-template-columns: 1fr;
-    gap: 18px;
+    gap: 20px;
   }
 }
