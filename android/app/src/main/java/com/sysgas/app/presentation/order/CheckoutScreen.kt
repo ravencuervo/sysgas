@@ -252,6 +252,30 @@ fun CheckoutScreen(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     OutlinedTextField(
+                        value = customerName,
+                        onValueChange = { customerName = it },
+                        label = { Text("Nombre completo") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = JadePrimary)
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    OutlinedTextField(
+                        value = customerPhone,
+                        onValueChange = { customerPhone = it.filter { ch -> ch.isDigit() || ch == '+' }.take(15) },
+                        label = { Text("Celular de contacto (ej: 951667696)") },
+                        singleLine = true,
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(10.dp),
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = JadePrimary)
+                    )
+
+                    Spacer(modifier = Modifier.height(10.dp))
+
+                    OutlinedTextField(
                         value = addressText,
                         onValueChange = { addressText = it },
                         label = { Text("Calle, Jirón o Avenida y Número") },
@@ -548,9 +572,15 @@ fun CheckoutScreen(
                             isSubmitting = true
                             coroutineScope.launch {
                                 submitError = null
+                                val cleanPhone = customerPhone.trim()
+                                val formattedPhone = when {
+                                    cleanPhone.startsWith("+") -> cleanPhone
+                                    cleanPhone.startsWith("51") && cleanPhone.length >= 11 -> "+$cleanPhone"
+                                    else -> cleanPhone
+                                }
                                 val result = orderRepository.createOrder(
                                     customerName = customerName,
-                                    customerPhone = "+51$customerPhone",
+                                    customerPhone = formattedPhone,
                                     addressText = addressText,
                                     addressReference = addressReference,
                                     city = selectedCity,
