@@ -8,7 +8,7 @@ import './Panel.css'
 import { friendlyError, orderStates } from '../lib/forms'
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { db } from '../lib/supabase'
+import { db, isSupabaseConfigured } from '../lib/supabase'
 
 const sectionLabels = { pedidos: 'Pedidos y entregas', inventario: 'Precios y stock', empresa: 'Mi empresa', personal: 'Personal', vehiculos: 'Vehículos', cilindros: 'Balones y QR', flota: 'Transporte masivo', cobertura: 'Cobertura', reportes: 'Reportes', membresia: 'Membresía', auditoria: 'Auditoría', incidencias: 'Incidencias', notificaciones: 'Notificaciones', afiliaciones: 'Afiliaciones' }
 const roleLabels = { super_admin: 'Administrador general', empresa_admin: 'Administrador de empresa', cliente_comun: 'Cliente', chofer_repartidor: 'Repartidor', planta_operador: 'Operador de transporte', supervisor_calidad: 'Supervisor de calidad' }
@@ -51,6 +51,7 @@ export default function Panel({ vista }) {
   }, [navigate])
   useEffect(() => { queueMicrotask(() => { void load() }) }, [load])
   useEffect(() => {
+    if (!isSupabaseConfigured) return undefined
     const { data: { subscription } } = db().auth.onAuthStateChange(event => {
       if (event === 'SIGNED_OUT') { setOrders([]); setProfile(null); navigate('/login', { replace: true }) }
     })
