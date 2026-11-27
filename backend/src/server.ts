@@ -322,6 +322,47 @@ const server = http.createServer(async (req, res) => {
       }
     }
 
+    if (req.method === 'POST' && pathname === '/api/mobile/pedidos') {
+      const user = await requireAuth(req, ['cliente_comun', ...ADMIN_AND_STAFF])
+      const b = await readJson(req)
+      const total = requireNumber(b.total_pedido_pen ?? 48, 'total_pedido_pen', 1, 100000)
+      const cantidad = Math.round(requireNumber(b.cantidad ?? 1, 'cantidad', 1, 50))
+      const ticket = `TK-${Date.now().toString().slice(-6)}`
+      const metodoRaw = String(b.metodo_pago ?? 'efectivo').toLowerCase()
+      const metodoPago = ['yape', 'plin', 'efectivo', 'tarjeta'].includes(metodoRaw) ? metodoRaw : 'efectivo'
+
+      const rows = await sb<Array<{ id: string; codigo_ticket: string }>>('pedidos', {
+        method: 'POST',
+        body: {
+          codigo_ticket: ticket,
+          cliente_id: user.id,
+          nombre_destinatario: requireString(b.nombre_destinatario, 'nombre_destinatario', 2, 120),
+          telefono_contacto: requireString(b.telefono_contacto, 'telefono_contacto', 6, 20),
+          ciudad: requireString(b.ciudad ?? 'Puno', 'ciudad', 2, 80),
+          direccion_entrega: requireString(b.direccion_entrega, 'direccion_entrega', 4, 300),
+          referencia_direccion: optionalString(b.referencia_direccion, 300),
+          estado: 'pendiente',
+          total_pedido_pen: total,
+          metodo_pago: metodoPago,
+        },
+      })
+      const row = rows[0]
+      if (row && b.capacidad) {
+        await sb('pedido_items', {
+          method: 'POST',
+          body: {
+            pedido_id: row.id,
+            capacidad: normalizeCapacidad(b.capacidad),
+            cantidad,
+            precio_unitario_pen: Number((total / cantidad).toFixed(2)),
+            subtotal_pen: total,
+          },
+        })
+      }
+      send(req, res, 201, row ?? { id: '', codigo_ticket: ticket })
+      return
+    }
+
     if (pathname.startsWith('/api/admin/vehiculos')) {
       await requireAuth(req, MANAGERS)
       if (await handleSimpleCrud(req, res, pathname, '/api/admin/vehiculos', 'vehiculos_reparto')) return

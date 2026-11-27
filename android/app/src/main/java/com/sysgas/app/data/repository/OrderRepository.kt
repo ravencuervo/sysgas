@@ -1,12 +1,12 @@
 package com.sysgas.app.data.repository
 
+import com.sysgas.app.BuildConfig
 import com.sysgas.app.core.network.SupabaseClientProvider
 import com.sysgas.app.domain.model.Order
 import com.sysgas.app.domain.model.OrderStatus
 import com.sysgas.app.domain.model.PaymentMethod
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.postgrest
 import io.github.jan.supabase.postgrest.query.Order as SortOrder
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -15,8 +15,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
 import kotlinx.serialization.json.put
+import java.net.HttpURLConnection
+import java.net.URL
 import java.util.UUID
 
 @Serializable
@@ -41,6 +46,7 @@ class OrderRepository {
     companion object {
         private val _orders = MutableStateFlow<List<Order>>(emptyList())
         private val _activeOrder = MutableStateFlow<Order?>(null)
+        private val json = Json { ignoreUnknownKeys = true }
     }
 
     val orders: StateFlow<List<Order>> = _orders.asStateFlow()
@@ -99,38 +105,81 @@ class OrderRepository {
         capacity: String,
         quantity: Int,
         pricePerUnit: Double,
-        paymentMethod: PaymentMethod,
-        empresaId: String? = null
+        paymentMethod: PaymentMethod
     ): Result<Order> = withContext(Dispatchers.IO) {
-        runCatching {
+        try {
             val client = SupabaseClientProvider.client
+            val token = client.auth.currentAccessTokenOrNull()
+                ?: return@withContext Result.failure(Exception("Debes iniciar sesión para realizar un pedido."))
+
+            if (customerName.trim().length < 2) {
+                return@withContext Result.failure(Exception("Ingresa tu nombre completo."))
+            }
+            if (customerPhone.filter { it.isDigit() }.length < 6) {
+                return@withContext Result.failure(Exception("Ingresa un número de celular válido."))
+            }
+            if (addressText.trim().length < 4) {
+                return@withContext Result.failure(Exception("Ingresa la dirección de entrega."))
+            }
+
             val normalizedCapacity = when {
                 capacity.contains("5") -> "5kg"
                 capacity.contains("45") -> "45kg"
                 else -> "10kg"
             }
+            val metodoPagoDb = when (paymentMethod) {
+                PaymentMethod.YAPE -> "yape"
+                PaymentMethod.PLIN -> "plin"
+                PaymentMethod.CARD -> "tarjeta"
+                PaymentMethod.CASH -> "efectivo"
+            }
+            val totalPen = pricePerUnit * quantity
 
-            val ticketCode = client.postgrest.rpc(
-                function = "crear_pedido_seguro",
-                parameters = buildJsonObject {
-                    put("p_nombre", customerName.trim())
-                    put("p_telefono", customerPhone.trim())
-                    put("p_direccion", addressText.trim())
-                    put("p_referencia", addressReference.trim())
-                    put("p_capacidad", normalizedCapacity)
-                    if (!empresaId.isNullOrBlank()) {
-                        put("p_empresa", empresaId)
-                    } else {
-                        put("p_empresa", null as String?)
-                    }
-                    put("p_ciudad", city)
-                    put("p_zona", "")
-                    put("p_solicitud", UUID.randomUUID().toString())
-                }
-            ).decodeAs<String>()
+            val payload = buildJsonObject {
+                put("nombre_destinatario", customerName.trim())
+                put("telefono_contacto", customerPhone.trim())
+                put("ciudad", city)
+                put("direccion_entrega", addressText.trim())
+                put("referencia_direccion", addressReference.trim())
+                put("capacidad", normalizedCapacity)
+                put("cantidad", quantity)
+                put("total_pedido_pen", totalPen)
+                put("metodo_pago", metodoPagoDb)
+            }.toString()
+
+            val endpoint = BuildConfig.BACKEND_API_URL.trimEnd('/') + "/api/mobile/pedidos"
+            val conn = (URL(endpoint).openConnection() as HttpURLConnection).apply {
+                requestMethod = "POST"
+                connectTimeout = 15000
+                readTimeout = 20000
+                doOutput = true
+                setRequestProperty("Content-Type", "application/json; charset=UTF-8")
+                setRequestProperty("Authorization", "Bearer $token")
+            }
+
+            conn.outputStream.use { os ->
+                os.write(payload.toByteArray(Charsets.UTF_8))
+            }
+
+            val statusCode = conn.responseCode
+            val responseBody = (if (statusCode in 200..299) conn.inputStream else conn.errorStream)
+                ?.bufferedReader(Charsets.UTF_8)?.use { it.readText() } ?: ""
+
+            if (statusCode !in 200..299) {
+                val parsedMsg = runCatching {
+                    json.parseToJsonElement(responseBody).jsonObject["error"]?.jsonPrimitive?.content
+                }.getOrNull()
+                return@withContext Result.failure(
+                    Exception(parsedMsg ?: "No se pudo registrar el pedido (código $statusCode).")
+                )
+            }
+
+            val ticketCode = runCatching {
+                json.parseToJsonElement(responseBody).jsonObject["codigo_ticket"]?.jsonPrimitive?.content
+            }.getOrNull() ?: "TK-SYSGAS"
 
             refreshOrders()
-            _orders.value.firstOrNull { it.ticketCode == ticketCode }
+            val created = _orders.value.firstOrNull { it.ticketCode == ticketCode }
                 ?: Order(
                     id = UUID.randomUUID().toString(),
                     ticketCode = ticketCode,
@@ -141,30 +190,34 @@ class OrderRepository {
                     city = city,
                     productCapacity = capacity,
                     quantity = quantity,
-                    totalPen = pricePerUnit * quantity,
+                    totalPen = totalPen,
                     paymentMethod = paymentMethod,
                     status = OrderStatus.PENDING,
                     distributorName = "Distribuidora SYSGAS",
                     distributorPhone = "",
                     createdAt = "Recién registrado"
-                ).also { created ->
-                    _orders.value = listOf(created) + _orders.value
-                    _activeOrder.value = created
+                ).also {
+                    _orders.value = listOf(it) + _orders.value
+                    _activeOrder.value = it
                 }
+
+            Result.success(created)
+        } catch (_: Exception) {
+            Result.failure(Exception("No se pudo conectar con el servidor. Verifica tu internet e intenta nuevamente."))
         }
     }
 
-    private fun mapOrderStatus(raw: String): OrderStatus = when (raw) {
+    private fun mapOrderStatus(raw: String): OrderStatus = when (raw.lowercase()) {
         "pendiente" -> OrderStatus.PENDING
-        "confirmado", "asignado" -> OrderStatus.CONFIRMED
-        "en_ruta" -> OrderStatus.IN_TRANSIT
+        "confirmado", "asignado", "asignado_chofer" -> OrderStatus.CONFIRMED
+        "en_ruta", "en_camino" -> OrderStatus.IN_TRANSIT
         "en_puerta" -> OrderStatus.ARRIVING
         "entregado" -> OrderStatus.DELIVERED
         "cancelado" -> OrderStatus.CANCELLED
         else -> OrderStatus.PENDING
     }
 
-    private fun mapPaymentMethod(raw: String): PaymentMethod = when (raw) {
+    private fun mapPaymentMethod(raw: String): PaymentMethod = when (raw.lowercase()) {
         "yape" -> PaymentMethod.YAPE
         "plin" -> PaymentMethod.PLIN
         "tarjeta" -> PaymentMethod.CARD

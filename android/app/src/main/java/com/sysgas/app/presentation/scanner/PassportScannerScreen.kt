@@ -268,9 +268,17 @@ fun PassportScannerScreen() {
             ) {
                 androidx.compose.material3.OutlinedTextField(
                     value = manualCode,
-                    onValueChange = { manualCode = it.uppercase() },
+                    onValueChange = { manualCode = it },
                     label = { Text("Código QR o serie del balón") },
                     singleLine = true,
+                    colors = androidx.compose.material3.OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = Color(0xFF0F2E22),
+                        unfocusedTextColor = Color(0xFF0F2E22),
+                        focusedBorderColor = JadePrimary,
+                        unfocusedBorderColor = Color(0xFFCBD5E1),
+                        focusedLabelColor = JadeDark,
+                        unfocusedLabelColor = Color(0xFF475569)
+                    ),
                     modifier = Modifier.weight(1f),
                     shape = RoundedCornerShape(12.dp)
                 )

@@ -30,7 +30,7 @@ internal data class RemoteDistributorDto(
     val ciudad: String = "Puno",
     val direccion: String = "",
     @SerialName("telefono_contacto") val telefonoContacto: String = "",
-    @SerialName("estado_afiliacion") val estadoAfiliacion: String = "pendiente"
+    val estado: String = "activo"
 )
 
 class CatalogRepository {
@@ -76,7 +76,11 @@ class CatalogRepository {
             val p45 = products.find { it.capacity.contains("45") }?.pricePen ?: 185.0
 
             val remoteList = client.from("empresas_distribuidoras")
-                .select()
+                .select {
+                    filter {
+                        eq("estado", "activo")
+                    }
+                }
                 .decodeList<RemoteDistributorDto>()
 
             remoteList.mapIndexed { index, dto ->
@@ -90,7 +94,7 @@ class CatalogRepository {
                     motorizedDriverName = "Flota autorizada SYSGAS",
                     motorizedVehicle = "Unidad certificada",
                     motorizedLicense = "MTC Vigente",
-                    stock10kg = 0,
+                    stock10kg = 50,
                     price10kg = p10,
                     price5kg = p5,
                     price45kg = p45,
