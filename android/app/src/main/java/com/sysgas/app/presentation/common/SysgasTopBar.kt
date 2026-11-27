@@ -11,10 +11,12 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -31,44 +33,43 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.sysgas.app.R
-import com.sysgas.app.ui.theme.JadeDeep
-import com.sysgas.app.ui.theme.JadePrimary
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SysgasTopBar(
-    title: String = "SYSGAS",
-    subtitle: String = "Puno",
+    title: String = "SYSGAS Puno",
+    subtitle: String = "Inicio",
     onAccountClick: (() -> Unit)? = null
 ) {
     Surface(
-        color = JadeDeep,
-        shadowElevation = 4.dp
+        color = Color.White,
+        shadowElevation = 0.dp
     ) {
         Column(modifier = Modifier.fillMaxWidth()) {
             TopAppBar(
                 title = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Image(
-                            painter = painterResource(id = R.drawable.sysgas_logo_white),
+                            painter = painterResource(id = R.drawable.sysgas_logo_icon),
                             contentDescription = "Logo SYSGAS",
-                            modifier = Modifier.size(34.dp)
+                            modifier = Modifier.size(32.dp)
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Column {
                             Text(
                                 text = title,
                                 style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Black,
-                                    letterSpacing = 0.5.sp,
-                                    color = Color.White
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 17.sp,
+                                    color = Color(0xFF141B2B)
                                 )
                             )
                             Text(
                                 text = subtitle,
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    color = Color(0xFF90D5B7),
-                                    fontWeight = FontWeight.SemiBold
+                                    color = Color(0xFF64748B),
+                                    fontWeight = FontWeight.Medium,
+                                    fontSize = 11.sp
                                 )
                             )
                         }
@@ -76,39 +77,46 @@ fun SysgasTopBar(
                 },
                 actions = {
                     Surface(
-                        color = Color(0xFF0F382B),
-                        shape = RoundedCornerShape(20.dp),
+                        color = Color(0xFFF1F5F9),
+                        shape = RoundedCornerShape(50),
                         modifier = Modifier
                             .padding(end = 12.dp)
                             .clickable { onAccountClick?.invoke() }
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp)
+                            modifier = Modifier.padding(start = 12.dp, end = 4.dp, top = 4.dp, bottom = 4.dp)
                         ) {
-                            Icon(
-                                imageVector = Icons.Default.Person,
-                                contentDescription = "Mi Cuenta",
-                                tint = JadePrimary,
-                                modifier = Modifier.size(16.dp)
-                            )
-                            Spacer(modifier = Modifier.width(6.dp))
                             Text(
                                 text = "Mi Cuenta",
                                 style = MaterialTheme.typography.labelMedium.copy(
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold
+                                    color = Color(0xFF141B2B),
+                                    fontWeight = FontWeight.SemiBold
                                 )
                             )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Box(
+                                modifier = Modifier
+                                    .size(28.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFF006C4C)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Outlined.Person,
+                                    contentDescription = "Mi Cuenta",
+                                    tint = Color.White,
+                                    modifier = Modifier.size(16.dp)
+                                )
+                            }
                         }
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = JadeDeep
+                    containerColor = Color.White
                 )
             )
+            HorizontalDivider(color = Color(0xFFF1F5F9), thickness = 1.dp)
         }
     }
 }
-
-

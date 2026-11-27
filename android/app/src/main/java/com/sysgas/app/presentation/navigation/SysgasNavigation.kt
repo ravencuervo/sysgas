@@ -2,11 +2,10 @@ package com.sysgas.app.presentation.navigation
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.History
-import androidx.compose.material.icons.outlined.LocalFireDepartment
+import androidx.compose.material.icons.outlined.AccountCircle
+import androidx.compose.material.icons.outlined.Home
 import androidx.compose.material.icons.outlined.LocalShipping
 import androidx.compose.material.icons.outlined.QrCodeScanner
-import androidx.compose.material.icons.outlined.Scale
 import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -46,11 +45,10 @@ sealed class BottomNavItem(
     val title: String,
     val icon: ImageVector
 ) {
-    data object Home : BottomNavItem(SysgasScreen.Home.route, "Pedir", Icons.Outlined.LocalFireDepartment)
-    data object Tracking : BottomNavItem(SysgasScreen.Tracking.route, "Rastrear", Icons.Outlined.LocalShipping)
-    data object Weight : BottomNavItem(SysgasScreen.Weight.route, "Balanza", Icons.Outlined.Scale)
-    data object Scanner : BottomNavItem(SysgasScreen.Scanner.route, "Pasaporte", Icons.Outlined.QrCodeScanner)
-    data object History : BottomNavItem(SysgasScreen.History.route, "Historial", Icons.Outlined.History)
+    data object Home : BottomNavItem(SysgasScreen.Home.route, "Inicio", Icons.Outlined.Home)
+    data object Tracking : BottomNavItem(SysgasScreen.Tracking.route, "Pedidos", Icons.Outlined.LocalShipping)
+    data object Scanner : BottomNavItem(SysgasScreen.Scanner.route, "Escanear QR", Icons.Outlined.QrCodeScanner)
+    data object Profile : BottomNavItem(SysgasScreen.Profile.route, "Perfil", Icons.Outlined.AccountCircle)
 }
 
 @Composable
@@ -62,9 +60,8 @@ fun SysgasNavigation() {
     val bottomNavItems = listOf(
         BottomNavItem.Home,
         BottomNavItem.Tracking,
-        BottomNavItem.Weight,
         BottomNavItem.Scanner,
-        BottomNavItem.History
+        BottomNavItem.Profile
     )
 
     val isLoginRoute = currentRoute == SysgasScreen.Login.route
@@ -73,8 +70,8 @@ fun SysgasNavigation() {
         topBar = {
             if (!isLoginRoute) {
                 SysgasTopBar(
-                    title = "SYSGAS",
-                    subtitle = "Puno",
+                    title = "SYSGAS Puno",
+                    subtitle = "Inicio",
                     onAccountClick = {
                         navController.navigate(SysgasScreen.Profile.route)
                     }
