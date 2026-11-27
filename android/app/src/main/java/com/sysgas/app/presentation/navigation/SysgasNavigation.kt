@@ -28,10 +28,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.sysgas.app.presentation.auth.LoginScreen
 import com.sysgas.app.presentation.common.SysgasTopBar
 import com.sysgas.app.presentation.history.OrderHistoryScreen
 import com.sysgas.app.presentation.home.HomeScreen
 import com.sysgas.app.presentation.order.CheckoutScreen
+import com.sysgas.app.presentation.profile.ProfileScreen
 import com.sysgas.app.presentation.scanner.PassportScannerScreen
 import com.sysgas.app.presentation.tracking.OrderTrackingScreen
 import com.sysgas.app.presentation.weight.CustomerWeightScreen
@@ -65,61 +67,80 @@ fun SysgasNavigation() {
         BottomNavItem.History
     )
 
+    val isLoginRoute = currentRoute == SysgasScreen.Login.route
+
     Scaffold(
         topBar = {
-            SysgasTopBar(
-                title = "SYSGAS Altiplano",
-                subtitle = "Puno & Juliaca · Pedido Seguro"
-            )
+            if (!isLoginRoute) {
+                SysgasTopBar(
+                    title = "SYSGAS",
+                    subtitle = "Puno",
+                    onAccountClick = {
+                        navController.navigate(SysgasScreen.Profile.route)
+                    }
+                )
+            }
         },
         bottomBar = {
-            NavigationBar(
-                containerColor = Color.White,
-                tonalElevation = 8.dp
-            ) {
-                bottomNavItems.forEach { item ->
-                    val isSelected = currentRoute == item.route
-                    NavigationBarItem(
-                        selected = isSelected,
-                        onClick = {
-                            navController.navigate(item.route) {
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
+            if (!isLoginRoute) {
+                NavigationBar(
+                    containerColor = Color.White,
+                    tonalElevation = 8.dp
+                ) {
+                    bottomNavItems.forEach { item ->
+                        val isSelected = currentRoute == item.route
+                        NavigationBarItem(
+                            selected = isSelected,
+                            onClick = {
+                                navController.navigate(item.route) {
+                                    popUpTo(navController.graph.findStartDestination().id) {
+                                        saveState = true
+                                    }
+                                    launchSingleTop = true
+                                    restoreState = true
                                 }
-                                launchSingleTop = true
-                                restoreState = true
-                            }
-                        },
-                        icon = {
-                            Icon(
-                                imageVector = item.icon,
-                                contentDescription = item.title,
-                                tint = if (isSelected) JadePrimary else Color.Gray
-                            )
-                        },
-                        label = {
-                            Text(
-                                text = item.title,
-                                style = androidx.compose.material3.MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                    fontSize = 11.sp,
-                                    color = if (isSelected) JadeDark else Color.Gray
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = item.icon,
+                                    contentDescription = item.title,
+                                    tint = if (isSelected) JadePrimary else Color.Gray
                                 )
+                            },
+                            label = {
+                                Text(
+                                    text = item.title,
+                                    style = androidx.compose.material3.MaterialTheme.typography.labelSmall.copy(
+                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+                                        fontSize = 11.sp,
+                                        color = if (isSelected) JadeDark else Color.Gray
+                                    )
+                                )
+                            },
+                            colors = NavigationBarItemDefaults.colors(
+                                indicatorColor = JadeMint
                             )
-                        },
-                        colors = NavigationBarItemDefaults.colors(
-                            indicatorColor = JadeMint
                         )
-                    )
+                    }
                 }
             }
         }
     ) { innerPadding ->
         NavHost(
             navController = navController,
-            startDestination = SysgasScreen.Home.route,
+            startDestination = SysgasScreen.Login.route,
             modifier = Modifier.padding(innerPadding)
         ) {
+            composable(SysgasScreen.Login.route) {
+                LoginScreen(
+                    onLoginSuccess = {
+                        navController.navigate(SysgasScreen.Home.route) {
+                            popUpTo(SysgasScreen.Login.route) { inclusive = true }
+                        }
+                    }
+                )
+            }
+
             composable(SysgasScreen.Home.route) {
                 HomeScreen(
                     onNavigateToCheckout = { capacity ->
@@ -127,6 +148,9 @@ fun SysgasNavigation() {
                     },
                     onNavigateToTracking = {
                         navController.navigate(SysgasScreen.Tracking.route)
+                    },
+                    onNavigateToScanner = {
+                        navController.navigate(SysgasScreen.Scanner.route)
                     }
                 )
             }
@@ -173,6 +197,14 @@ fun SysgasNavigation() {
                 OrderHistoryScreen(
                     onReorder = { capacity ->
                         navController.navigate(SysgasScreen.Checkout.createRoute(capacity))
+                    }
+                )
+            }
+
+            composable(SysgasScreen.Profile.route) {
+                ProfileScreen(
+                    onBack = {
+                        navController.popBackStack()
                     }
                 )
             }

@@ -28,6 +28,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Call
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.DirectionsCar
 import androidx.compose.material.icons.filled.LocalShipping
 import androidx.compose.material.icons.filled.LocationOn
@@ -301,7 +302,7 @@ fun OrderTrackingScreen(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "🚛 Camión: ${truckLocation.plateNumber}",
+                            text = "🛵 Moto: Torito Bajaj (Placa 4521-7Z)",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 color = Color.White,
                                 fontWeight = FontWeight.Bold
@@ -314,7 +315,7 @@ fun OrderTrackingScreen(
                             )
                         )
                         Text(
-                            text = truckLocation.lastUpdateIso,
+                            text = "Puno GPS",
                             style = MaterialTheme.typography.labelSmall.copy(
                                 color = Color.Gray,
                                 fontSize = 10.sp
@@ -325,7 +326,7 @@ fun OrderTrackingScreen(
             }
         }
 
-        // ─── 2. Tarjeta del Repartidor Certificado ───
+        // ─── 2. Tarjeta del Motorizado Certificado de Puno ───
         item {
             Card(
                 modifier = Modifier
@@ -348,7 +349,7 @@ fun OrderTrackingScreen(
                             contentAlignment = Alignment.Center
                         ) {
                             Icon(
-                                imageVector = Icons.Default.LocalShipping,
+                                imageVector = Icons.Default.DirectionsBike,
                                 contentDescription = null,
                                 tint = JadeDark,
                                 modifier = Modifier.size(28.dp)
@@ -357,15 +358,18 @@ fun OrderTrackingScreen(
                         Spacer(modifier = Modifier.width(12.dp))
                         Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = truckLocation.driverName,
+                                text = "Marcos Quispe Chambi",
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     color = Color(0xFF0F2E22)
                                 )
                             )
                             Text(
-                                text = "Distribuidora Altiplano Gas S.A.C.",
-                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                                text = "Licencia MTC: B-IIc Vigente · Habilitado ✅",
+                                style = MaterialTheme.typography.bodySmall.copy(
+                                    color = Color(0xFF15803D),
+                                    fontWeight = FontWeight.SemiBold
+                                )
                             )
                             Row(verticalAlignment = Alignment.CenterVertically) {
                                 Icon(
@@ -376,7 +380,7 @@ fun OrderTrackingScreen(
                                 )
                                 Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = "Balanza Bluetooth digital a bordo",
+                                    text = "Balanza digital Bluetooth a bordo",
                                     style = MaterialTheme.typography.labelSmall.copy(
                                         color = JadeDark,
                                         fontWeight = FontWeight.SemiBold

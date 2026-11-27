@@ -1,5 +1,6 @@
 package com.sysgas.app.presentation.order
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -22,13 +23,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.Fireplace
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Scale
-import androidx.compose.material.icons.filled.Security
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -62,7 +64,6 @@ import com.sysgas.app.data.repository.OrderRepository
 import com.sysgas.app.domain.model.CylinderProduct
 import com.sysgas.app.domain.model.PaymentMethod
 import com.sysgas.app.ui.theme.JadeDark
-import com.sysgas.app.ui.theme.JadeDeep
 import com.sysgas.app.ui.theme.JadeMint
 import com.sysgas.app.ui.theme.JadePrimary
 import kotlinx.coroutines.launch
@@ -81,17 +82,18 @@ fun CheckoutScreen(
             ?: CylinderProduct.DEFAULT_PRODUCTS[1]
     }
 
-    var customerName by remember { mutableStateOf("Wilson Emanuel Cuervo") }
+    var customerName by remember { mutableStateOf("Mamá Juana / Wilson Cuervo") }
     var customerPhone by remember { mutableStateOf("951667696") }
-    var addressText by remember { mutableStateOf("Jr. Arequipa 520, Puno") }
+    var addressText by remember { mutableStateOf("Jr. Arequipa 520, Puno (Centro)") }
     var addressReference by remember { mutableStateOf("Frente al Colegio San Carlos, cerca a Plaza de Armas") }
-    var selectedCity by remember { mutableStateOf("Puno") }
+    val selectedCity = "Puno"
     var selectedPayment by remember { mutableStateOf(PaymentMethod.YAPE) }
+    var isYapeSimulatedApproved by remember { mutableStateOf(false) }
     var quantity by remember { mutableIntStateOf(1) }
     var isSubmitting by remember { mutableStateOf(false) }
 
     val subtotal = product.pricePen * quantity
-    val deliveryFee = 0.0 // Envío gratuito en Puno urbano
+    val deliveryFee = 0.0 // Envío en moto gratuito en Puno
     val total = subtotal + deliveryFee
 
     LazyColumn(
@@ -115,7 +117,7 @@ fun CheckoutScreen(
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
                     Text(
-                        text = "Confirmar Pedido de Gas",
+                        text = "Pedir Gas · Puno",
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             color = Color(0xFF0F2E22)
@@ -165,15 +167,15 @@ fun CheckoutScreen(
                             )
                         )
                         Text(
-                            text = "📏 ${product.dimensions}",
-                            style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
-                        )
-                        Text(
-                            text = "Tara: %.1f kg · Gas neto garantizado: %.1f kg".format(product.tareKg, product.netGasKg),
+                            text = "Peso neto exacto: %.1f kg garantizado".format(product.netGasKg),
                             style = MaterialTheme.typography.labelSmall.copy(
                                 color = JadeDark,
                                 fontWeight = FontWeight.SemiBold
                             )
+                        )
+                        Text(
+                            text = "Entrega en moto con balanza digital",
+                            style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
                         )
                     }
                     Text(
@@ -187,7 +189,7 @@ fun CheckoutScreen(
             }
         }
 
-        // ─── 2. Datos de Entrega (Puno / Juliaca) ───
+        // ─── 2. Datos de Entrega en Puno ───
         item {
             Card(
                 modifier = Modifier
@@ -201,43 +203,12 @@ fun CheckoutScreen(
                         Icon(Icons.Default.LocationOn, contentDescription = null, tint = JadePrimary)
                         Spacer(modifier = Modifier.width(8.dp))
                         Text(
-                            text = "Dirección de Entrega en el Altiplano",
+                            text = "Dirección de Entrega en Puno",
                             style = MaterialTheme.typography.titleSmall.copy(
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0F2E22)
                             )
                         )
-                    }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    // Ciudad selector
-                    Row(modifier = Modifier.fillMaxWidth()) {
-                        listOf("Puno", "Juliaca").forEach { city ->
-                            val isSelected = selectedCity == city
-                            Surface(
-                                modifier = Modifier
-                                    .weight(1f)
-                                    .padding(horizontal = 4.dp)
-                                    .clickable { selectedCity = city },
-                                shape = RoundedCornerShape(8.dp),
-                                color = if (isSelected) JadeMint else Color(0xFFF1F5F9),
-                                border = BorderStroke(
-                                    1.dp,
-                                    if (isSelected) JadePrimary else Color.Transparent
-                                )
-                            ) {
-                                Text(
-                                    text = city,
-                                    modifier = Modifier.padding(vertical = 10.dp),
-                                    textAlign = androidx.compose.ui.text.style.TextAlign.Center,
-                                    style = MaterialTheme.typography.bodyMedium.copy(
-                                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
-                                        color = if (isSelected) JadeDark else Color.DarkGray
-                                    )
-                                )
-                            }
-                        }
                     }
 
                     Spacer(modifier = Modifier.height(12.dp))
@@ -245,12 +216,10 @@ fun CheckoutScreen(
                     OutlinedTextField(
                         value = addressText,
                         onValueChange = { addressText = it },
-                        label = { Text("Calle / Jirón / Avenida y Número") },
+                        label = { Text("Calle, Jirón o Avenida y Número") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = JadePrimary
-                        )
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = JadePrimary)
                     )
 
                     Spacer(modifier = Modifier.height(10.dp))
@@ -258,78 +227,62 @@ fun CheckoutScreen(
                     OutlinedTextField(
                         value = addressReference,
                         onValueChange = { addressReference = it },
-                        label = { Text("Referencia (ej: Cerca al mercado, frente a parque)") },
+                        label = { Text("Referencia (ej: Frente al colegio San Carlos)") },
                         modifier = Modifier.fillMaxWidth(),
                         shape = RoundedCornerShape(10.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = JadePrimary
-                        )
+                        colors = OutlinedTextFieldDefaults.colors(focusedBorderColor = JadePrimary)
                     )
                 }
             }
         }
 
-        // ─── 3. Datos del Cliente ───
+        // ─── 3. Motorizado Asignado en Puno ───
         item {
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 6.dp),
                 shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White)
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFF8FAFC)),
+                border = BorderStroke(1.dp, Color(0xFFE2E8F0))
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(Icons.Default.Person, contentDescription = null, tint = JadePrimary)
-                        Spacer(modifier = Modifier.width(8.dp))
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .size(44.dp)
+                            .clip(CircleShape)
+                            .background(JadeMint),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.DirectionsBike,
+                            contentDescription = null,
+                            tint = JadeDark,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    }
+                    Spacer(modifier = Modifier.width(12.dp))
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "¿Quién recibe el balón?",
-                            style = MaterialTheme.typography.titleSmall.copy(
+                            text = "Motorizado asignado: Marcos Quispe",
+                            style = MaterialTheme.typography.bodyMedium.copy(
                                 fontWeight = FontWeight.Bold,
                                 color = Color(0xFF0F2E22)
                             )
                         )
+                        Text(
+                            text = "Moto Torito Bajaj (Placa: 4521-7Z) · MTC Vigente ✅",
+                            style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFF475569))
+                        )
                     }
-
-                    Spacer(modifier = Modifier.height(12.dp))
-
-                    OutlinedTextField(
-                        value = customerName,
-                        onValueChange = { customerName = it },
-                        label = { Text("Nombre Completo") },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = JadePrimary
-                        )
-                    )
-
-                    Spacer(modifier = Modifier.height(10.dp))
-
-                    OutlinedTextField(
-                        value = customerPhone,
-                        onValueChange = { customerPhone = it },
-                        label = { Text("Teléfono celular / WhatsApp (ej: 951667696)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
-                        leadingIcon = {
-                            Text(
-                                text = "+51",
-                                modifier = Modifier.padding(start = 12.dp, end = 4.dp),
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Gray
-                            )
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(10.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = JadePrimary
-                        )
-                    )
                 }
             }
         }
 
-        // ─── 4. Métodos de Pago ───
+        // ─── 4. Métodos de Pago & Simulador Yape ───
         item {
             Card(
                 modifier = Modifier
@@ -353,7 +306,7 @@ fun CheckoutScreen(
 
                     Spacer(modifier = Modifier.height(8.dp))
 
-                    PaymentMethod.values().forEach { method ->
+                    listOf(PaymentMethod.YAPE, PaymentMethod.CASH, PaymentMethod.PLIN).forEach { method ->
                         val isSelected = selectedPayment == method
                         Row(
                             modifier = Modifier
@@ -383,11 +336,128 @@ fun CheckoutScreen(
                             }
                         }
                     }
+
+                    // ─── Simulador Yape Interactivo ───
+                    AnimatedVisibility(visible = selectedPayment == PaymentMethod.YAPE) {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = 10.dp),
+                            shape = RoundedCornerShape(14.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFFBF4FF)),
+                            border = BorderStroke(1.dp, Color(0xFFD8B4FE))
+                        ) {
+                            Column(modifier = Modifier.padding(14.dp)) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
+                                ) {
+                                    Row(verticalAlignment = Alignment.CenterVertically) {
+                                        Icon(
+                                            imageVector = Icons.Default.QrCode,
+                                            contentDescription = null,
+                                            tint = Color(0xFF7E22CE),
+                                            modifier = Modifier.size(24.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(8.dp))
+                                        Text(
+                                            text = "Yape Distribuidora Puno",
+                                            style = MaterialTheme.typography.titleSmall.copy(
+                                                fontWeight = FontWeight.Bold,
+                                                color = Color(0xFF581C87)
+                                            )
+                                        )
+                                    }
+
+                                    Surface(
+                                        color = Color(0xFFF3E8FF),
+                                        shape = RoundedCornerShape(8.dp)
+                                    ) {
+                                        Text(
+                                            text = "Modo Prueba",
+                                            modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                                            style = MaterialTheme.typography.labelSmall.copy(
+                                                color = Color(0xFF7E22CE),
+                                                fontWeight = FontWeight.Bold
+                                            )
+                                        )
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Text(
+                                    text = "📱 Número Yape: 951 884 120 (Llamagas Puno)",
+                                    style = MaterialTheme.typography.bodyMedium.copy(
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = Color(0xFF3B0764)
+                                    )
+                                )
+
+                                Text(
+                                    text = "Monto a yapear: S/ %.2f".format(total),
+                                    style = MaterialTheme.typography.bodySmall.copy(color = Color.DarkGray)
+                                )
+
+                                Spacer(modifier = Modifier.height(10.dp))
+
+                                if (isYapeSimulatedApproved) {
+                                    Surface(
+                                        color = Color(0xFFDCFCE7),
+                                        shape = RoundedCornerShape(10.dp),
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Row(
+                                            modifier = Modifier.padding(10.dp),
+                                            verticalAlignment = Alignment.CenterVertically
+                                        ) {
+                                            Icon(
+                                                imageVector = Icons.Default.CheckCircle,
+                                                contentDescription = null,
+                                                tint = Color(0xFF16A34A),
+                                                modifier = Modifier.size(18.dp)
+                                            )
+                                            Spacer(modifier = Modifier.width(8.dp))
+                                            Text(
+                                                text = "¡Pago Yape Simulado con Éxito! (Cod: 781042)",
+                                                style = MaterialTheme.typography.labelMedium.copy(
+                                                    color = Color(0xFF15803D),
+                                                    fontWeight = FontWeight.Bold
+                                                )
+                                            )
+                                        }
+                                    }
+                                } else {
+                                    Button(
+                                        onClick = { isYapeSimulatedApproved = true },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        shape = RoundedCornerShape(10.dp),
+                                        colors = ButtonDefaults.buttonColors(
+                                            containerColor = Color(0xFF7E22CE),
+                                            contentColor = Color.White
+                                        )
+                                    ) {
+                                        Icon(
+                                            imageVector = Icons.Default.Check,
+                                            contentDescription = null,
+                                            modifier = Modifier.size(16.dp)
+                                        )
+                                        Spacer(modifier = Modifier.width(6.dp))
+                                        Text(
+                                            text = "🧪 Simular Pago Yape Aprobado",
+                                            style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
 
-        // ─── 5. Promesa de Seguridad y Botón de Confirmación ───
+        // ─── 5. Confirmación Final ───
         item {
             Column(modifier = Modifier.padding(16.dp)) {
                 Surface(
@@ -407,7 +477,7 @@ fun CheckoutScreen(
                         )
                         Spacer(modifier = Modifier.width(10.dp))
                         Text(
-                            text = "El repartidor trae su balanza digital para pesar el balón en tu puerta antes del cobro.",
+                            text = "Garantía Puno: El motorizado pesa el balón con balanza digital en tu puerta antes de entregártelo.",
                             style = MaterialTheme.typography.bodySmall.copy(
                                 color = JadeDark,
                                 fontWeight = FontWeight.Medium
@@ -469,16 +539,3 @@ fun CheckoutScreen(
         }
     }
 }
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun CheckoutScreenPreview() {
-    com.sysgas.app.ui.theme.SysgasTheme {
-        CheckoutScreen(
-            capacity = "10 kg",
-            onOrderPlaced = {},
-            onBack = {}
-        )
-    }
-}
-

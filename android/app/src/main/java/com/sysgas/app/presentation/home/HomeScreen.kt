@@ -1,6 +1,9 @@
 package com.sysgas.app.presentation.home
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -17,49 +20,47 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.DirectionsBike
 import androidx.compose.material.icons.filled.Fireplace
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.LocalShipping
+import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.NearMe
 import androidx.compose.material.icons.filled.QrCodeScanner
-import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.Scale
-import androidx.compose.material.icons.filled.Shield
+import androidx.compose.material.icons.filled.Security
 import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.filled.Store
+import androidx.compose.material.icons.filled.TwoWheeler
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.sysgas.app.data.repository.CatalogRepository
-import com.sysgas.app.domain.model.CylinderProduct
-import com.sysgas.app.ui.theme.GasBluePrimary
+import com.sysgas.app.domain.model.GasDistributor
 import com.sysgas.app.ui.theme.JadeDark
 import com.sysgas.app.ui.theme.JadeDeep
 import com.sysgas.app.ui.theme.JadeMint
@@ -68,244 +69,327 @@ import com.sysgas.app.ui.theme.JadePrimary
 @Composable
 fun HomeScreen(
     onNavigateToCheckout: (String) -> Unit,
-    onNavigateToTracking: () -> Unit
+    onNavigateToTracking: () -> Unit,
+    onNavigateToScanner: () -> Unit
 ) {
-    val repository = remember { CatalogRepository() }
-    var products by remember { mutableStateOf(CylinderProduct.DEFAULT_PRODUCTS) }
     var selectedCapacity by remember { mutableStateOf("10 kg") }
-    var quantity by remember { mutableIntStateOf(1) }
-
-    LaunchedEffect(Unit) {
-        val loaded = repository.getCatalog()
-        if (loaded.isNotEmpty()) {
-            products = loaded
-        }
-    }
-
-    val selectedProduct = products.find { it.capacity == selectedCapacity } ?: products.first()
+    val distributors = remember { GasDistributor.PUNO_DISTRIBUTORS }
 
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFF6FAF7)),
+            .background(Color.White),
         contentPadding = PaddingValues(bottom = 100.dp)
     ) {
-        // ─── 1. Header de Ubicación Rápida ───
+        // ─── 1. Saludo Amigable (Estilo Yape) ───
         item {
-            Surface(
-                color = Color.White,
-                shadowElevation = 1.dp
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 20.dp, vertical = 14.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = null,
-                        tint = JadePrimary,
-                        modifier = Modifier.size(20.dp)
+                Text(
+                    text = "Hola, Mamá Juana 👋",
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontWeight = FontWeight.Black,
+                        color = Color(0xFF0A1B14),
+                        fontSize = 22.sp
                     )
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Entregar en:",
-                            style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
-                        )
-                        Text(
-                            text = "Jr. Arequipa 520, Puno (Centro)",
-                            style = MaterialTheme.typography.bodyMedium.copy(
-                                fontWeight = FontWeight.Bold,
-                                color = Color(0xFF1E293B)
-                            )
-                        )
-                    }
-                    Surface(
-                        color = JadeMint,
-                        shape = RoundedCornerShape(8.dp)
+                )
+                Text(
+                    text = "Puno · Pedido rápido a tu puerta",
+                    style = MaterialTheme.typography.bodySmall.copy(
+                        color = Color(0xFF64748B),
+                        fontWeight = FontWeight.Medium
+                    )
+                )
+            }
+        }
+
+        // ─── 2. Botón Hero Central: "PEDIR GAS EN 1 TOQUE" ───
+        item {
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 6.dp)
+                    .clip(RoundedCornerShape(20.dp))
+                    .background(JadePrimary)
+                    .clickable { onNavigateToCheckout(selectedCapacity) }
+                    .padding(20.dp)
+            ) {
+                Column {
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
                     ) {
+                        Surface(
+                            color = Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.DirectionsBike,
+                                    contentDescription = null,
+                                    tint = Color.White,
+                                    modifier = Modifier.size(14.dp)
+                                )
+                                Spacer(modifier = Modifier.width(6.dp))
+                                Text(
+                                    text = "Motorizado en Puno",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                )
+                            }
+                        }
+
+                        Surface(
+                            color = Color.White.copy(alpha = 0.2f),
+                            shape = RoundedCornerShape(10.dp)
+                        ) {
+                            Text(
+                                text = "15-20 min",
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    color = Color.White,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(14.dp))
+
+                    Text(
+                        text = "PEDIR GAS EN 1 TOQUE",
+                        style = MaterialTheme.typography.titleLarge.copy(
+                            color = Color.White,
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 0.5.sp
+                        )
+                    )
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    Text(
+                        text = "Reparto en moto con balanza digital",
+                        style = MaterialTheme.typography.bodyMedium.copy(
+                            color = Color.White.copy(alpha = 0.9f)
+                        )
+                    )
+                }
+            }
+        }
+
+        // ─── 3. Acciones Rápidas en Círculos (Estilo Yape Monocromático) ───
+        item {
+            Spacer(modifier = Modifier.height(14.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalArrangement = Arrangement.SpaceEvenly
+            ) {
+                YapeActionButton(
+                    icon = Icons.Default.Fireplace,
+                    label = "Pedir Gas",
+                    badgeColor = JadePrimary,
+                    onClick = { onNavigateToCheckout(selectedCapacity) }
+                )
+                YapeActionButton(
+                    icon = Icons.Default.NearMe,
+                    label = "Sucursales",
+                    badgeColor = Color(0xFF0A1B14),
+                    onClick = { }
+                )
+                YapeActionButton(
+                    icon = Icons.Default.History,
+                    label = "Mis Pedidos",
+                    badgeColor = Color(0xFF0A1B14),
+                    onClick = onNavigateToTracking
+                )
+                YapeActionButton(
+                    icon = Icons.Default.QrCodeScanner,
+                    label = "Validar QR",
+                    badgeColor = Color(0xFF0A1B14),
+                    onClick = onNavigateToScanner
+                )
+            }
+        }
+
+        // ─── 4. Selector de Tamaño de Balón (Limpio y grande) ───
+        item {
+            Spacer(modifier = Modifier.height(20.dp))
+            Column(modifier = Modifier.padding(horizontal = 16.dp)) {
+                Text(
+                    text = "¿Qué tamaño de balón necesitas?",
+                    style = MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color(0xFF0F2E22)
+                    )
+                )
+                Spacer(modifier = Modifier.height(10.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                ) {
+                    CylinderChip(
+                        capacity = "10 kg",
+                        title = "Familiar",
+                        price = "S/ 48.00",
+                        isPopular = true,
+                        isSelected = selectedCapacity == "10 kg",
+                        modifier = Modifier.weight(1f),
+                        onClick = { selectedCapacity = "10 kg" }
+                    )
+                    CylinderChip(
+                        capacity = "5 kg",
+                        title = "Chiquito",
+                        price = "S/ 28.50",
+                        isPopular = false,
+                        isSelected = selectedCapacity == "5 kg",
+                        modifier = Modifier.weight(1f),
+                        onClick = { selectedCapacity = "5 kg" }
+                    )
+                    CylinderChip(
+                        capacity = "45 kg",
+                        title = "Industrial",
+                        price = "S/ 185.00",
+                        isPopular = false,
+                        isSelected = selectedCapacity == "45 kg",
+                        modifier = Modifier.weight(1f),
+                        onClick = { selectedCapacity = "45 kg" }
+                    )
+                }
+            }
+        }
+
+        // ─── 5. Sucursales Recomendadas por GPS en Puno ───
+        item {
+            Spacer(modifier = Modifier.height(24.dp))
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Column {
+                    Text(
+                        text = "SUCURSALES CERCANAS (GPS PUNO)",
+                        style = MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Black,
+                            color = Color(0xFF4B6358),
+                            letterSpacing = 0.5.sp
+                        )
+                    )
+                    Text(
+                        text = "Ordenadas por cercanía a tu casa",
+                        style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                    )
+                }
+
+                Surface(
+                    color = Color(0xFFE0F2FE),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.LocationOn,
+                            contentDescription = null,
+                            tint = Color(0xFF0284C7),
+                            modifier = Modifier.size(12.dp)
+                        )
+                        Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "20-30 min",
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                            text = "Puno GPS Activo",
                             style = MaterialTheme.typography.labelSmall.copy(
-                                color = JadeDark,
+                                color = Color(0xFF0284C7),
                                 fontWeight = FontWeight.Bold
                             )
                         )
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(10.dp))
         }
 
-        // ─── 2. Hero Banner ───
-        item {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(
-                        Brush.linearGradient(
-                            colors = listOf(JadeDeep, Color(0xFF0F3E30))
-                        )
-                    )
-                    .padding(20.dp)
-            ) {
-                Column {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Surface(
-                            color = JadePrimary,
-                            shape = RoundedCornerShape(6.dp)
-                        ) {
-                            Text(
-                                text = "ALTIPLANO SEGURO",
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    color = Color.White,
-                                    fontWeight = FontWeight.Bold,
-                                    fontSize = 10.sp
-                                )
-                            )
-                        }
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text(
-                            text = "Puno · Juliaca · Ilave",
-                            style = MaterialTheme.typography.labelSmall.copy(color = Color(0xFFA5D6A7))
-                        )
-                    }
-                    Spacer(modifier = Modifier.height(10.dp))
-                    Text(
-                        text = "Tu balón de gas con balanza digital en puerta",
-                        style = MaterialTheme.typography.titleLarge.copy(
-                            color = Color.White,
-                            fontWeight = FontWeight.Black,
-                            lineHeight = 26.sp
-                        )
-                    )
-                    Spacer(modifier = Modifier.height(6.dp))
-                    Text(
-                        text = "Garantizamos el peso neto exacto. Si falta peso, no pagas.",
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFFE0E0E0)
-                        )
-                    )
-                }
-            }
-        }
-
-        // ─── 3. Título de Sección Catálogo ───
-        item {
-            Column(modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)) {
-                Text(
-                    text = "Elige la capacidad del cilindro",
-                    style = MaterialTheme.typography.titleMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F2E22)
-                    )
-                )
-                Text(
-                    text = "Modelos calibrados con precinto de seguridad Osinergmin",
-                    style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
-                )
-            }
-        }
-
-        // ─── 4. Tarjetas de Cilindro (5kg, 10kg, 45kg) ───
-        items(products) { product ->
-            val isSelected = product.capacity == selectedCapacity
+        // ─── 6. Lista de Distribuidoras y Motorizados de Puno ───
+        items(distributors) { dist ->
+            val price = dist.priceFor(selectedCapacity)
 
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 6.dp)
-                    .clickable { selectedCapacity = product.capacity },
-                shape = RoundedCornerShape(16.dp),
+                    .padding(horizontal = 16.dp, vertical = 6.dp),
+                shape = RoundedCornerShape(18.dp),
+                colors = CardDefaults.cardColors(containerColor = Color.White),
                 border = BorderStroke(
-                    width = if (isSelected) 2.dp else 1.dp,
-                    color = if (isSelected) JadePrimary else Color(0xFFD6E4DC)
+                    width = if (dist.isRecommendedByGps) 2.dp else 1.dp,
+                    color = if (dist.isRecommendedByGps) JadePrimary else Color(0xFFE2E8F0)
                 ),
-                colors = CardDefaults.cardColors(
-                    containerColor = if (isSelected) Color(0xFFF0FDF4) else Color.White
-                ),
-                elevation = CardDefaults.cardElevation(if (isSelected) 4.dp else 1.dp)
+                elevation = CardDefaults.cardElevation(if (dist.isRecommendedByGps) 3.dp else 1.dp)
             ) {
                 Column(modifier = Modifier.padding(16.dp)) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            // Icono del balón con color Gas Blue oficial
-                            Box(
-                                modifier = Modifier
-                                    .size(46.dp)
-                                    .clip(RoundedCornerShape(12.dp))
-                                    .background(if (isSelected) JadePrimary else JadeMint),
-                                contentAlignment = Alignment.Center
+                    if (dist.isRecommendedByGps) {
+                        Surface(
+                            color = Color(0xFFE8F5E9),
+                            shape = RoundedCornerShape(8.dp),
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
                                 Icon(
-                                    imageVector = Icons.Default.Fireplace,
+                                    imageVector = Icons.Default.Star,
                                     contentDescription = null,
-                                    tint = if (isSelected) Color.White else JadeDark,
-                                    modifier = Modifier.size(26.dp)
+                                    tint = Color(0xFF2E7D32),
+                                    modifier = Modifier.size(12.dp)
                                 )
-                            }
-                            Spacer(modifier = Modifier.width(12.dp))
-                            Column {
-                                Row(verticalAlignment = Alignment.CenterVertically) {
-                                    Text(
-                                        text = product.capacity,
-                                        style = MaterialTheme.typography.titleLarge.copy(
-                                            fontWeight = FontWeight.Black,
-                                            color = Color(0xFF0F2E22)
-                                        )
-                                    )
-                                    if (product.popular) {
-                                        Spacer(modifier = Modifier.width(8.dp))
-                                        Surface(
-                                            color = JadePrimary,
-                                            shape = RoundedCornerShape(4.dp)
-                                        ) {
-                                            Row(
-                                                modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
-                                                verticalAlignment = Alignment.CenterVertically
-                                            ) {
-                                                Icon(
-                                                    imageVector = Icons.Default.Star,
-                                                    contentDescription = null,
-                                                    tint = Color.White,
-                                                    modifier = Modifier.size(10.dp)
-                                                )
-                                                Spacer(modifier = Modifier.width(3.dp))
-                                                Text(
-                                                    text = "MÁS PEDIDO",
-                                                    style = MaterialTheme.typography.labelSmall.copy(
-                                                        color = Color.White,
-                                                        fontWeight = FontWeight.Bold,
-                                                        fontSize = 9.sp
-                                                    )
-                                                )
-                                            }
-                                        }
-                                    }
-                                }
+                                Spacer(modifier = Modifier.width(4.dp))
                                 Text(
-                                    text = product.commercialName,
-                                    style = MaterialTheme.typography.bodySmall.copy(
-                                        color = Color.Gray,
-                                        fontWeight = FontWeight.Medium
+                                    text = "★ MÁS CERCANA A TI (${dist.formattedDistance} · ${dist.estimatedTimeMinutes} min)",
+                                    style = MaterialTheme.typography.labelSmall.copy(
+                                        color = Color(0xFF2E7D32),
+                                        fontWeight = FontWeight.Black
                                     )
                                 )
                             }
                         }
+                    }
 
-                        // Precio
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.Top
+                    ) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = dist.name,
+                                style = MaterialTheme.typography.titleMedium.copy(
+                                    fontWeight = FontWeight.Bold,
+                                    color = Color(0xFF0F2E22)
+                                )
+                            )
+                            Text(
+                                text = "${dist.branchName} · ${dist.address}",
+                                style = MaterialTheme.typography.bodySmall.copy(color = Color.Gray)
+                            )
+                        }
+
                         Column(horizontalAlignment = Alignment.End) {
                             Text(
-                                text = product.formattedPrice,
+                                text = "S/ ${String.format("%.2f", price)}",
                                 style = MaterialTheme.typography.titleLarge.copy(
                                     fontWeight = FontWeight.Black,
                                     color = JadePrimary
@@ -320,234 +404,218 @@ fun HomeScreen(
 
                     Spacer(modifier = Modifier.height(10.dp))
 
-                    // Medidas oficiales y especificaciones reales
+                    // Datos de seguridad del Motorizado
                     Surface(
-                        color = Color(0xFFF7FAF8),
-                        shape = RoundedCornerShape(8.dp),
+                        color = Color(0xFFF8FAFC),
+                        shape = RoundedCornerShape(10.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
                         Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(horizontal = 10.dp, vertical = 6.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween
+                            modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp),
+                            verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Text(
-                                text = "📏 ${product.dimensions}",
-                                style = MaterialTheme.typography.labelSmall.copy(
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = Color(0xFF2C3E50)
-                                )
+                            Icon(
+                                imageVector = Icons.Default.DirectionsBike,
+                                contentDescription = null,
+                                tint = JadeDark,
+                                modifier = Modifier.size(16.dp)
                             )
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
-                                text = "Tara: %.1f kg · Gas: %.1f kg".format(product.tareKg, product.netGasKg),
+                                text = "Reparto: ${dist.motorizedDriverName} (${dist.motorizedVehicle})",
                                 style = MaterialTheme.typography.labelSmall.copy(
-                                    color = Color.Gray
+                                    color = Color(0xFF334155),
+                                    fontWeight = FontWeight.Medium
                                 )
                             )
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(8.dp))
+                    Spacer(modifier = Modifier.height(12.dp))
 
-                    Text(
-                        text = product.description,
-                        style = MaterialTheme.typography.bodySmall.copy(
-                            color = Color(0xFF4A5568),
-                            lineHeight = 16.sp
-                        )
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Box(
+                                modifier = Modifier
+                                    .size(8.dp)
+                                    .clip(CircleShape)
+                                    .background(Color(0xFF16A34A))
+                            )
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text(
+                                text = "${dist.stock10kg} balones listos",
+                                style = MaterialTheme.typography.labelSmall.copy(
+                                    color = Color(0xFF16A34A),
+                                    fontWeight = FontWeight.Bold
+                                )
+                            )
+                        }
+
+                        Button(
+                            onClick = { onNavigateToCheckout(selectedCapacity) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (dist.isRecommendedByGps) JadePrimary else Color(0xFF0F3E30)
+                            ),
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp)
+                        ) {
+                            Text(
+                                text = "Elegir y Pedir",
+                                style = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.Bold)
+                            )
+                        }
+                    }
                 }
             }
         }
 
-        // ─── 5. Selector de Cantidad y Resumen ───
+        // ─── 7. Banner de Confianza Balanza Digital ───
         item {
+            Spacer(modifier = Modifier.height(16.dp))
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp),
-                shape = RoundedCornerShape(16.dp),
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                border = BorderStroke(1.dp, Color(0xFFE2E8F0))
+                    .padding(horizontal = 16.dp),
+                shape = RoundedCornerShape(14.dp),
+                colors = CardDefaults.cardColors(containerColor = Color(0xFFEFFDF5))
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
+                Row(
+                    modifier = Modifier.padding(14.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Scale,
+                        contentDescription = null,
+                        tint = JadePrimary,
+                        modifier = Modifier.size(24.dp)
+                    )
+                    Spacer(modifier = Modifier.width(12.dp))
                     Text(
-                        text = "Cantidad de balones:",
-                        style = MaterialTheme.typography.titleSmall.copy(
-                            fontWeight = FontWeight.Bold,
-                            color = Color(0xFF0F2E22)
+                        text = "Garantía SYSGAS: Si la balanza digital en puerta no marca el peso neto exacto, no pagas.",
+                        style = MaterialTheme.typography.bodySmall.copy(
+                            color = Color(0xFF065F46),
+                            fontWeight = FontWeight.Medium
                         )
                     )
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier
-                                .clip(RoundedCornerShape(12.dp))
-                                .background(Color(0xFFF1F5F9))
-                                .padding(4.dp)
-                        ) {
-                            IconButton(
-                                onClick = { if (quantity > 1) quantity-- },
-                                modifier = Modifier.size(36.dp)
-                            ) {
-                                Icon(Icons.Default.Remove, contentDescription = "Menos")
-                            }
-                            Text(
-                                text = "$quantity",
-                                modifier = Modifier.padding(horizontal = 16.dp),
-                                style = MaterialTheme.typography.titleMedium.copy(
-                                    fontWeight = FontWeight.Black
-                                )
-                            )
-                            IconButton(
-                                onClick = { if (quantity < 10) quantity++ },
-                                modifier = Modifier.size(36.dp)
-                            ) {
-                                Icon(Icons.Default.Add, contentDescription = "Más")
-                            }
-                        }
-
-                        Column(horizontalAlignment = Alignment.End) {
-                            Text(
-                                text = "Total estimado:",
-                                style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
-                            )
-                            Text(
-                                text = "S/ %.2f".format(selectedProduct.pricePen * quantity),
-                                style = MaterialTheme.typography.headlineSmall.copy(
-                                    fontWeight = FontWeight.Black,
-                                    color = JadePrimary
-                                )
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = { onNavigateToCheckout(selectedProduct.capacity) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(52.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = JadePrimary)
-                    ) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            Text(
-                                text = "Pedir ${selectedProduct.capacity} (${quantity} ${if (quantity > 1) "balones" else "balón"})",
-                                style = MaterialTheme.typography.bodyLarge.copy(
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White
-                                )
-                            )
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Icon(
-                                imageVector = Icons.Default.ArrowForward,
-                                contentDescription = null,
-                                tint = Color.White
-                            )
-                        }
-                    }
                 }
-            }
-        }
-
-        // ─── 6. Barra de Confianza SYSGAS ───
-        item {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-            ) {
-                Text(
-                    text = "¿Por qué elegir SYSGAS en Puno?",
-                    style = MaterialTheme.typography.titleSmall.copy(
-                        fontWeight = FontWeight.Bold,
-                        color = Color(0xFF0F2E22)
-                    ),
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                TrustItem(
-                    icon = Icons.Default.Scale,
-                    title = "Balanza digital Bluetooth en tu puerta",
-                    subtitle = "El repartidor pesa el balón frente a tus ojos antes de recibir el pago."
-                )
-                TrustItem(
-                    icon = Icons.Default.QrCodeScanner,
-                    title = "Pasaporte QR y trazabilidad",
-                    subtitle = "Escanea el cilindro para ver su fecha de prueba hidrostática y planta de llenado."
-                )
-                TrustItem(
-                    icon = Icons.Default.Shield,
-                    title = "Garantía hermética anti-fugas",
-                    subtitle = "Válvula calibrada para soportar las bajas temperaturas del Altiplano."
-                )
             }
         }
     }
 }
 
 @Composable
-private fun TrustItem(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
-    title: String,
-    subtitle: String
+fun YapeActionButton(
+    icon: ImageVector,
+    label: String,
+    badgeColor: Color,
+    onClick: () -> Unit
 ) {
-    Row(
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
-            .fillMaxWidth()
-            .padding(vertical = 8.dp),
-        verticalAlignment = Alignment.Top
+            .clickable { onClick() }
+            .padding(4.dp)
     ) {
         Box(
             modifier = Modifier
-                .size(36.dp)
+                .size(58.dp)
                 .clip(CircleShape)
-                .background(JadeMint),
+                .background(Color(0xFFF7F9F8)),
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
-                tint = JadeDark,
-                modifier = Modifier.size(20.dp)
+                contentDescription = label,
+                tint = badgeColor,
+                modifier = Modifier.size(24.dp)
             )
         }
-        Spacer(modifier = Modifier.width(12.dp))
-        Column(modifier = Modifier.weight(1f)) {
-            Text(
-                text = title,
-                style = MaterialTheme.typography.bodyMedium.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFF0F2E22)
-                )
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(
+            text = label,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontWeight = FontWeight.SemiBold,
+                color = Color(0xFF1E293B),
+                fontSize = 11.sp
             )
-            Text(
-                text = subtitle,
-                style = MaterialTheme.typography.bodySmall.copy(
-                    color = Color.Gray,
-                    lineHeight = 16.sp
-                )
-            )
-        }
-    }
-}
-
-@androidx.compose.ui.tooling.preview.Preview(showBackground = true, showSystemUi = true)
-@Composable
-fun HomeScreenPreview() {
-    com.sysgas.app.ui.theme.SysgasTheme {
-        HomeScreen(
-            onNavigateToCheckout = {},
-            onNavigateToTracking = {}
         )
     }
 }
 
+@Composable
+fun CylinderChip(
+    capacity: String,
+    title: String,
+    price: String,
+    isPopular: Boolean,
+    isSelected: Boolean,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
+    val borderColor by animateColorAsState(
+        targetValue = if (isSelected) JadePrimary else Color(0xFFE2E8F0),
+        label = "borderColor"
+    )
+
+    Card(
+        modifier = modifier.clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = if (isSelected) Color(0xFFF0FDF4) else Color.White
+        ),
+        border = BorderStroke(if (isSelected) 2.dp else 1.dp, borderColor),
+        elevation = CardDefaults.cardElevation(if (isSelected) 2.dp else 0.dp)
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 12.dp, horizontal = 8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            if (isPopular) {
+                Surface(
+                    color = Color(0xFFDCFCE7),
+                    shape = RoundedCornerShape(6.dp),
+                    modifier = Modifier.padding(bottom = 4.dp)
+                ) {
+                    Text(
+                        text = "★ MÁS PEDIDO",
+                        modifier = Modifier.padding(horizontal = 6.dp, vertical = 2.dp),
+                        style = MaterialTheme.typography.labelSmall.copy(
+                            color = Color(0xFF15803D),
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 8.sp
+                        )
+                    )
+                }
+            }
+
+            Text(
+                text = capacity,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Black,
+                    color = if (isSelected) JadePrimary else Color(0xFF0F2E22)
+                )
+            )
+
+            Text(
+                text = title,
+                style = MaterialTheme.typography.labelSmall.copy(color = Color.Gray)
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = price,
+                style = MaterialTheme.typography.labelMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFF334155)
+                )
+            )
+        }
+    }
+}
